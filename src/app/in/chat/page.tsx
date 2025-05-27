@@ -5,7 +5,7 @@ import React, { useState } from "react";
 
 export default function Chat() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [sendError, setError] = useState<string | null>(null);
   const [fileLoading, setFileLoading] = useState(false);
   const router = useRouter();
 
@@ -19,7 +19,12 @@ export default function Chat() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message: value, attachFile }),
+      body: JSON.stringify({
+        message: value,
+        attachFile,
+        userId: "123",
+        title: "",
+      }),
     })
       .then((response) => {
         if (response.ok) {
@@ -59,6 +64,7 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col gap-10 h-[calc(100vh-5rem)] justify-center items-center">
+      {sendError ? <div className="text-red-500">{sendError}</div> : ""}
       <div className="size-35 bg-gray-500 rounded-full "></div>
       <div className="flex justify-center items-center ">
         <ChatInput

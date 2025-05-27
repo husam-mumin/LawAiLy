@@ -1,7 +1,8 @@
-import ReactProps from "@/Types/ReactProps";
 import React from "react";
 
-type layoutProps = {} & ReactProps;
+type layoutProps = {
+  children: React.ReactNode;
+};
 
 export default function layout({ children }: layoutProps) {
   return (

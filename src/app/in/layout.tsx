@@ -1,7 +1,8 @@
 import MainLayout from "@/components/layout/MainLayout/MainLayout";
-import ReactProps from "@/Types/ReactProps";
 import React from "react";
-type layoutProps = {} & ReactProps;
+type layoutProps = {
+  children: React.ReactNode;
+};
 
 export default function layout({ children }: layoutProps) {
   const isAuthUser = true; // ! replase this after add auther function
