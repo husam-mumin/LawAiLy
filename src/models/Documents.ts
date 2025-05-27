@@ -1,0 +1,32 @@
+/**
+ * # Document 
+ * 1. ID 
+ * 2. DocumentURL 
+ * 3. Title
+ * 4. Description 
+ * 5. showUp 
+ * 6. CreateAt 
+ * 7. UpdateAt 
+ * 8. AddedBy 
+ * 
+ **/
+
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IDocument extends Document {
+  documentURL: string;
+  title: string;
+  description: string;
+  showUp: boolean;
+  addedBy: Schema.Types.ObjectId;
+}
+const documentSchema: Schema = new mongoose.Schema<IDocument>({
+  documentURL: { type: 'string', required: true },
+  title: { type: 'string', required: true },
+  description: { type: 'string', required: true },
+  showUp: { type: 'boolean', default: true },
+  addedBy: { type: Schema.Types.ObjectId, ref: "User", required: true }
+}, { timestamps: true });
+
+const DocumentModel = mongoose.models.Document || mongoose.model<IDocument>('Document', documentSchema);
+export default DocumentModel;

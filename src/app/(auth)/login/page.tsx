@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import LoginForm from "./LoginForm";
-import GoogleLoginButton from "./GoogleLoginButton";
+import GoogleLoginButton from "../_components/GoogleLoginButton";
 
 export default function page() {
   return (

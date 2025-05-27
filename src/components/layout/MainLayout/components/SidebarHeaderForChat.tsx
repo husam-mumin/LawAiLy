@@ -44,10 +44,10 @@ function LogoSection({ isAdmin = false, className }: LogoSectionProps) {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <Link href={"/"} className="w-full">
+            <Link href={"/in"} className="w-full">
               <DropdownMenuItem>Chat</DropdownMenuItem>
             </Link>
-            <Link href={"/dashboard"} className="w-full">
+            <Link href={"/in/dashboard"} className="w-full">
               <DropdownMenuItem>Dashboard</DropdownMenuItem>
             </Link>
           </DropdownMenuContent>

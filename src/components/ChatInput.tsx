@@ -23,6 +23,8 @@ type ChatInputProps = {
   onSend: () => void;
   onAttachFile: (file: File) => void;
   attachFile?: File | null;
+  loading?: boolean;
+  fileLoading?: boolean;
 } & ReactProps;
 
 export default function ChatInput({
@@ -32,6 +34,8 @@ export default function ChatInput({
   onAttachFile,
   attachFile,
   className,
+  loading = false,
+  fileLoading = false,
 }: ChatInputProps) {
   const { pending } = useFormStatus();
   const username = "User"; // Replace with actual username logic
@@ -46,13 +50,7 @@ export default function ChatInput({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={() => {
-          form.handleSubmit(onSend)();
-          form.reset();
-        }}
-        className=""
-      >
+      <form onSubmit={form.handleSubmit(onSend)} className="">
         <div
           className={`flex flex-col items-center border-2 relative dark:bg-input/30 bg-white rounded-lg shadow-md px-[8px]  py-[8px]
     ${className ? className : ""}`}
@@ -78,21 +76,31 @@ export default function ChatInput({
                   variant="outline"
                   className="rounded-full"
                 >
-                  <Label className="cursor-pointer">
-                    <Input
-                      type="file"
-                      accept="image/*,video/*,audio/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        console.log("work attach file", e.currentTarget.files);
+                  {fileLoading ? (
+                    <Clock size={20} className="animate-spin" />
+                  ) : (
+                    <Label className="cursor-pointer">
+                      <Input
+                        type="file"
+                        accept="image/*,video/*,audio/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          console.log(
+                            "work attach file",
+                            e.currentTarget.files
+                          );
 
-                        if (e.currentTarget.files && e.currentTarget.files[0]) {
-                          onAttachFile(e.currentTarget.files[0]);
-                        }
-                      }}
-                    />
-                    Attach File
-                  </Label>
+                          if (
+                            e.currentTarget.files &&
+                            e.currentTarget.files[0]
+                          ) {
+                            onAttachFile(e.currentTarget.files[0]);
+                          }
+                        }}
+                      />
+                      Attach File
+                    </Label>
+                  )}
                 </Button>
                 {attachFile && (
                   <span className="text-sm text-gray-500 ms-2">
@@ -111,7 +119,13 @@ export default function ChatInput({
                   form.reset();
                 }}
               >
-                {pending ? <Clock size={20} /> : <ArrowUp size={20} />}
+                {loading ? (
+                  <Clock size={20} className="animate-spin" />
+                ) : pending ? (
+                  <Clock size={20} />
+                ) : (
+                  <ArrowUp size={20} />
+                )}
               </Button>
             </div>
           </div>

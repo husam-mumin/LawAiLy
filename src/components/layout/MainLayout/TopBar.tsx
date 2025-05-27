@@ -14,8 +14,10 @@ export default function TopBar({ isSidebarOpen = false }: TopBarProps) {
   const { isActive, searchQuery, setSearchQuery } = searchContext || {};
 
   return (
-    <div className="w-full h-13  flex items-center  container mx-auto px-10 sticky top-0  z-50  dark:bg-gray-800 dark:border-gray-700">
-      {isSidebarOpen || <SidebarTrigger />}
+    <div className="w-full h-13  flex items-center bg-white shadow-md  container mx-auto px-10 sticky top-0  z-50  dark:bg-gray-800 dark:border-gray-700">
+      <div className={`block md:hidden ${isSidebarOpen ? "md:block" : ""}`}>
+        {<SidebarTrigger />}
+      </div>
       {isActive && (
         <div className="flex items-center  max-w-md ">
           <Input

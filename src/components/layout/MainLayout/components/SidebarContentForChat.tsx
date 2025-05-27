@@ -13,7 +13,7 @@ import React from "react";
 export default function SidebarContentForChat() {
   return (
     <>
-      <Link href="/chat" className="cursor-pointer">
+      <Link href="/in/chat" className="cursor-pointer">
         <SidebarMenuButton className="cursor-pointer bg-blue-500 mx-auto w-full py-6 flex justify-center items-center text-white hover:text-white hover:bg-blue-600 focus:bg-blue-600">
           New Chat <MessageCirclePlus className="" />
         </SidebarMenuButton>
@@ -25,9 +25,11 @@ export default function SidebarContentForChat() {
         {/* Here you can map through chat history items */}
         <ScrollArea className="h-[8rem] overflow-y-auto">
           <SidebarMenu>
-            <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
-              Chat 1
-            </SidebarMenuItem>
+            <Link href="/in/chat/1" className="cursor-pointer">
+              <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
+                Chat 1
+              </SidebarMenuItem>
+            </Link>
             <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100">
               Chat 2
             </SidebarMenuItem>

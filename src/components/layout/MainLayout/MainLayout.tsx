@@ -30,7 +30,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
   useEffect(() => {
     // Check if the pathname is the root path
-    if (pathname === "/") {
+    if (pathname === "/in") {
       setIsSearchActive(true);
     } else {
       setIsSearchActive(false);

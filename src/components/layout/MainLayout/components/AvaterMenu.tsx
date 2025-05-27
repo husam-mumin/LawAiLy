@@ -5,9 +5,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import React from "react";
+import { useRouter } from "next/navigation";
 
 export default function AvaterMenu() {
+  const router = useRouter();
+  const handleLogout = async () => {
+    // Handle logout logic here
+    console.log("User logged out");
+    fetch("/api/auth/logout", {
+      method: "POST",
+    })
+      .then((data) => {
+        if (data.status == 200) {
+          router.replace("/login");
+        }
+      })
+      .catch((error) => {
+        throw new Error("something go wrong", error);
+      });
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer">
@@ -25,7 +41,7 @@ export default function AvaterMenu() {
       <DropdownMenuContent>
         <DropdownMenuItem>Profile</DropdownMenuItem>
         <DropdownMenuItem>anything</DropdownMenuItem>
-        <DropdownMenuItem>logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

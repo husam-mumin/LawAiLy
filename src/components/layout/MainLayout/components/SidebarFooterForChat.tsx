@@ -12,6 +12,7 @@ import {
 import { Settings } from "lucide-react";
 import React from "react";
 import ReportButton from "./ReportButton";
+import { ThemeToggleButton } from "./ThemeToggleButton";
 
 export default function SidebarFooterForChat() {
   return (
@@ -35,7 +36,12 @@ export default function SidebarFooterForChat() {
             <span>Language</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <span>Theme</span>
+            {
+              // ! fix the theme button issue
+              // when theme the theme all the button and links with there action stop working.
+              // still don't know why this happen.
+            }
+            <ThemeToggleButton />
           </DropdownMenuItem>
           <DropdownMenuItem>
             <span>Notifications</span>
