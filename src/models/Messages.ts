@@ -10,6 +10,8 @@
  */
 
 import mongoose, { Document,  Schema } from "mongoose"
+import { fileType } from "./Files"
+import { responseType } from "./Responses"
 
 export  interface IMessage extends Document {
   message: string,
@@ -17,7 +19,15 @@ export  interface IMessage extends Document {
   chat: Schema.Types.ObjectId,
   responses: Schema.Types.ObjectId[]
   files: Schema.Types.ObjectId[]
+}
 
+export type messageType = {
+
+  message: string,
+  users: string,
+  chat: string,
+  responses: responseType[]
+  files: fileType[]
 }
 
 const messagesSchema: Schema = new mongoose.Schema<IMessage>({

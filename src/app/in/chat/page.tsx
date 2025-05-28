@@ -1,5 +1,6 @@
 "use client";
 import ChatInput from "@/components/ChatInput";
+import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -8,13 +9,17 @@ export default function Chat() {
   const [sendError, setError] = useState<string | null>(null);
   const [fileLoading, setFileLoading] = useState(false);
   const router = useRouter();
+  const user = useUser();
 
   const handleSend = () => {
-    console.log("Message sent:", value);
     setLoading(true);
     setError(null);
 
-    fetch("/api/chat/send", {
+    if (!user) {
+      return;
+    }
+
+    fetch("/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,19 +27,17 @@ export default function Chat() {
       body: JSON.stringify({
         message: value,
         attachFile,
-        userId: "123",
-        title: "",
+        userId: user._id,
+        title: value,
       }),
     })
       .then((response) => {
         if (response.ok) {
           response.json().then((data) => {
-            console.log("Response data:", data);
             // Handle successful response data
-            router.push(`/chat/${data.chatId}`); // Redirect to the chat page
+            router.push(`/in/chat/${data.chatId}`); // Redirect to the chat page
             setValue(""); // Clear the input field
           });
-          console.log("Message sent successfully");
         } else {
           console.error("Failed to send message");
         }
@@ -53,11 +56,9 @@ export default function Chat() {
     setTimeout(() => {
       setFileLoading(false);
     }, 2000); // Simulate a 2-second file upload
-    console.log("File attached:", file);
   };
   const handleChange = (value: string) => {
     setValue(value);
-    console.log("Input changed:", value);
   };
   const [value, setValue] = useState("");
   const [attachFile, setAttachFile] = useState<File | null>(null);

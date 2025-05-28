@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import axios, { AxiosError } from "axios";
 import {
   Form,
   FormControl,
@@ -16,11 +17,28 @@ import { z } from "zod";
 import LoginAlert from "../_components/authAlert";
 import { AtomIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { loginRequestType } from "@/app/api/auth/login/route";
 
-const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
-});
+const formSchema = z
+  .object({
+    email: z
+      .string()
+      .min(1, { message: "email required" })
+      .email("Invalid email "),
+    password: z.string().min(6, "Password must be at least 6 characters long"),
+  })
+  .superRefine(async ({ email }, ctx) => {
+    if (!email) return;
+    const response = await axios.post("/api/auth/checkEmail", { email });
+    const { exists } = response.data;
+    if (!exists) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Email not found. Please check and try again.",
+        path: ["email"],
+      });
+    }
+  });
 
 type ErrorType = {
   title: string;
@@ -41,56 +59,59 @@ export default function LoginForm() {
       password: "",
     },
   });
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log("Form submitted:", data);
-    setLoading(true);
-    // Handle login logic here
-    const user = {
-      email: data.email,
-      password: data.password,
-    };
-    console.log("User data:", user);
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    try {
+      setLoading(true);
+      // Handle login logic here
+      const user = {
+        email: data.email,
+        password: data.password,
+      };
 
-    fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Login successful:", data);
-        if (data.error) {
-          throw new Error(data.error);
-          setError({
-            title: "Login Failed",
-            description: data.error || "An error occurred while logging in.",
-          });
-        }
-        // Handle successful login (e.g., redirect, show message)
-        setError(null); // Clear any previous errors
-        console.log("we get to user auth");
+      const response = await axios.post("/api/auth/login", {
+        user,
+      });
 
-        router.push("/in"); // Redirect to dashboard or home page
-        console.log("Redirecting to in...");
-        // Optionally, you can store user data in local storage or context
-        localStorage.setItem("user", JSON.stringify(data.user));
-      })
-      .catch((error) => {
-        console.error("Login error:", error);
-        // Handle login error (e.g., show error message)
+      const resdata: loginRequestType = response.data;
+
+      if (resdata.error) {
         setError({
           title: "Login Failed",
-          description: error.message || "An error occurred while logging in.",
+          description: resdata.error || "An error occurred while logging in.",
         });
-        setTimeout(() => {
-          setError(null);
-        }, 5000); // Clear error after 5 seconds
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+        throw new Error(resdata.error);
+      }
+      // Handle successful login (e.g., redirect, show message)
+      setError(null); // Clear any previous errors
+
+      router.push("/in"); // Redirect to dashboard or home page
+      // Optionally, you can store user data in local storage or context
+    } catch (err: unknown) {
+      // todo complete this catch
+      console.error("Login error:", error);
+      // Handle login error (e.g., show error message)
+      if (err instanceof AxiosError) {
+        if (err.status === 401) {
+          form.setError("password", {
+            type: "validate",
+            message: "wrong password, Please check and try again.",
+          });
+        }
+        console.log(err.response);
+        if (err.response?.data?.statusCode === 401) {
+          setError({
+            title: "Login Failed",
+            description:
+              error?.description || "An error occurred while logging in.",
+          });
+        }
+      }
+      setTimeout(() => {
+        setError(null);
+      }, 5000); // Clear error after 5 seconds
+    }
+
+    setLoading(false);
   };
   return (
     <Form {...form}>
@@ -112,7 +133,7 @@ export default function LoginForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" placeholder="Email" required />
+                <Input {...field} placeholder="Email" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -125,12 +146,7 @@ export default function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="password"
-                  placeholder="Password"
-                  required
-                />
+                <Input {...field} type="password" placeholder="Password" />
               </FormControl>
               <FormMessage />
             </FormItem>

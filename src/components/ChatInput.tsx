@@ -85,11 +85,6 @@ export default function ChatInput({
                         accept="image/*,video/*,audio/*"
                         className="hidden"
                         onChange={(e) => {
-                          console.log(
-                            "work attach file",
-                            e.currentTarget.files
-                          );
-
                           if (
                             e.currentTarget.files &&
                             e.currentTarget.files[0]

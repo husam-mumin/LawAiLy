@@ -29,8 +29,7 @@ export async function sendMail({email, sendTo, subject, text, html}: SendMailPro
   try {
     await transporter.verify();
 
-  } catch (error) {
-    console.log('Something Went Wraong', SMTP_USER, SMTP_PASS, error);
+  } catch  {
     return;
   }
   const info = await transporter.sendMail({
@@ -40,7 +39,5 @@ export async function sendMail({email, sendTo, subject, text, html}: SendMailPro
     text: text,
     html: html ? html : '',
   });
-  console.log('Message Sent', info.messageId);
-  console.log('Mail sent to', SITE_MAIL_RECIEVER );
   return info;
 }

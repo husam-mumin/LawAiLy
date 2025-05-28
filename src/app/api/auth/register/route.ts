@@ -1,14 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import User, { IUser } from '@/models/Users';
+import User from '@/models/Users';
 import  dbConnect  from '@/lib/db';
 import bcrypt from 'bcryptjs';
+
+/**
+ * register useCase 
+ * This API route handle user registration.
+ * 1. It connects to the database.
+ * 2. It checks if the required fields (email, password, gender) are provided if don't get anyone of the required fields return a 400 a bad request response .
+ * 3. It checks if a user with the provided email already exists, return 409 Conflict Response.
+ * 4. It hashes the password using bcrypt.
+ * 5. It creates a new user with the provided details and saves it to the database.
+ * 6. If successful, it returns a 201 Created response with a success message.
+ * 7. If any error occurs, it returns a 500 Internal Server Error response with the error message.
+ * 
+ */
 
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const body = await req.json();
     const { email, password, gender } = body;
-    console.log(body);
     
 
     if (!email || !password || !gender) {
@@ -16,12 +28,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne<IUser>({ email });
-    if (existingUser) {
-      return NextResponse.json({ error: 'User already exists with this email.' }, { status: 409 });
-    }
 
-    const cryptPassword = bcrypt.hashSync(password.trim(), 10);
+    const cryptPassword = await bcrypt.hashSync(password.trim(), 10);
 
     // Create new user
     const user = new User({

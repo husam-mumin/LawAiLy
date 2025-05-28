@@ -8,15 +8,31 @@
  */
 
 import mongoose, { Document, Schema} from "mongoose";
+import { messageType } from "./Messages";
 
 export interface IChat extends Document {
   title: string,
+  messages: messageType[],
   isFavorite: boolean,
   users: Schema.Types.ObjectId[],
 }
 
+export type chatType = {
+  title: string,
+  messages: messageType[],
+  isFavorite: boolean,
+  users: string
+}
+
 const chatSchema: Schema = new mongoose.Schema<IChat>({
   title: { type: 'string', required: true },
+  messages: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Message',
+      default: []
+    }
+  ],
   isFavorite: { type: 'boolean', default: false },
   users: [{ type: Schema.Types.ObjectId, ref: "User", required: true }]
 }, { timestamps: true });

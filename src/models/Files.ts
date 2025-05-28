@@ -19,6 +19,15 @@ export interface IFile extends Document {
   message: Schema.Types.ObjectId
 }
 
+export type fileType = {
+  fileURL: string,
+  filename: string,
+  filesize: string,
+  fileformat: string,
+  filetext: string,
+  message: string
+}
+
 const fileSchema: Schema = new mongoose.Schema<IFile>({
   fileURL: { type: 'string', required: true},
   filename: { type: 'string', required: true},

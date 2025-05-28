@@ -18,6 +18,13 @@ export interface IResponse extends Document {
   isGood: boolean | null,
 }
 
+export type responseType = {
+  response: string, 
+  message: string,
+  chat: string,
+  isGood: boolean | null,
+}
+
 const responseSchema: Schema = new  mongoose.Schema<IResponse>({
   response: {type: 'string', required: true},
   message: {type: 'ObjectID', ref: "Message", required: true},

@@ -12,6 +12,7 @@
  **/
 
 import mongoose, { Schema, Document } from 'mongoose';
+import { userType } from './Users';
 
 export interface IDocument extends Document {
   documentURL: string;
@@ -19,6 +20,14 @@ export interface IDocument extends Document {
   description: string;
   showUp: boolean;
   addedBy: Schema.Types.ObjectId;
+}
+
+export type documentType = {
+  documentURL: string,
+  title: string,
+  description: string,
+  showUp: boolean,
+  addedBy: userType
 }
 const documentSchema: Schema = new mongoose.Schema<IDocument>({
   documentURL: { type: 'string', required: true },

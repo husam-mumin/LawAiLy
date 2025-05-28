@@ -6,11 +6,24 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { IChat } from "@/models/Chat";
 import { MessageCirclePlus } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function SidebarContentForChat() {
+  const [chats, setChats] = useState<IChat[] | null>(null);
+  useEffect(() => {
+    fetch("/api/chat")
+      .then((data) => {
+        if (data.ok) {
+          return data.json();
+        }
+      })
+      .then((chats) => {
+        setChats(chats.chats);
+      });
+  }, []);
   return (
     <>
       <Link href="/in/chat" className="cursor-pointer">
@@ -25,23 +38,21 @@ export default function SidebarContentForChat() {
         {/* Here you can map through chat history items */}
         <ScrollArea className="h-[8rem] overflow-y-auto">
           <SidebarMenu>
-            <Link href="/in/chat/1" className="cursor-pointer">
-              <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
-                Chat 1
-              </SidebarMenuItem>
-            </Link>
-            <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100">
-              Chat 2
-            </SidebarMenuItem>
-            <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100">
-              Chat 3
-            </SidebarMenuItem>
-            <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100">
-              Chat 4
-            </SidebarMenuItem>
-            <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100">
-              Chat 5
-            </SidebarMenuItem>
+            {chats
+              ? chats.map((chat) => {
+                  return (
+                    <Link
+                      key={chat._id && chat.id}
+                      href={`/in/chat/${chat._id}`}
+                      className="cursor-pointer"
+                    >
+                      <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
+                        {chat.title}
+                      </SidebarMenuItem>
+                    </Link>
+                  );
+                })
+              : "there no chats"}
           </SidebarMenu>
         </ScrollArea>
       </SidebarGroup>
@@ -51,15 +62,22 @@ export default function SidebarContentForChat() {
         </SidebarGroupLabel>
         <ScrollArea className="h-[6rem] overflow-y-auto">
           <SidebarMenu>
-            <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
-              Favorite Chat 1
-            </SidebarMenuItem>
-            <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100">
-              Favorite Chat 2
-            </SidebarMenuItem>
-            <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100">
-              Favorite Chat 3
-            </SidebarMenuItem>
+            {chats
+              ? chats.map((chat) => {
+                  if (!chat.isFavorite) return;
+                  return (
+                    <Link
+                      key={chat._id as string}
+                      href={`/in/chat/${chat._id}`}
+                      className="cursor-pointer"
+                    >
+                      <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
+                        {chat.title}
+                      </SidebarMenuItem>
+                    </Link>
+                  );
+                })
+              : "there no chats"}
           </SidebarMenu>
         </ScrollArea>
       </SidebarGroup>

@@ -15,7 +15,7 @@ export default function TopBar({ isSidebarOpen = false }: TopBarProps) {
 
   return (
     <div className="w-full h-13  flex items-center bg-white shadow-md  container mx-auto px-10 sticky top-0  z-50  dark:bg-gray-800 dark:border-gray-700">
-      <div className={`block md:hidden ${isSidebarOpen ? "md:block" : ""}`}>
+      <div className={`block ${isSidebarOpen ? "md:hidden" : "md:block"}`}>
         {<SidebarTrigger />}
       </div>
       {isActive && (

@@ -11,7 +11,6 @@ export default function AvaterMenu() {
   const router = useRouter();
   const handleLogout = async () => {
     // Handle logout logic here
-    console.log("User logged out");
     fetch("/api/auth/logout", {
       method: "POST",
     })

@@ -26,6 +26,18 @@ export interface IUser extends Document {
   isBaned?: boolean
 }
 
+export type userType = {
+  email: string,
+  password: string, 
+  gender: string,
+  firstName?: string,
+  lastName?: string,
+  isAdmin?: boolean,
+  AvatarURL?: string,
+  DocumentID?: string,
+  isBaned?: boolean
+}
+
 const UserSchema: Schema = new mongoose.Schema<IUser>({
   email: {type: 'string', required: true, unique: true},
   password: {type: 'string', required: true},

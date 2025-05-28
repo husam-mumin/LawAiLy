@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 import {
   Form,
   FormControl,
@@ -22,21 +23,39 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Authalert from "../_components/authAlert";
 import { User2Icon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
-    email: z.string().email("Invalid email address"),
+    email: z
+      .string()
+      .min(1, { message: "Email is required" })
+      .email("invaild email"),
     password: z.string().min(6, "Password must be at least 6 characters long"),
     confirmPassword: z
       .string()
       .min(6, "Confirm password must be at least 6 characters long"),
     gender: z.enum(["male", "female"]),
   })
-  .superRefine(({ password, confirmPassword }, ctx) => {
+  .superRefine(async ({ password, confirmPassword, email }, ctx) => {
+    // check for password are match
     if (password !== confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Passwords do not match",
+        path: ["confirmPassword"],
+      });
+    }
+    // Check if this email exits or not
+
+    if (!email) return;
+    const response = await axios.post("/api/auth/checkEmail", { email });
+    const { exists } = response.data;
+    if (exists) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "there are account with this email",
+        path: ["email"],
       });
     }
   });
@@ -49,22 +68,23 @@ type ErrorType = {
 export default function RegisterForm() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<ErrorType | null>(null);
+  const router = useRouter();
   useEffect(() => {
     document.title = "Register - MyApp";
   }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
       confirmPassword: "",
+      gender: "male",
     },
   });
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log("work");
 
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
     if (!form.formState.isValid) {
-      console.log("Form is invalid", form.formState.isValid);
       return;
     }
 
@@ -73,8 +93,8 @@ export default function RegisterForm() {
       password: data.password,
       gender: data.gender,
     };
-    console.log("Form submitted:", User);
     setLoading(true);
+
     fetch("/api/auth/register", {
       method: "POST",
       headers: {
@@ -84,7 +104,7 @@ export default function RegisterForm() {
     })
       .then((response) => {
         if (response.ok) {
-          console.log("Registration successful");
+          router.push("/login");
         } else {
           response.json().then((error) => {
             setError({
@@ -129,7 +149,7 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" placeholder="Email" required />
+                <Input {...field} placeholder="Email" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -142,12 +162,7 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="password"
-                  placeholder="Password"
-                  required
-                />
+                <Input {...field} type="password" placeholder="Password" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -164,7 +179,6 @@ export default function RegisterForm() {
                   {...field}
                   type="password"
                   placeholder="Confirm Password"
-                  required
                 />
               </FormControl>
               <FormMessage />
@@ -175,15 +189,20 @@ export default function RegisterForm() {
           control={form.control}
           name="gender"
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={"Gender"} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-              </SelectContent>
-            </Select>
+            <FormItem>
+              <FormLabel>Gender</FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={"Gender"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+            </FormItem>
           )}
         />
         <Button
