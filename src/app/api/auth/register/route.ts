@@ -16,10 +16,20 @@ import bcrypt from 'bcryptjs';
  * 
  */
 
+type body ={
+ email: string,
+ password: string,
+ firstName: string,
+ lastName: string,
+ AvatarURL: string,
+ isAdmin: boolean,
+ gender: string
+}
+
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
-    const body = await req.json();
+    const body: body = await req.json();
     const { email, password, gender } = body;
     
 
@@ -33,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     // Create new user
     const user = new User({
-      email,
+      email: email.toLowerCase(),
       password: cryptPassword, // Store the hashed password
       firstName: body.firstName || '',
       lastName: body.lastName || '',

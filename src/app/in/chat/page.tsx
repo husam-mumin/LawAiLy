@@ -1,82 +1,73 @@
 "use client";
 import ChatInput from "@/components/ChatInput";
-import { useUser } from "@/hooks/useUser";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { Info } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useAddMessage } from "./[chatid]/_hooks/useAddMessage";
+
+const suggestion: string[] = [
+  "first you need to change something",
+  "second slug",
+  "third now you can do slug slug slug slug",
+];
 
 export default function Chat() {
-  const [loading, setLoading] = useState(false);
-  const [sendError, setError] = useState<string | null>(null);
-  const [fileLoading, setFileLoading] = useState(false);
-  const router = useRouter();
-  const user = useUser();
+  const {
+    chatInputFiles,
+    chatInputValue,
+    chatfileUploadLoading,
+    chatsendLoading,
+    handleChatInputChange,
+    handleFileInputChange,
+    handleSentButton,
+    error,
+  } = useAddMessage();
+  const [currentSuggestion, setCurrentSuggesion] = useState("");
 
-  const handleSend = () => {
-    setLoading(true);
-    setError(null);
+  useEffect(() => {
+    setCurrentSuggesion(suggestion[0]);
+    let index = 1;
+    const sugguestToggle = setInterval(() => {
+      setCurrentSuggesion(suggestion[index]);
+      index = index + 1 < suggestion.length ? index + 1 : 0;
+    }, 4000);
 
-    if (!user) {
-      return;
-    }
-
-    fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: value,
-        attachFile,
-        userId: user._id,
-        title: value,
-      }),
-    })
-      .then((response) => {
-        if (response.ok) {
-          response.json().then((data) => {
-            // Handle successful response data
-            router.push(`/in/chat/${data.chatId}`); // Redirect to the chat page
-            setValue(""); // Clear the input field
-          });
-        } else {
-          console.error("Failed to send message");
-        }
-      })
-      .catch((error) => {
-        console.error("Error sending message:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-  const handleAttachFile = (file: File) => {
-    setAttachFile(file);
-    setFileLoading(true);
-    // Simulate file upload
-    setTimeout(() => {
-      setFileLoading(false);
-    }, 2000); // Simulate a 2-second file upload
-  };
-  const handleChange = (value: string) => {
-    setValue(value);
-  };
-  const [value, setValue] = useState("");
-  const [attachFile, setAttachFile] = useState<File | null>(null);
+    return () => {
+      clearInterval(sugguestToggle);
+    };
+  }, [suggestion]);
 
   return (
-    <div className="flex flex-col gap-10 h-[calc(100vh-5rem)] justify-center items-center">
-      {sendError ? <div className="text-red-500">{sendError}</div> : ""}
-      <div className="size-35 bg-gray-500 rounded-full "></div>
-      <div className="flex justify-center items-center ">
-        <ChatInput
-          value={value}
-          attachFile={attachFile}
-          onChange={handleChange}
-          onSend={handleSend}
-          onAttachFile={handleAttachFile}
-          loading={loading}
-          fileLoading={fileLoading}
-        />
+    <div className="container  mx-auto  overflow-hidden">
+      <div className="flex flex-col gap-10 h-[calc(100dvh-5rem)] justify-center items-center relative ">
+        {error ? <div className="text-red-500">{error}</div> : ""}
+        <div className="absolute top-5 right-1/2 translate-x-1/2 w-80 md:w-max min-w-fit ">
+          <div
+            className={`max-w-max w-full px-7 animate-pulse py-2 border-2 border-destructive rounded-full text-destructive flex gap-4 items-center
+          `}
+          >
+            <Info className="stroke-destructive size-10 md:size-5 " /> The model
+            is under testing don&apos;t trust the answers
+          </div>
+        </div>
+        <div className="size-35 bg-gray-500 rounded-full"></div>
+        <div className="flex justify-center items-center ">
+          <ChatInput
+            value={chatInputValue}
+            attachFile={chatInputFiles}
+            onChange={handleChatInputChange}
+            onSend={handleSentButton}
+            onAttachFile={handleFileInputChange}
+            loading={chatsendLoading}
+            fileLoading={chatfileUploadLoading}
+          />
+        </div>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 max-w-80">
+          {currentSuggestion && (
+            <div className="w-max border-2 px-5 py-2 bg-secondary text-secondary-foreground rounded-2xl">
+              {currentSuggestion}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

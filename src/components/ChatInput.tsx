@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import ReactProps from "@/Types/ReactProps";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { useMobileKeybard } from "@/hooks/useKeyboardFix";
 
 export const formSchema = z.object({
   message: z.string().min(1, { message: "Message is required" }),
@@ -39,6 +40,7 @@ export default function ChatInput({
 }: ChatInputProps) {
   const { pending } = useFormStatus();
   const username = "User"; // Replace with actual username logic
+  const { handleMobileKeybard } = useMobileKeybard();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,6 +65,7 @@ export default function ChatInput({
                 <Textarea
                   {...field}
                   value={value}
+                  onFocus={handleMobileKeybard}
                   className="resize-none dark:text-base w-[20rem] md:w-[33rem] max-h-[15rem]  ring-0 dark:ring-0 border-none bg-transparent dark:bg-transparent "
                   onChange={(e) => onChange(e.target.value)}
                   placeholder="type here"

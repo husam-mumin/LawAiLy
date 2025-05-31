@@ -17,6 +17,7 @@ import Message from '@/models/Messages';
 
 // GET /api/chat
 // Returns all chats with their title, isFavorite, users, and timestamps
+
 export async function GET() {
   try {
     await dbConnect();
@@ -26,7 +27,7 @@ export async function GET() {
     if(chats.length == 0) return NextResponse.json({ chats: null, error: "No Chats Founds"}, { status: 404})
 
     
-    return NextResponse.json({ chats }, { status: 200 });
+    return NextResponse.json( chats , { status: 200 });
 
   } catch (error) {
 

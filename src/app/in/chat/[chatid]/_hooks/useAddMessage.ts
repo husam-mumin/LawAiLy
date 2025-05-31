@@ -1,10 +1,13 @@
 import { useState } from "react";
-import pdfjs from 'pdfjs-dist'
+import { useUser } from "@/hooks/useUser";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+
 
 /**
  * loading 
  * message
- * 
+ * error
  */
 export function useAddMessage(){
   const [chatInputValue, setChatInputValue] = useState<string>("");
@@ -12,21 +15,42 @@ export function useAddMessage(){
   const [chatsendLoading, setChatSendLoading] = useState<boolean>(false);
   const [chatfileUploadLoading, setChatFileUploadLoading] =
     useState<boolean>(false);
+  const [error , setError] = useState<string | null>(null)
+  const user = useUser();
+  const router = useRouter()
 
   const handleChatInputChange = (value: string)=>{
     
-    // remove all space for start and the end and check if empty or not
-    value = value.trim()
-    if(!value) return
-
-    // we Can add some modification in the value
     
     setChatInputValue(value)
   }
 
-  const handleSentButton = ()=> {
+  const handleSentButton = async ()=> {
+    if(!chatInputValue.trim()) return;
+    setError(null)
     setChatSendLoading(true)
 
+
+    if (!user) {
+      setError("unauth User")
+      return;
+    }
+    const data = {
+      
+        message: chatInputValue,
+        attachFile: chatInputFiles,
+        userId: user._id,
+        title: 'unTitle',
+    }
+
+    const response = await axios.post('/api/chat', data)
+
+    if( response.status == 201 ) {
+      setChatSendLoading(false)
+      router.push(`/in/chat/${response.data.chatId}`)
+    } 
+
+    // todo handle the errors
   }
   const handleFileInputChange = async (file: File)=> {
     /**
@@ -59,6 +83,7 @@ export function useAddMessage(){
     chatInputValue,
     handleFileInputChange, 
     handleChatInputChange,
+    error,
     handleSentButton
     }
 
@@ -98,26 +123,25 @@ async function isSupport(file: File) {
     // check for pdf pages count
     // ! untest it must try it 
 
-      const pdfPageCount = async ()=>{
-        const reader = new FileReader();
-        let b64 = ''
-         reader.onloadend = function () {
-          if(!reader != null  || !reader.result ) return
-    // Since it contains the Data URI, we should remove the prefix and keep only Base64 string
-            b64 = reader.result.toString().replace(/^data:.+;base64,/, '')
-         }
-         reader.readAsDataURL(file)
-        const pdf = await pdfjs.getDocument({data: b64}).promise
-        const pageCount = pdf.numPages
-        return pageCount
-      }
+    //   const pdfPageCount = async ()=>{
+    //     const reader = new FileReader();
+    //     let b64 = ''
+    //      reader.onloadend = function () {
+    //       if(!reader != null  || !reader.result ) return
+    // // Since it contains the Data URI, we should remove the prefix and keep only Base64 string
+    //         b64 = reader.result.toString().replace(/^data:.+;base64,/, '')
+    //      }
+    //      reader.readAsDataURL(file)
+    //     const pageCount = pdf.numPages
+    //     return pageCount
+    //   }
 
     
-    if(file.type == 'application/pdf' ){
-      const pageCount = await pdfPageCount();
-      if(pageCount > 3){
-        throw new Error("pdf must be less then 3 pages")
-      }
-    }
+    // if(file.type == 'application/pdf' ){
+    //   const pageCount = await pdfPageCount();
+    //   if(pageCount > 3){
+    //     throw new Error("pdf must be less then 3 pages")
+    //   }
+    // }
 
 }

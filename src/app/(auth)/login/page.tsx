@@ -5,7 +5,7 @@ import GoogleLoginButton from "../_components/GoogleLoginButton";
 
 export default function page() {
   return (
-    <div className="h-screen  w-screen flex justify-center items-center overflow-hidden ">
+    <div className="h-dvh w-screen flex justify-center items-center overflow-hidden ">
       <div className="flex w-fit  items-center justify-center md:bg-gray-100 px-8 py-10 rounded-lg  md:shadow-lg">
         <div className="flex h-fit flex-col items-center justify-center ">
           {/* <div className="flex  items-center justify-center mb-10">

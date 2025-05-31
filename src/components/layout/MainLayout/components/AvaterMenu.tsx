@@ -5,6 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AvaterMenu() {
@@ -38,8 +39,9 @@ export default function AvaterMenu() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem>Profile</DropdownMenuItem>
-        <DropdownMenuItem>anything</DropdownMenuItem>
+        <Link href={"/in/me"}>
+          <DropdownMenuItem>Profile</DropdownMenuItem>
+        </Link>
         <DropdownMenuItem onClick={handleLogout}>logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

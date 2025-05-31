@@ -6,53 +6,78 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { IChat } from "@/models/Chat";
-import { MessageCirclePlus } from "lucide-react";
+import { chatType } from "@/models/Chat";
+import { HeartOff, MessageCirclePlus, MessageCircleX } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 
-export default function SidebarContentForChat() {
-  const [chats, setChats] = useState<IChat[] | null>(null);
+/**
+ *
+ * todo edit the News Desion
+ * make the News in top bar or some where with icon that help to
+ * show it
+ */
+
+export default function SidebarContentForChat({
+  chats,
+}: {
+  chats: chatType[];
+}) {
+  const [chatFavorites, setChatFavorites] = useState<chatType[] | null>(null);
+
   useEffect(() => {
-    fetch("/api/chat")
-      .then((data) => {
-        if (data.ok) {
-          return data.json();
-        }
-      })
-      .then((chats) => {
-        setChats(chats.chats);
-      });
-  }, []);
+    if (!chats) return;
+    const chatF: chatType[] = [];
+    for (let index = 0; index < chats.length; index++) {
+      if (chats[index].isFavorite) {
+        chatF.push(chats[index]);
+      }
+    }
+
+    setChatFavorites(chatF.length > 0 ? chatF : null);
+  }, [chats]);
+
   return (
     <>
-      <Link href="/in/chat" className="cursor-pointer">
-        <SidebarMenuButton className="cursor-pointer bg-blue-500 mx-auto w-full py-6 flex justify-center items-center text-white hover:text-white hover:bg-blue-600 focus:bg-blue-600">
+      <Link href="/in/chat" className="cursor-pointer w-full px-4">
+        <SidebarMenuButton className="cursor-pointer bg-blue-500 box-border  w-[calc(100%-20px)]   mx-auto py-6 flex justify-center items-center text-white hover:text-white hover:bg-blue-600 focus:bg-blue-600">
           New Chat <MessageCirclePlus className="" />
         </SidebarMenuButton>
       </Link>
       <SidebarGroup>
         <SidebarGroupLabel className="text-sm font-semibold text-gray-700">
-          Chat
+          Chat History
         </SidebarGroupLabel>
         {/* Here you can map through chat history items */}
-        <ScrollArea className="h-[8rem] overflow-y-auto">
-          <SidebarMenu>
-            {chats
-              ? chats.map((chat) => {
+        <ScrollArea className="h-[8rem] overflow-y-auto border-2 border-black/3 rounded-2xl relative">
+          <SidebarMenu className="">
+            <Suspense
+              fallback={
+                <div className="absolute top-1/2 left-1/2 -translate-1/2">
+                  <div className="stroke-primary/40 size-8 border-2 border-l-0 animate-spin" />
+                </div>
+              }
+            >
+              {chats ? (
+                chats.map((chat) => {
                   return (
                     <Link
-                      key={chat._id && chat.id}
+                      key={chat._id && chat._id}
                       href={`/in/chat/${chat._id}`}
                       className="cursor-pointer"
                     >
-                      <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
+                      <SidebarMenuItem className="p-2 text-gray-600 border-black/3  hover:bg-gray-100 cursor-pointer">
                         {chat.title}
                       </SidebarMenuItem>
                     </Link>
                   );
                 })
-              : "there no chats"}
+              ) : (
+                <div className="absolute top-1/2 left-1/2 -translate-1/2">
+                  <MessageCircleX className="stroke-primary/40 size-8" />
+                </div>
+              )}
+            </Suspense>
           </SidebarMenu>
         </ScrollArea>
       </SidebarGroup>
@@ -60,10 +85,11 @@ export default function SidebarContentForChat() {
         <SidebarGroupLabel className="text-sm font-semibold text-gray-700">
           Favorites
         </SidebarGroupLabel>
-        <ScrollArea className="h-[6rem] overflow-y-auto">
+        <ScrollArea className="h-[6rem] overflow-y-auto h-[8rem] overflow-y-auto border-2 rounded-2xl relative">
           <SidebarMenu>
-            {chats
-              ? chats.map((chat) => {
+            <Suspense fallback={"loading..."}>
+              {chatFavorites ? (
+                chatFavorites.map((chat) => {
                   if (!chat.isFavorite) return;
                   return (
                     <Link
@@ -77,7 +103,14 @@ export default function SidebarContentForChat() {
                     </Link>
                   );
                 })
-              : "there no chats"}
+              ) : (
+                <>
+                  <div className="absolute top-1/2 left-1/2 -translate-1/2">
+                    <HeartOff className="stroke-primary/40 size-8" />
+                  </div>
+                </>
+              )}
+            </Suspense>
           </SidebarMenu>
         </ScrollArea>
       </SidebarGroup>

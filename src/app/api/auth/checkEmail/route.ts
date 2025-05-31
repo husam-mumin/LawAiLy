@@ -8,13 +8,13 @@ export type checkEmailType = {
 } 
 export async function POST(req: Request) {
   await dbConnect()
-  const body = await req.json()
+  const body: { email: string} = await req.json()
   const { email } = body;
   if (!email){
     return NextResponse.json({ error: "Email is required" }, { status: 400});
   }
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: email.toLowerCase() });
 
   if (existingUser) {
     return NextResponse.json({ exists: true })

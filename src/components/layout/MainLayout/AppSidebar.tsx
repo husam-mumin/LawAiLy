@@ -9,6 +9,7 @@ import SidebarHeaderForChat from "./components/SidebarHeaderForChat";
 import SidebarContentForChat from "./components/SidebarContentForChat";
 import SidebarFooterForChat from "./components/SidebarFooterForChat";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { chatType } from "@/models/Chat";
 /*
  * AppSidebar.tsx
  * This component represents the sidebar of the application.
@@ -23,7 +24,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
  * and a button to open the settings.
  */
 
-export default function AppSidebar() {
+export default function AppSidebar({ chats }: { chats: chatType[] }) {
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
@@ -32,7 +33,7 @@ export default function AppSidebar() {
 
       <SidebarContent>
         <ScrollArea className="h-[calc(100vh-4rem)] overflow-y-hidden">
-          <SidebarContentForChat />
+          <SidebarContentForChat chats={chats} />
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter>

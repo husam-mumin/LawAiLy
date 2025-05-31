@@ -8,6 +8,8 @@ export function useUser() {
   useEffect(() => {
     
     async function fetchUser() {
+      console.log('useUser work');
+      
       const res = await fetch('/api/auth/currentUser');
       if (res.ok) {
         const data = await res.json();

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import ReactProps from "@/Types/ReactProps";
 import React from "react";
+import { signinaction } from "./action/GoogleSignin";
 type GoogleIconProps = {} & ReactProps;
 
 const GoogleIcon = ({ className }: GoogleIconProps) => {
@@ -36,14 +37,14 @@ const GoogleIcon = ({ className }: GoogleIconProps) => {
 
 export default function GoogleLoginButton() {
   return (
-    <>
+    <form action={signinaction}>
       <Button
         className="flex h-12  items-center gap-2 px-4 py-4 rounded bg-secondary text-secondary-foreground border border-gray-300 shadow hover:bg-gray-100 transition"
-        type="button"
+        type="submit"
       >
         <GoogleIcon className="h-full" />
         Sign in with Google
       </Button>
-    </>
+    </form>
   );
 }

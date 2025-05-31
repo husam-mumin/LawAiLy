@@ -35,15 +35,14 @@ export type loginRequestType = {
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
-    const body = await req.json();
+    const body: { user: { email: string, password: string }} = await req.json();
     const { email, password } = body.user;
-    console.log(body);
     
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required.' }, { status: 400 });
     }
 
-    const user = await User.findOne<IUser>({ email });
+    const user = await User.findOne<IUser>({ email: email.toLowerCase() });
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
     }

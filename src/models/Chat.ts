@@ -18,6 +18,7 @@ export interface IChat extends Document {
 }
 
 export type chatType = {
+  _id: string,
   title: string,
   messages: messageType[],
   isFavorite: boolean,

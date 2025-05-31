@@ -7,6 +7,8 @@ import ReactProps from "@/Types/ReactProps";
 import { createContext } from "react";
 import { usePathname } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
+import { chatType } from "@/models/Chat";
+import axios, { AxiosError } from "axios";
 type MainLayoutProps = {} & ReactProps;
 
 export interface SearchBarContext {
@@ -26,8 +28,30 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isSearchActive, setIsSearchActive] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [chats, setChats] = React.useState<chatType[]>([]);
+
+  useEffect(() => {
+    const getChat = async () => {
+      try {
+        const response = await axios("/api/chat");
+        const data: chatType[] = response.data;
+        setChats(data);
+      } catch (err: unknown) {
+        if (err instanceof AxiosError) {
+          if (err.status === 404) {
+            return;
+          }
+          // todo complete this Catch
+          console.error(err.message);
+        }
+      }
+    };
+
+    getChat();
+  }, []);
 
   const pathname = usePathname();
+
   useEffect(() => {
     // Check if the pathname is the root path
     if (pathname === "/in") {
@@ -41,7 +65,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="relative">
       <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-        <AppSidebar />
+        <AppSidebar chats={chats} />
         <SidebarInset className="w-full ">
           <div className="w-full ">
             <SearchContext.Provider

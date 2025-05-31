@@ -3,6 +3,18 @@ import { useParams } from "next/navigation";
 
 import React from "react";
 import { useChatMangement } from "./_hooks/useChatMangement";
+/**
+ * we must have the Chat message with there responses
+ * the order by message Create Time 
+ * we can accept more then one responses for the message 
+ * we a delay between the message and get the responses 
+ * when open the page we must call the getMessageAPI just one time 
+ * when sent new message we create message in database and return the value to give setChat 
+ * and check if the message sent successfully or not if not he can resent again 
+ * after sent we call the response action that run the loading and wait for response for the server 
+ * response action stop the sent action ( and he can stop the enter proses )  still under the study
+ * @returns s
+ */
 
 export default function Chat() {
   const params: { chatid: string } = useParams();
