@@ -5,17 +5,11 @@ type layoutProps = {
 };
 
 export default function layout({ children }: layoutProps) {
-  const isAuthUser = true; // ! replase this after add auther function
-
   return (
     <div>
-      {isAuthUser ? (
-        <MainLayout>
-          <div className="container mx-auto">{children}</div>
-        </MainLayout>
-      ) : (
-        children
-      )}
+      <MainLayout>
+        <div className="container mx-auto">{children}</div>
+      </MainLayout>
     </div>
   );
 }

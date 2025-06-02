@@ -5,6 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import axios, { AxiosError } from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -12,17 +13,17 @@ export default function AvaterMenu() {
   const router = useRouter();
   const handleLogout = async () => {
     // Handle logout logic here
-    fetch("/api/auth/logout", {
-      method: "POST",
-    })
-      .then((data) => {
-        if (data.status == 200) {
-          router.replace("/login");
-        }
-      })
-      .catch((error) => {
-        throw new Error("something go wrong", error);
-      });
+    try {
+      const response = await axios.post("/api/auth/logout");
+      if (response.status === 200) {
+        router.replace("/login");
+      }
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        throw new Error("something go wrong: " + error.message);
+      }
+      throw new Error("something go wrong " + error);
+    }
   };
   return (
     <DropdownMenu>

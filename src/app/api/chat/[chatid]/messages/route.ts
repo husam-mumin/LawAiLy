@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import Message, { messageType } from "@/models/Messages";
 import dbConnect from "@/lib/db";
-import Chat, { chatType } from "@/models/Chat";
+import Response from "@/models/Responses";
 
 // GET /api/chat/[chatid]
 // Returns: {
@@ -65,8 +66,10 @@ export async function GET(
      const { chatid } = context.params;
      // Find chat by ID
 
-     const chat = await Chat.findById<chatType>( chatid) 
-
+     const chat = await Message.find<messageType>({ chat: chatid}).populate({
+      path: "response",
+      model: Response
+     });
   
      if (!chat) {
        return NextResponse.json({ error: "Chat not found." }, { status: 404 });
@@ -80,4 +83,39 @@ export async function GET(
     if (error instanceof Error) message = error.message;
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+
+export async function POST(req: NextRequest,
+  context:  { params:{ chatid : string}}
+
+){
+
+   try {
+     await dbConnect();
+
+     const { chatid } = await context.params;
+     const body = await req.json()
+     const { mes, userid } =  body;
+
+     if( !chatid && !mes){
+      return NextResponse.json({ error: 'chatid, message are required.' }, { status: 400 });
+     }
+
+     const messag = new Message({
+      message: mes,
+      chat: chatid,
+      user: userid,
+     })
+
+
+     await messag.save();
+     
+     return NextResponse.json( messag , { status: 201})
+
+} catch (error) {
+    let message = "Internal server error.";
+    if (error instanceof Error) message = error.message;
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+
 }

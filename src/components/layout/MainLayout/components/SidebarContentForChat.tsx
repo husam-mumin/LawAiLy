@@ -58,7 +58,7 @@ export default function SidebarContentForChat({
                 </div>
               }
             >
-              {chats ? (
+              {chats.length != 0 ? (
                 chats.map((chat) => {
                   return (
                     <Link

@@ -18,6 +18,13 @@ const publicRoutes = [
   '/'
 ]
 
+/**
+ * todo check if the user ban and redirect to ban page
+ * 
+ * @param req 
+ * @returns 
+ */
+
 export default async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname
   

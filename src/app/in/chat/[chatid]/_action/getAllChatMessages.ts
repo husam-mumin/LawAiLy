@@ -1,16 +1,15 @@
-import { messageResponse } from "@/app/api/chat/[chatid]/route";
+// import { messageResponse } from "@/app/api/chat/[chatid]/route";
+
+import { messageType } from "@/models/Messages";
+import axios from "axios";
 
 export async function getAllChatMessages(chatid : string){
   
-      const response = await fetch(`/api/chat/${chatid}`);
+  const response = await axios.get<{chat: messageType[]}>(`/api/chat/${chatid}/messages`)
 
-      if (!response.ok) {
-        throw new Error("can't fetch the chat data");
-      }
-      const messages: messageResponse[] = await response.json();
-      if(!messages || messages.length == 0){
-        throw new Error("there are no messages")
-      }
-
-      return messages;
-    };
+  
+  const data = response.data
+  console.log("getmessages",data);
+  
+  return data;
+};

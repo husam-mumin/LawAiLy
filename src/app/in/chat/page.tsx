@@ -4,13 +4,7 @@ import { Info } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useAddMessage } from "./[chatid]/_hooks/useAddMessage";
 
-const suggestion: string[] = [
-  "first you need to change something",
-  "second slug",
-  "third now you can do slug slug slug slug",
-];
-
-export default function Chat() {
+export default function Page() {
   const {
     chatInputFiles,
     chatInputValue,
@@ -22,6 +16,11 @@ export default function Chat() {
     error,
   } = useAddMessage();
   const [currentSuggestion, setCurrentSuggesion] = useState("");
+  const suggestion: string[] = [
+    "first you need to change something",
+    "second slug",
+    "third now you can do slug slug slug slug",
+  ];
 
   useEffect(() => {
     setCurrentSuggesion(suggestion[0]);

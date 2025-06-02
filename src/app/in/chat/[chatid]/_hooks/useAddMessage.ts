@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useUser } from "@/hooks/useUser";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 
 
@@ -26,6 +26,8 @@ export function useAddMessage(){
   }
 
   const handleSentButton = async ()=> {
+    try {
+
     if(!chatInputValue.trim()) return;
     setError(null)
     setChatSendLoading(true)
@@ -50,6 +52,15 @@ export function useAddMessage(){
       router.push(`/in/chat/${response.data.chatId}`)
     } 
 
+    } catch (err : unknown) {
+      setChatSendLoading(false)
+      if (err instanceof AxiosError) {
+        console.error(err.message);
+        
+      }
+      console.error(err);
+      
+    }
     // todo handle the errors
   }
   const handleFileInputChange = async (file: File)=> {

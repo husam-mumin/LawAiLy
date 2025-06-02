@@ -63,19 +63,21 @@ export async function POST(req: NextRequest) {
     // Create new chat
     const chat = new Chat({
       title,
-      users: [userId],
+      user: [userId],
       isFavorite: false,
     });
-    await chat.save();
-
+    
+    
+    await chat.save()
     // Create new message
     const newMessage = new Message({
       message,
-      users: userId,
+      user: userId,
       chat: chat._id,
       responses: [],
       files: [],
     });
+
     await newMessage.save();
 
 

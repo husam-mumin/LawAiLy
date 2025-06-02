@@ -15,32 +15,32 @@ import { responseType } from "./Responses"
 
 export  interface IMessage extends Document {
   message: string,
-  users: Schema.Types.ObjectId,
+  user: Schema.Types.ObjectId,
   chat: Schema.Types.ObjectId,
-  responses: Schema.Types.ObjectId[]
+  response: Schema.Types.ObjectId
   files: Schema.Types.ObjectId[]
 }
 
 export type messageType = {
-
+  _id: string,
   message: string,
-  users: string,
+  user: string,
   chat: string,
-  responses: responseType[]
+  response: responseType
   files: fileType[]
 }
 
 const messagesSchema: Schema = new mongoose.Schema<IMessage>({
   message: { type: 'string', required: true},
-  users: { type: Schema.Types.ObjectId, ref: "User" , required: true},
+  user: { type: Schema.Types.ObjectId, ref: "User" , required: true},
   chat: { type: Schema.Types.ObjectId, ref: "Chat", required: true},
-  responses: [
+  response: 
     {
       type: Schema.Types.ObjectId,
       ref: "Response",
-      default: []
+      default: null
     }
-  ],
+  ,
 
   files: [
     {

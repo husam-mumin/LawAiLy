@@ -1,4 +1,3 @@
-import {  signOut } from '@/auth';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -11,9 +10,10 @@ import { NextResponse } from 'next/server';
 
 export async function POST() {
   // Remove the auth cookie (adjust the cookie name as needed)
-  await signOut();
 
   try {
+    console.log("we work hard here");
+    
   const cookiesStore = await cookies();
   cookiesStore.delete('session'); // Delete the session cookie
   return NextResponse.json({ message: "User logout successfully"}, {status: 200})

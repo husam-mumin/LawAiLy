@@ -2,18 +2,25 @@ import Link from "next/link";
 import React from "react";
 import LoginForm from "./LoginForm";
 import GoogleLoginButton from "../_components/GoogleLoginButton";
+import Image from "next/image";
 
 export default function page() {
   return (
     <div className="h-dvh w-screen flex justify-center items-center overflow-hidden ">
-      <div className="flex w-fit  items-center justify-center md:bg-gray-100 px-8 py-10 rounded-lg  md:shadow-lg">
+      <div className="flex w-fit  items-center justify-center md:bg-white px-8 py-10 rounded-lg  md:shadow-lg">
         <div className="flex h-fit flex-col items-center justify-center ">
           {/* <div className="flex  items-center justify-center mb-10">
           <div className="text-2xl font-bold">Login Page</div>
         </div> */}
           <div className="flex items-center justify-center">
-            <div className="text-lg bg-gray-400 size-30 rounded-full mb-2 flex items-center justify-center">
-              Logo
+            <div className="text-lg w-57   rounded-full  flex items-center justify-center">
+              <Image
+                src="/MainLogo.png"
+                className="w-fit h-fit"
+                width={150}
+                height={100}
+                alt="logo"
+              />
             </div>
           </div>
           <div className="flex items-center justify-center ">

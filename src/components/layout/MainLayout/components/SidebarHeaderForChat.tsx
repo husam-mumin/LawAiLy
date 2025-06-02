@@ -11,6 +11,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import ReactProps from "@/Types/ReactProps";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function SidebarHeaderForChat() {
@@ -38,8 +39,12 @@ function LogoSection({ isAdmin = false, className }: LogoSectionProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton asChild>
               <div className="w-full h-12 flex items-center ">
-                <div className="size-10 bg-gray-500 rounded-full" />
-                Logo
+                <Image
+                  src={"/MainLogo.png"}
+                  width={97}
+                  height={40}
+                  alt="logo"
+                />
               </div>
             </SidebarMenuButton>
           </DropdownMenuTrigger>

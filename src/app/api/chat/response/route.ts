@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Response from '@/models/Responses';
 import dbConnect from '@/lib/db';
+import Message, { IMessage} from '@/models/Messages';
 
 const responseGenreter = (): Promise<string> => {
   return new Promise((resolve) => {
@@ -15,7 +16,11 @@ export async function POST(req: NextRequest) {
     
     await dbConnect();
     const body = await req.json();
+    
     const {  message, messageid, chat } = body;
+    if( !message && !messageid && !chat){ 
+      return NextResponse.json({message: "The message, messageid and chatid are required"}, { status: 404})
+    }
     // Simulate AI response delay (2 seconds)
     const aiResponse = await responseGenreter()
     // Save response to DB
@@ -26,11 +31,14 @@ export async function POST(req: NextRequest) {
       isGood: null
     });
     await responseDoc.save();
-    return NextResponse.json({
-      message,
-      aiResponse,
-      saved: true,
-      response: responseDoc
+    
+    const newss = await Message.findById<IMessage>(messageid)
+    if(!newss) return NextResponse.json({message: "something go wrong"}, { status: 404})
+      newss.response = responseDoc._id
+    await newss.save()
+    
+      return NextResponse.json({
+      responseDoc
     }, { status: 201 });
   } catch (error) {
     let message = 'Internal server error.';
