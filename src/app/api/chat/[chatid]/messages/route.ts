@@ -58,12 +58,12 @@ export type messageResponse = {
 }
 
 export async function GET(
-   req: NextRequest, context:  { params:{ chatid : string}}
+   req: NextRequest, context:  { params:Promise<{ chatid : string}>}
 ) {
    try {
      await dbConnect();
 
-     const { chatid } = context.params;
+     const { chatid } = await context.params;
      // Find chat by ID
 
      const chat = await Message.find<messageType>({ chat: chatid}).populate({
@@ -86,7 +86,7 @@ export async function GET(
 }
 
 export async function POST(req: NextRequest,
-  context:  { params:{ chatid : string}}
+  context:  { params:Promise<{ chatid : string}>}
 
 ){
 

@@ -57,12 +57,12 @@ export type messageResponse = {
 }
 
 export async function GET(
-   req: NextRequest, context:  { params:{ chatid : string}}
+   req: NextRequest, context:  { params: Promise<{ chatid : string}>}
 ) {
    try {
      await dbConnect();
 
-     const { chatid } = context.params;
+     const { chatid } = await context.params;
      // Find chat by ID
 
      const chat = await Chat.findById<chatType>( chatid) 
