@@ -1,7 +1,7 @@
 import {  NextRequest, NextResponse } from 'next/server';
-import Chat from '@/models/Chat';
+import Chat, { chatType } from '@/models/Chat';
 import dbConnect from '@/lib/db';
-import Message from '@/models/Messages';
+import Message, { messageType } from '@/models/Messages';
 
 /**
  * Get Chat List 
@@ -18,10 +18,13 @@ import Message from '@/models/Messages';
 // GET /api/chat
 // Returns all chats with their title, isFavorite, users, and timestamps
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     await dbConnect();
-    const chats = await Chat.find();
+    const userid = req.headers.get('userid');
+    
+    const chats = await Chat.find({user: userid}).sort('-updatedAt -createdAt');
+    
 
     // check if there any Chat 
     if(chats.length == 0) return NextResponse.json({ chats: null, error: "No Chats Founds"}, { status: 404})
@@ -31,6 +34,7 @@ export async function GET() {
 
   } catch (error) {
 
+    
     let message = 'Internal server error.';
     if (error instanceof Error) message = error.message;
     return NextResponse.json({ error: message }, { status: 500 });
@@ -48,6 +52,12 @@ export async function GET() {
  * 5. If any error occurs, it return 500 Internal Server Error response with the error message.
  * 
  */
+
+export type PostNewChat = {
+  chatId: string,
+  chat: chatType,
+  newMessage: messageType
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -68,6 +78,7 @@ export async function POST(req: NextRequest) {
     });
     
     
+
     await chat.save()
     // Create new message
     const newMessage = new Message({

@@ -18,17 +18,17 @@ export default function ReportButton() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <SidebarMenuButton className="w-full">
-          <div className="w-full  flex items-center justify-between gap-2">
-            <span className="text-sm">Report</span>
+          <div className="w-full  flex  items-center justify-between gap-2">
             <Flag size={15} />
+            <span className="text-sm">ابلاغ</span>
           </div>
         </SidebarMenuButton>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Report for issue</DialogTitle>
+        <DialogHeader className="text-right sm:text-right">
+          <DialogTitle>ابلاغ عن مشكلة</DialogTitle>
           <DialogDescription>
-            you will sent an email for the developer to fix the issue
+            انت سوف ترسل ايمال للمطورين لصلاح المشكلة
           </DialogDescription>
         </DialogHeader>
         <ReportForm setOpen={setOpen} />

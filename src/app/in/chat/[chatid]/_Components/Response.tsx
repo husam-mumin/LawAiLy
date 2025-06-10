@@ -7,8 +7,6 @@ export default function Response({
   value: string;
   loading: boolean;
 }) {
-  console.log("loading", loading);
-
   return (
     <div>
       <div className="relative">

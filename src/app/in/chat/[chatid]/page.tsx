@@ -5,14 +5,20 @@ import ChatHeader from "./_Components/ChatHeader";
 
 import ChatInput from "@/components/ChatInput";
 import { useAddMessage } from "./_hooks/useAddMessage";
-import { useUser } from "@/hooks/useUser";
-import { useChatMangement } from "./_hooks/useChatMangement";
 import Message from "./_Components/Message";
 import Response from "./_Components/Response";
 import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { chatType } from "@/models/Chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { useUser } from "@/hooks/useUser";
+import { useChatManagement } from "./_hooks/useChatManagement";
 /**
  *
  * we must have the Chat message with there responses
@@ -28,7 +34,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
  *
  * when first open
  * # check if is the first open
- * sent loading for sent senting the message
+ * sent loading for sent setting the message
  * sent the message
  *
  * # chat action
@@ -56,7 +62,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 /**
  * the Sent message process
  * To build a smooth chat interface in Next.js that:
- * 1. Shows the user's message immediatel.
+ * 1. Shows the user's message immediately.
  * 2. Shows a "loading" state on that message.
  * 3. Updates the message after it's saved.
  * 4. Shows a response with a loading indicator.
@@ -72,15 +78,15 @@ export default function ChatPage() {
   const {
     chatInputFiles,
     chatInputValue,
-    chatfileUploadLoading,
+    chatFileUploadLoading,
     error,
     handleChatInputChange,
     handleFileInputChange,
   } = useAddMessage();
 
-  const { addNewMessage, chat } = useChatMangement(chatid);
+  const { addNewMessage, chat } = useChatManagement(chatid);
   const [sentLoading, setSentLoading] = useState<boolean>(false);
-  const [chatDeital, setChatDeital] = useState<chatType | null>(null);
+  const [chatDetail, setChatDetail] = useState<chatType | null>(null);
 
   const handleSentButton = async () => {
     if (!user) return;
@@ -88,19 +94,21 @@ export default function ChatPage() {
     try {
       addNewMessage(chatInputValue, user._id as string);
     } catch (err) {
-      console.log(err);
+      // todo handle the error
+      console.error(err);
     }
     setSentLoading(false);
-    console.log("the f chat", chat);
   };
 
   useEffect(() => {
     const getChat = async () => {
       try {
-        const response = await axios.get<chatType>(`/api/chat/${chatid}`);
+        const response = await axios.get<{ chat: chatType }>(
+          `/api/chat/${chatid}`
+        );
         const data = response.data;
 
-        setChatDeital(data);
+        setChatDetail(data.chat);
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
           console.error(error.message);
@@ -108,19 +116,24 @@ export default function ChatPage() {
       }
     };
     getChat();
-  }, []);
+  }, [chatid]);
+
+  if (!user) {
+    return <div>not auth user</div>;
+  }
 
   return (
     <div>
       <div className="w-screen md:w-180 mx-auto bg-gray-500/5 min-h-[calc(100vh-120px)] md:min-h-[calc(100vh-60px)] relative">
         <>
-          {chatDeital ? (
+          {chatDetail ? (
             <ChatHeader
-              title={chatDeital.title}
-              isFavorite={chatDeital.isFavorite}
+              title={chatDetail.title}
+              isFavorite={chatDetail.isFavorite}
+              user={user}
             />
           ) : (
-            <ChatHeader title="loading..." isFavorite={false} />
+            <ChatHeader user={user} title="loading..." isFavorite={false} />
           )}
           {error ? error : ""}
           <ScrollArea className="h-[calc(100vh-133px)] md:h-[calc(100vh-140px)] ">
@@ -131,15 +144,48 @@ export default function ChatPage() {
                     if (!chat) return;
                     return (
                       <div key={chat._id} className="mb-10">
-                        <div className="ms-auto mb-7">
+                        <div className="ms-auto mb-2">
                           <Message value={chat.text} loading={chat.isLoading} />
                         </div>
-                        <div className="ms-auto  text-right">
+                        <div className="ms-auto px-6  text-right">
                           {chat.response ? (
-                            <Response
-                              value={chat.response.response}
-                              loading={chat.response?.isLoading}
-                            />
+                            <ContextMenu>
+                              <ContextMenuTrigger className="bg-amber-300">
+                                <Response
+                                  value={chat.response.response}
+                                  loading={chat.response?.isLoading}
+                                />
+                              </ContextMenuTrigger>
+                              <ContextMenuContent>
+                                <ContextMenuItem
+                                  onClick={() => {
+                                    // todo add to the database are get share it
+                                    if (chat.response?.response)
+                                      navigator.clipboard.writeText(
+                                        chat.response?.response
+                                      );
+                                  }}
+                                >
+                                  copy
+                                </ContextMenuItem>
+                                <ContextMenuItem asChild>
+                                  {/**
+                                   * // todo add more share platform
+                                   * // todo add the share to the database
+                                   */}
+                                  <a
+                                    href={`https://wa.me/?text=${encodeURIComponent(
+                                      chat.response?.response || ""
+                                    )}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    share
+                                  </a>
+                                </ContextMenuItem>
+                                <ContextMenuItem>more</ContextMenuItem>
+                              </ContextMenuContent>
+                            </ContextMenu>
                           ) : (
                             <Response
                               value="ops something go wrong"
@@ -163,7 +209,7 @@ export default function ChatPage() {
                 onAttachFile={handleFileInputChange}
                 attachFile={chatInputFiles}
                 loading={sentLoading}
-                fileLoading={chatfileUploadLoading}
+                fileLoading={chatFileUploadLoading}
               />
             </div>
           </ScrollArea>

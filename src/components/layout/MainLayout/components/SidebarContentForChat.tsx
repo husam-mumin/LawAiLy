@@ -41,15 +41,16 @@ export default function SidebarContentForChat({
     <>
       <Link href="/in/chat" className="cursor-pointer w-full px-4">
         <SidebarMenuButton className="cursor-pointer bg-blue-500 box-border  w-[calc(100%-20px)]   mx-auto py-6 flex justify-center items-center text-white hover:text-white hover:bg-blue-600 focus:bg-blue-600">
-          New Chat <MessageCirclePlus className="" />
+          <MessageCirclePlus className="" />
+          محادثة جديد
         </SidebarMenuButton>
       </Link>
       <SidebarGroup>
-        <SidebarGroupLabel className="text-sm font-semibold text-gray-700">
-          Chat History
+        <SidebarGroupLabel className="text-sm ms-auto font-semibold text-gray-700">
+          سجل المحدثات
         </SidebarGroupLabel>
         {/* Here you can map through chat history items */}
-        <ScrollArea className="h-[8rem] overflow-y-auto border-2 border-black/3 rounded-2xl relative">
+        <ScrollArea className="h-[8rem] text-right overflow-y-auto border-2 border-black/3 rounded-2xl relative">
           <SidebarMenu className="">
             <Suspense
               fallback={
@@ -82,10 +83,10 @@ export default function SidebarContentForChat({
         </ScrollArea>
       </SidebarGroup>
       <SidebarGroup>
-        <SidebarGroupLabel className="text-sm font-semibold text-gray-700">
-          Favorites
+        <SidebarGroupLabel className="text-sm ms-auto font-semibold text-gray-700">
+          الفضلة
         </SidebarGroupLabel>
-        <ScrollArea className="h-[6rem] overflow-y-auto h-[8rem] overflow-y-auto border-2 rounded-2xl relative">
+        <ScrollArea className="h-[6rem] text-right overflow-y-auto h-[8rem] overflow-y-auto border-2 rounded-2xl relative">
           <SidebarMenu>
             <Suspense fallback={"loading..."}>
               {chatFavorites ? (

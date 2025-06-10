@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 const formSchema = z.object({
   email: z
     .string()
+    .trim()
     .min(1, { message: "Email is required" })
     .email("invaild email"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
@@ -76,7 +77,7 @@ export default function RegisterForm() {
     // Check if email exists before submitting
     try {
       const checkRes = await axios.post("/api/auth/checkEmail", {
-        email: data.email,
+        email: data.email.trim(),
       });
       if (checkRes.data.exists) {
         form.setError("email", {
@@ -96,7 +97,7 @@ export default function RegisterForm() {
     }
 
     const User = {
-      email: data.email,
+      email: data.email.trim(),
       password: data.password,
       gender: data.gender,
     };

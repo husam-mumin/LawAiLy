@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useUser } from "@/hooks/useUser";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import { layoutContext } from "@/components/layout/MainLayout/MainLayout";
+import { PostNewChat } from "@/app/api/chat/route";
 
 
 /**
@@ -12,12 +14,13 @@ import { useRouter } from "next/navigation";
 export function useAddMessage(){
   const [chatInputValue, setChatInputValue] = useState<string>("");
   const [chatInputFiles, setChatInputFiles] = useState<File | null>(null);
-  const [chatsendLoading, setChatSendLoading] = useState<boolean>(false);
-  const [chatfileUploadLoading, setChatFileUploadLoading] =
+  const [chatSendLoading, setChatSendLoading] = useState<boolean>(false);
+  const [chatFileUploadLoading, setChatFileUploadLoading] =
     useState<boolean>(false);
   const [error , setError] = useState<string | null>(null)
   const user = useUser();
   const router = useRouter()
+  const layoutCon = useContext(layoutContext)
 
   const handleChatInputChange = (value: string)=>{
     
@@ -42,13 +45,15 @@ export function useAddMessage(){
         message: chatInputValue,
         attachFile: chatInputFiles,
         userId: user._id,
-        title: 'unTitle',
+        title: chatInputValue,
     }
 
-    const response = await axios.post('/api/chat', data)
-
+    const response = await axios.post<PostNewChat>('/api/chat', data)
     if( response.status == 201 ) {
       setChatSendLoading(false)
+      layoutCon?.setChats((prev)=> {
+        return [response.data.chat, ...prev]
+      })
       router.push(`/in/chat/${response.data.chatId}`)
     } 
 
@@ -88,8 +93,8 @@ export function useAddMessage(){
   
 
   return {
-    chatfileUploadLoading, 
-    chatsendLoading,
+    chatFileUploadLoading, 
+     chatSendLoading,
     chatInputFiles, 
     chatInputValue,
     handleFileInputChange, 
@@ -100,6 +105,7 @@ export function useAddMessage(){
 
 }
 
+// todo we need to check the file format and size
 async function isSupport(file: File) {
 
     const supportFormat = ['image/png', 'image/jpg', 'image/gif', 'application/pdf']
@@ -132,7 +138,7 @@ async function isSupport(file: File) {
     }
 
     // check for pdf pages count
-    // ! untest it must try it 
+    // ! untested it must try it 
 
     //   const pdfPageCount = async ()=>{
     //     const reader = new FileReader();

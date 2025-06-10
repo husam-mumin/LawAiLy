@@ -66,13 +66,30 @@ export default function ChatInput({
                   {...field}
                   value={value}
                   onFocus={handleMobileKeybard}
-                  className="resize-none dark:text-base w-[20rem] md:w-[33rem] max-h-[15rem]  ring-0 dark:ring-0 border-none bg-transparent dark:bg-transparent "
+                  className="resize-none dark:text-base w-[20rem] md:w-[33rem] max-h-[15rem]  ring-0 dark:ring-0 border-none bg-transparent dark:bg-transparent text-right"
                   onChange={(e) => onChange(e.target.value)}
-                  placeholder="type here"
+                  placeholder="اكتب هنا"
                 />
               )}
             />
             <div className="flex   items-center justify-between w-full mt-2">
+              <Button
+                {...(pending && { disabled: true })}
+                className=" rounded-full"
+                variant="default"
+                onClick={() => {
+                  onSend();
+                  form.reset();
+                }}
+              >
+                {loading ? (
+                  <Clock size={20} className="animate-spin" />
+                ) : pending ? (
+                  <Clock size={20} />
+                ) : (
+                  <ArrowUp size={20} />
+                )}
+              </Button>
               <div>
                 <Button
                   type="button"
@@ -96,7 +113,7 @@ export default function ChatInput({
                           }
                         }}
                       />
-                      Attach File
+                      ارفق ملف
                     </Label>
                   )}
                 </Button>
@@ -107,24 +124,6 @@ export default function ChatInput({
                   </span>
                 )}
               </div>
-
-              <Button
-                {...(pending && { disabled: true })}
-                className=" rounded-full"
-                variant="default"
-                onClick={() => {
-                  onSend();
-                  form.reset();
-                }}
-              >
-                {loading ? (
-                  <Clock size={20} className="animate-spin" />
-                ) : pending ? (
-                  <Clock size={20} />
-                ) : (
-                  <ArrowUp size={20} />
-                )}
-              </Button>
             </div>
           </div>
         </div>

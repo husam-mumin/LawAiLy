@@ -23,13 +23,16 @@ const formSchema = z
   .object({
     email: z
       .string()
+      .trim()
       .min(1, { message: "email required" })
       .email("Invalid email "),
     password: z.string().min(6, "Password must be at least 6 characters long"),
   })
   .superRefine(async ({ email }, ctx) => {
     if (!email) return;
-    const response = await axios.post("/api/auth/checkEmail", { email });
+    const response = await axios.post("/api/auth/checkEmail", {
+      email: email.trim(),
+    });
     const { exists } = response.data;
     if (!exists) {
       ctx.addIssue({
@@ -64,7 +67,7 @@ export default function LoginForm() {
       setLoading(true);
       // Handle login logic here
       const user = {
-        email: data.email,
+        email: data.email.trim(),
         password: data.password,
       };
 
@@ -97,7 +100,6 @@ export default function LoginForm() {
             message: "wrong password, Please check and try again.",
           });
         }
-        console.log(err.response);
         if (err.response?.data?.statusCode === 401) {
           setError({
             title: "Login Failed",

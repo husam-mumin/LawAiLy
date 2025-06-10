@@ -3,7 +3,7 @@ import React from "react";
 
 export default function DocumentCard() {
   return (
-    <Card className="cursor-pointer w-75 h-47 bg-white shadow-md hover:shadow-lg transition-shadow duration-300 flex p-0 overflow-hidden">
+    <Card className="cursor-pointer w-64 h-47 bg-white shadow-md hover:shadow-lg transition-shadow duration-300 flex p-0 overflow-hidden">
       <CardContent className="text-center text-gray-700 p-0">
         <div className="w-full h-full bg-gray-500 " />
         <div className="h-26 text-left p-4 flex flex-col ">

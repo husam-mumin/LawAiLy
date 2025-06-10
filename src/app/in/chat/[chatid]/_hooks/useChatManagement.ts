@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { sentMessage } from "../_action/sentMessage";
 import { getAllChatMessages } from "../_action/getAllChatMessages";
 import { responseType } from "@/models/Responses";
-import { sentResponse } from "../_action/sentResponse";
+import { sentResponse as sentResponseOut } from "../_action/sentResponse";
 // import { messageResponse } from "@/app/api/chat/[chatid]/route";
 
 /**
@@ -19,50 +19,45 @@ export type messageType = {
 
 export type chats = messageType[]
 
-export function useChatMangement(chatid: string) {
+export function useChatManagement(chatId: string) {
 
   const [chat, setChat] = useState<chats>([])
-  
-  async function usentResponse(message: string, messageid: string){
-    
-    
-    const aiResponse = await sentResponse(message, messageid, chatid) 
-    
-    if(!aiResponse) return
 
-    setChat((prev)=> {
-      const newArray = prev.map(chat => {
-        if(chat._id !== messageid) return chat
-        console.log("chat",chat);
-        console.log("airepsonse" ,aiResponse);
-        
-        return {
-          text: message,
-          _id: messageid,
-          isLoading: false,
-          response: {
-            chat: aiResponse.chat,
-            isGood: aiResponse.isGood,
+  const sentResponse = useCallback(
+    async (message: string, messageid: string) => {
+      const aiResponse = await sentResponseOut(message, messageid, chatId);
+
+      if (!aiResponse) return;
+
+      setChat((prev) => {
+        const newArray = prev.map(chat => {
+          if (chat._id !== messageid) return chat;
+
+          return {
+            text: message,
+            _id: messageid,
             isLoading: false,
-            message: aiResponse.message,
-            response: aiResponse.response 
+            response: {
+              chat: aiResponse.chat,
+              isGood: aiResponse.isGood,
+              isLoading: false,
+              message: aiResponse.message,
+              response: aiResponse.response
+            }
           }
-        }
-
-      })
-      return [...newArray]
-    })
-    
-    
-
-  }
+        });
+        return [...newArray];
+      });
+    },
+    [chatId]
+  );
   async function addNewMessage(message: string, userid: string){ 
     const newMessage: messageType= {
       _id: "200",
       isLoading: true,
       text: message,
       response: {
-        chat: chatid,
+        chat: chatId,
         isGood: null,
         isLoading: true,
         message: '200',
@@ -72,7 +67,7 @@ export function useChatMangement(chatid: string) {
 
     setChat((prev)=> ([...prev, newMessage]))
 
-    const data = await sentMessage(message, chatid, userid)
+    const data = await sentMessage(message, chatId, userid)
     if(!data) return;
     
     setChat((prev)=> {
@@ -83,7 +78,7 @@ export function useChatMangement(chatid: string) {
           _id: data._id,
           isLoading: false,
           response: {
-            chat: chatid,
+            chat: chatId,
             isGood: null,
             isLoading: false,
             message: data._id,
@@ -95,7 +90,7 @@ export function useChatMangement(chatid: string) {
       return [...newArray]
     })
     
-    await usentResponse(data.message, data._id) 
+    await sentResponse(data.message, data._id) 
     
     
     
@@ -107,18 +102,16 @@ export function useChatMangement(chatid: string) {
   useEffect(()=> {
     
     const getData = async ()=> {
-      const da = await getAllChatMessages(chatid);
+      const da = await getAllChatMessages(chatId);
       
       const data = da.chat
       const newData: chats =  []
       
-        console.log("before whatis :", da);
-        console.log("before whatis chat:", newData);
         
       data.forEach((m)=> {
         newData.push(
           {text: m.message, _id: m._id, isLoading: false, response: 
-            {  chat: chatid,
+            {  chat: chatId,
               isGood: null,
               message: m.message,
               response: m.response ? m.response.response : '',
@@ -126,14 +119,13 @@ export function useChatMangement(chatid: string) {
         )
       })
       setChat(newData)
-        console.log("what is this", newData[0]);
       if(!newData[0].response?.response) {
         
-        await usentResponse(newData[0].text, newData[0]._id as string)
+        await sentResponse(newData[0].text, newData[0]._id as string)
       }
     }
     getData()
-  }, [])
+  }, [chatId, sentResponse])
 
   return {chat, addNewMessage}
 

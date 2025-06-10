@@ -18,10 +18,10 @@ export default function SidebarHeaderForChat() {
   return (
     <>
       <div className="flex items-center justify-between h-16 px-4 ">
+        <SidebarTrigger />
         <SidebarMenu>
           <LogoSection isAdmin />
         </SidebarMenu>
-        <SidebarTrigger />
       </div>
     </>
   );
@@ -50,10 +50,14 @@ function LogoSection({ isAdmin = false, className }: LogoSectionProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <Link href={"/in"} className="w-full">
-              <DropdownMenuItem>Chat</DropdownMenuItem>
+              <DropdownMenuItem className="justify-end">
+                المحدثات
+              </DropdownMenuItem>
             </Link>
             <Link href={"/in/dashboard"} className="w-full">
-              <DropdownMenuItem>Dashboard</DropdownMenuItem>
+              <DropdownMenuItem className="justify-end">
+                لوحة التحكم
+              </DropdownMenuItem>
             </Link>
           </DropdownMenuContent>
         </DropdownMenu>

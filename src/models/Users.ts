@@ -27,6 +27,7 @@ export interface IUser extends Document {
 }
 
 export type userType = {
+  _id: string,
   email: string,
   password: string, 
   gender: string,

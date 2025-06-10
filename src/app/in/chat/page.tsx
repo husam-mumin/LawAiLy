@@ -8,8 +8,8 @@ export default function Page() {
   const {
     chatInputFiles,
     chatInputValue,
-    chatfileUploadLoading,
-    chatsendLoading,
+    chatFileUploadLoading,
+    chatSendLoading,
     handleChatInputChange,
     handleFileInputChange,
     handleSentButton,
@@ -33,7 +33,7 @@ export default function Page() {
     return () => {
       clearInterval(sugguestToggle);
     };
-  }, [suggestion]);
+  }, []);
 
   return (
     <div className="container  mx-auto  overflow-hidden">
@@ -44,8 +44,8 @@ export default function Page() {
             className={`max-w-max w-full px-7 animate-pulse py-2 border-2 border-destructive rounded-full text-destructive flex gap-4 items-center
           `}
           >
-            <Info className="stroke-destructive size-10 md:size-5 " /> The model
-            is under testing don&apos;t trust the answers
+            هذا المنتج قد التجربة لا تثق في النتائج
+            <Info className="stroke-destructive size-10 md:size-5 " />
           </div>
         </div>
         <div className="size-35 bg-gray-500 rounded-full"></div>
@@ -56,8 +56,8 @@ export default function Page() {
             onChange={handleChatInputChange}
             onSend={handleSentButton}
             onAttachFile={handleFileInputChange}
-            loading={chatsendLoading}
-            fileLoading={chatfileUploadLoading}
+            loading={chatSendLoading}
+            fileLoading={chatFileUploadLoading}
           />
         </div>
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 max-w-80">

@@ -9,7 +9,6 @@ export async function getAllChatMessages(chatid : string){
 
   
   const data = response.data
-  console.log("getmessages",data);
   
   return data;
 };

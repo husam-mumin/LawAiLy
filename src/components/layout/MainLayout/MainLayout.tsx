@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { chatType } from "@/models/Chat";
 import axios, { AxiosError } from "axios";
+import { useUser } from "@/hooks/useUser";
 type MainLayoutProps = {} & ReactProps;
 
 export interface SearchBarContext {
@@ -16,12 +17,14 @@ export interface SearchBarContext {
   setIsActive: (value: boolean) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  setChats: React.Dispatch<React.SetStateAction<chatType[]>>;
 }
-export const SearchContext = createContext<SearchBarContext | null>({
+export const layoutContext = createContext<SearchBarContext | null>({
   isActive: false,
   setIsActive: () => {},
   searchQuery: "",
   setSearchQuery: () => {},
+  setChats: () => {},
 });
 
 export default function MainLayout({ children }: MainLayoutProps) {
@@ -29,11 +32,17 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [isSearchActive, setIsSearchActive] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [chats, setChats] = React.useState<chatType[]>([]);
+  const user = useUser();
 
   useEffect(() => {
     const getChat = async () => {
+      // todo handle the error here
+
+      if (!user) return;
       try {
-        const response = await axios("/api/chat");
+        const response = await axios.get("/api/chat", {
+          headers: { userid: String(user._id) },
+        });
         const data: chatType[] = response.data;
         setChats(data);
       } catch (err: unknown) {
@@ -48,7 +57,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
     };
 
     getChat();
-  }, []);
+  }, [user]);
 
   const pathname = usePathname();
 
@@ -65,10 +74,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="relative">
       <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-        <AppSidebar chats={chats} />
         <SidebarInset className="w-full ">
           <div className="w-full ">
-            <SearchContext.Provider
+            <layoutContext.Provider
               value={{
                 isActive: isSearchActive,
                 setIsActive: (newValue: boolean) => {
@@ -78,14 +86,16 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 setSearchQuery: (newValue: string) => {
                   setSearchQuery(newValue);
                 },
+                setChats,
               }}
             >
               <TopBar isSidebarOpen={isSidebarOpen} />
               {children}
-            </SearchContext.Provider>
+            </layoutContext.Provider>
           </div>
           <Toaster />
         </SidebarInset>
+        <AppSidebar chats={chats} />
       </SidebarProvider>
     </div>
   );

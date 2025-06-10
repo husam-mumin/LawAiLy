@@ -39,11 +39,13 @@ export default function AvaterMenu() {
           {/* You can replace the src with a dynamic user image URL */}
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="">
         <Link href={"/in/me"}>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem className="justify-end">ملفي</DropdownMenuItem>
         </Link>
-        <DropdownMenuItem onClick={handleLogout}>logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout} className="justify-end">
+          تسجيل خروج
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
