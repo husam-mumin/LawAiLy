@@ -10,10 +10,10 @@ export type ToggleFavoriteResponse = {
 };
 
 // PATCH /api/chat/[chatid]/favorite
-export async function PATCH(req: NextRequest, { params }: { params: { chatid: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ chatid: string }> }) {
   try {
     await dbConnect();
-    const { chatid } = params;
+    const { chatid } = await params;
     if (!chatid) {
       return NextResponse.json({ error: 'chatid is required.' }, { status: 400 });
     }

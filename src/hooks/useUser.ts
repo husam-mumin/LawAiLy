@@ -18,7 +18,6 @@ export function useUser() {
       }
     }
 
-
     fetchUser();
   }, []);
 
