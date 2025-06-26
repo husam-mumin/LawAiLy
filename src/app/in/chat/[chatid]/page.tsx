@@ -11,14 +11,9 @@ import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { chatType } from "@/models/Chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import { useUser } from "@/hooks/useUser";
 import { useChatManagement } from "./_hooks/useChatManagement";
+import { responseType } from "@/models/Responses";
 /**
  *
  * we must have the Chat message with there responses
@@ -69,6 +64,9 @@ import { useChatManagement } from "./_hooks/useChatManagement";
  * 5. Replaces it with the real response after generation.
  *
  */
+export type responseWithLoading = {
+  isLoading: boolean;
+} & responseType;
 
 export default function ChatPage() {
   const params: { chatid: string } = useParams();
@@ -148,50 +146,12 @@ export default function ChatPage() {
                           <Message value={chat.text} loading={chat.isLoading} />
                         </div>
                         <div className="ms-auto px-6  text-right">
-                          {chat.response ? (
-                            <ContextMenu>
-                              <ContextMenuTrigger className="bg-amber-300">
-                                <Response
-                                  value={chat.response.response}
-                                  loading={chat.response?.isLoading}
-                                />
-                              </ContextMenuTrigger>
-                              <ContextMenuContent>
-                                <ContextMenuItem
-                                  onClick={() => {
-                                    // todo add to the database are get share it
-                                    if (chat.response?.response)
-                                      navigator.clipboard.writeText(
-                                        chat.response?.response
-                                      );
-                                  }}
-                                >
-                                  copy
-                                </ContextMenuItem>
-                                <ContextMenuItem asChild>
-                                  {/**
-                                   * // todo add more share platform
-                                   * // todo add the share to the database
-                                   */}
-                                  <a
-                                    href={`https://wa.me/?text=${encodeURIComponent(
-                                      chat.response?.response || ""
-                                    )}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    share
-                                  </a>
-                                </ContextMenuItem>
-                                <ContextMenuItem>more</ContextMenuItem>
-                              </ContextMenuContent>
-                            </ContextMenu>
-                          ) : (
-                            <Response
-                              value="ops something go wrong"
-                              loading={true}
-                            />
-                          )}
+                          <Response
+                            loading={chat.isLoading ? true : false}
+                            response={chat.response as responseWithLoading}
+                            chat={chatid}
+                            user={user}
+                          />
                         </div>
                       </div>
                     );

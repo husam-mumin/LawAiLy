@@ -19,6 +19,7 @@ export interface IResponse extends Document {
 }
 
 export type responseType = {
+  _id: string,
   response: string, 
   message: string,
   chat: string,

@@ -38,11 +38,12 @@ export function useChatManagement(chatId: string) {
             _id: messageid,
             isLoading: false,
             response: {
+              
               chat: aiResponse.chat,
               isGood: aiResponse.isGood,
               isLoading: false,
               message: aiResponse.message,
-              response: aiResponse.response
+              response: aiResponse
             }
           }
         });

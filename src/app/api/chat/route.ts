@@ -105,3 +105,71 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+/**
+ * Delete Chat
+ * 1. It connect to the database.
+ * 2. It checks if the chatId is provided and return a 400 a bad request response.
+ * 3. It delete the Chat with provided chatId from the database.
+ * 4. If successful, it return a 200 OK response with success message.
+ * 5. If any error occurs, it return 500 Internal Server Error response with the error message.
+ * 
+ */
+
+export async function DELETE(req: NextRequest) {
+  try {
+    await dbConnect();
+    const body = await req.json();
+    const { chatId } = body;
+
+    if (!chatId) {
+      return NextResponse.json({ error: 'chatId is required.' }, { status: 400 });
+    }
+
+    // Delete the chat
+    const deletedChat = await Chat.findByIdAndDelete(chatId);
+
+    if (!deletedChat) {
+      return NextResponse.json({ error: 'Chat not found.' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Chat deleted successfully.' }, { status: 200 });
+
+  } catch (error) {
+    let message = 'Internal server error.';
+    if (error instanceof Error) message = error.message;
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+/** * Update Chat
+ * 1. It connect to the database.
+ * 2. It checks if the chatId is provided and return a 400 a bad request response.
+ * 3. It updates the Chat with provided chatId in the database.
+ * 4. If successful, it return a 200 OK response with success message.
+ * 5. If any error occurs, it return 500 Internal Server Error response with the error message.
+ * */
+export async function PUT(req: NextRequest) {
+  try {
+    await dbConnect();
+    const body = await req.json();
+    const { chatId, title, isFavorite } = body;
+
+    if (!chatId) {
+      return NextResponse.json({ error: 'chatId is required.' }, { status: 400 });
+    }
+
+    // Update the chat
+    const updatedChat = await Chat.findByIdAndUpdate(chatId, { title, isFavorite }, { new: true });
+
+    if (!updatedChat) {
+      return NextResponse.json({ error: 'Chat not found.' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Chat updated successfully.', chat: updatedChat }, { status: 200 });
+
+  } catch (error) {
+    let message = 'Internal server error.';
+    if (error instanceof Error) message = error.message;
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

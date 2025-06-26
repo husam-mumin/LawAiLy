@@ -40,7 +40,7 @@ export type filesType = {
   fileURL: string,
   filename: string,
   filesize: string,
-  fileformat: string,
+  fileFormat: string,
   filetext: string,
   message: string
 }
@@ -75,6 +75,33 @@ export async function GET(
     // 
     return NextResponse.json({ chat }, { status: 200 });
 // 
+  } catch (error) {
+    let message = "Internal server error.";
+    if (error instanceof Error) message = error.message;
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest, context: { params: Promise<{ chatid: string }> }
+) {
+  try {
+    await dbConnect();
+    const { chatid } = await context.params;
+
+    // Validate chatid
+    if (!chatid) {
+      return NextResponse.json({ error: "Chat ID is required." }, { status: 400 });
+    }
+
+    // Delete the chat
+    const deletedChat = await Chat.findByIdAndDelete(chatid);
+
+    if (!deletedChat) {
+      return NextResponse.json({ error: "Chat not found." }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Chat deleted successfully." }, { status: 200 });
   } catch (error) {
     let message = "Internal server error.";
     if (error instanceof Error) message = error.message;

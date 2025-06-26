@@ -3,9 +3,11 @@ import { ToggleFavoriteResponse } from "@/app/api/chat/[chatid]/favorite/route";
 import { layoutContext } from "@/components/layout/MainLayout/MainLayout";
 import { userType } from "@/models/Users";
 import axios, { AxiosError } from "axios";
-import { Heart } from "lucide-react";
+import { Heart, TimerIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import HeaderMenu from "./HeaderMenu";
+import { Button } from "@/components/ui/button";
 
 type ChatHeaderprops = {
   title?: string;
@@ -73,17 +75,27 @@ export default function ChatHeader({
   }
 
   return (
-    <div className="w-full h-20 flex gap-4 justify-center items-center">
-      {favoriteLoading ? (
-        <div className="animate-spin">
-          <div className="fill-red-500 size-6 border-4 rounded-full border-b-0 border-l-0 border-solid border-black" />
-        </div>
-      ) : (
-        <div className="cursor-pointer" onClick={handleFavoriteClick}>
-          {isFavorite ? <Heart className="fill-red-500" /> : <Heart />}{" "}
-        </div>
-      )}
-      <h1 className="text-xl font-bold text-black/85">{title}</h1>
+    <div
+      className="w-full h-20 flex justify-between items-center px-4 
+    bg-gray-100 border-b border-gray-300"
+    >
+      <HeaderMenu chatid={chatid} />
+      <div className="h-20 flex gap-4 items-center">
+        {favoriteLoading ? (
+          <div className="">
+            <TimerIcon className="w-5 h-5" />
+          </div>
+        ) : (
+          <Button
+            variant={"ghost"}
+            className="cursor-pointer"
+            onClick={handleFavoriteClick}
+          >
+            {isFavorite ? <Heart className="fill-red-500" /> : <Heart />}{" "}
+          </Button>
+        )}
+        <h1 className="text-xl font-bold text-black/85">{title}</h1>
+      </div>
     </div>
   );
 }
