@@ -18,6 +18,7 @@ import LoginAlert from "../_components/authAlert";
 import { AtomIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { loginRequestType } from "@/app/api/auth/login/route";
+import { useUser } from "@/app/context/UserContext";
 
 const formSchema = z
   .object({
@@ -48,6 +49,7 @@ type ErrorType = {
   description: string;
 };
 export default function LoginForm() {
+  const { setUser } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorType | null>(null);
@@ -86,7 +88,8 @@ export default function LoginForm() {
       }
       // Handle successful login (e.g., redirect, show message)
       setError(null); // Clear any previous errors
-
+      // Set user data in context
+      setUser(resdata.user);
       router.push("/in"); // Redirect to dashboard or home page
       // Optionally, you can store user data in local storage or context
     } catch (err: unknown) {

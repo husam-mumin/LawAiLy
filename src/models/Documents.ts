@@ -23,6 +23,8 @@ export interface IDocument extends Document {
 }
 
 export type documentType = {
+  _id: string,
+  createdAt: Date,
   documentURL: string,
   title: string,
   description: string,

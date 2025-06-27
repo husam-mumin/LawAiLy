@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { chatType } from "@/models/Chat";
 import axios, { AxiosError } from "axios";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/app/context/UserContext";
 type MainLayoutProps = {} & ReactProps;
 
 export interface SearchBarContext {
@@ -32,7 +32,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [isSearchActive, setIsSearchActive] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [chats, setChats] = React.useState<chatType[]>([]);
-  const user = useUser();
+  const { user } = useUser();
 
   useEffect(() => {
     const getChat = async () => {

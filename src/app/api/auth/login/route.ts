@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import User, { IUser }  from '@/models/Users';
+import User, { IUser, userType }  from '@/models/Users';
 import  dbConnect  from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
@@ -30,7 +30,8 @@ import { cookies } from 'next/headers';
 
 export type loginRequestType = {
   error?: string,
-  message?: string
+  message?: string,
+  user: userType
 }
 export async function POST(req: NextRequest) {
   try {
@@ -68,12 +69,12 @@ export async function POST(req: NextRequest) {
     });
     // Optionally, return user data (never return password)
     return NextResponse.json({ message: 'Login successful.', user: {
+      _id: user._id,
       email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isAdmin: user.isAdmin,
-      AvatarURL: user.AvatarURL,
-      id: user._id,
+      name: user.name,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
     } }, { status: 200 });
 
   } catch (error) {

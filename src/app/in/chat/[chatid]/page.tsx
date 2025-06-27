@@ -11,9 +11,9 @@ import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { chatType } from "@/models/Chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useUser } from "@/hooks/useUser";
 import { useChatManagement } from "./_hooks/useChatManagement";
 import { responseType } from "@/models/Responses";
+import { useUser } from "../../../context/UserContext";
 /**
  *
  * we must have the Chat message with there responses
@@ -71,7 +71,7 @@ export type responseWithLoading = {
 export default function ChatPage() {
   const params: { chatid: string } = useParams();
   const chatid = params.chatid;
-  const user = useUser();
+  const { user } = useUser();
 
   const {
     chatInputFiles,

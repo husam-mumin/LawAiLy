@@ -1,3 +1,4 @@
+import { useUser } from "@/app/context/UserContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -10,12 +11,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AvaterMenu() {
+  const { setUser } = useUser();
   const router = useRouter();
   const handleLogout = async () => {
     // Handle logout logic here
     try {
       const response = await axios.post("/api/auth/logout");
       if (response.status === 200) {
+        setUser(null); // Clear user state
         router.replace("/login");
       }
     } catch (error: unknown) {

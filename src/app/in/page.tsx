@@ -1,4 +1,4 @@
-import DocumentCard from "../_components/DocumentCard";
+import DocumentCard from "./_components/DocumentCard";
 import { libyaLawCategories } from "../../mock/lawCategories";
 
 export default function Home() {

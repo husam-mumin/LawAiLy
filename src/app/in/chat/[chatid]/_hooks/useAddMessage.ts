@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
-import { useUser } from "@/hooks/useUser";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { layoutContext } from "@/components/layout/MainLayout/MainLayout";
 import { PostNewChat } from "@/app/api/chat/route";
+import { useUser } from "@/app/context/UserContext";
 
 
 /**
@@ -18,7 +18,7 @@ export function useAddMessage(){
   const [chatFileUploadLoading, setChatFileUploadLoading] =
     useState<boolean>(false);
   const [error , setError] = useState<string | null>(null)
-  const user = useUser();
+  const {user} = useUser();
   const router = useRouter()
   const layoutCon = useContext(layoutContext)
 

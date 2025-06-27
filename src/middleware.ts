@@ -30,6 +30,13 @@ export default async function middleware(req: NextRequest) {
   
   // Check if the route is protected
   const authSession = await auth()
+
+  if (pathname === '/') {
+    console.log('Home page accessed');
+    
+    if (authSession?.user) return NextResponse.redirect(new URL('/in', req.url))
+    return NextResponse.next()
+  }
   if (protectedRoutes.some(route => pathname.startsWith(route))) {
     const sessionCookie = req.cookies.get('session')
     
@@ -50,6 +57,23 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  if (pathname.startsWith('/api')) {
+    // For API routes, check if the user is authenticated
+    if (!authSession?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    // Allow API requests to proceed
+    return NextResponse.next()
+  }
+
+  // If the route is not protected, public, or an API route, continue as normal
+  if (!protectedRoutes.some(route => pathname.startsWith(route)) &&
+      !publicRoutes.some(route => pathname.startsWith(route)) &&
+      !pathname.startsWith('/api')) {
+    return NextResponse.next()
+  }
+
+  // If is the Home page or any public route, directly to in if is authenticated
   // For all other routes, continue as normal
   return NextResponse.next()
 }
