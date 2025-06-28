@@ -1,43 +1,28 @@
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 import React from "react";
-
-// Mock user data
-const users = [
-  { id: 1, name: "أحمد محمد", email: "ahmed@example.com", role: "مشرف" },
-  { id: 2, name: "سارة علي", email: "sara@example.com", role: "مستخدم" },
-  { id: 3, name: "خالد يوسف", email: "khaled@example.com", role: "محرر" },
-];
+import MangmengetUsersSection from "./_components/MangmengetUsersSection";
 
 export default function UserManagement() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">إدارة المستخدمين</h1>
-      <table className="w-full bg-white rounded shadow overflow-hidden">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-3 text-right">الاسم</th>
-            <th className="p-3 text-right">البريد الإلكتروني</th>
-            <th className="p-3 text-right">الدور</th>
-            <th className="p-3 text-right">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id} className="border-b last:border-b-0">
-              <td className="p-3">{user.name}</td>
-              <td className="p-3">{user.email}</td>
-              <td className="p-3">{user.role}</td>
-              <td className="p-3 flex gap-2">
-                <button className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
-                  تعديل
-                </button>
-                <button className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600">
-                  حذف
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="p-4 text-right ">
+      <div className="flex  justify-between gap-4">
+        <Button variant={"ghost"} size={"lg"} className="">
+          <Link
+            href={"/in/dashboard"}
+            className="w-full h-full flex justify-center items-center"
+          >
+            <ChevronLeft className="inline mr-2 " />
+          </Link>
+        </Button>
+        <h1 className="text-2xl font-bold">إدارة المستخدمين</h1>
+      </div>
+      <div className="flex flex-col gap-4 mt-4 w-full">
+        <div className="ms-auto w-full">
+          <MangmengetUsersSection />
+        </div>
+      </div>
     </div>
   );
 }

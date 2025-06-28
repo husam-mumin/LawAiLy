@@ -7,16 +7,24 @@ type layoutProps = {
 
 export default async function layout({ children }: layoutProps) {
   const documents = async () => {
-    const response = await axios.get(
-      `${
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-      }/api/in/documents`
-    );
-    if (response.status === 200) {
-      console.log("Documents fetched successfully:", response.data);
-      return response.data;
-    } else {
-      console.error("Failed to fetch documents");
+    try {
+      const response = await axios.get(
+        `${
+          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+        }/api/in/documents`
+      );
+      if (response.status === 200) {
+        return response.data;
+      } else {
+        console.error("Failed to fetch documents");
+        return [];
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error:", error);
+      } else {
+        console.error("Error fetching documents:", error);
+      }
       return [];
     }
   };

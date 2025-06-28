@@ -34,7 +34,7 @@ export default function RootLayout({
         dir="rtl"
       >
         <UserProvider>
-          <ScrollArea className="h-dvh">{children}</ScrollArea>
+          <ScrollArea className="max-h-dvh">{children}</ScrollArea>
         </UserProvider>
       </body>
     </html>

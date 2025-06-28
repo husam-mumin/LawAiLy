@@ -10,6 +10,8 @@ import {
 import UploadFile from "./UploadFile";
 import { useUser } from "@/app/context/UserContext";
 import { toast } from "sonner";
+import UploadImage from "./Uploadimage";
+import { Textarea } from "@/components/ui/textarea";
 
 interface AddDocumentPopupProps {
   open: boolean;
@@ -21,6 +23,7 @@ interface AddDocumentPopupProps {
     url: string;
     description: string;
     showup: boolean;
+    image: string;
     addBy: string;
   }) => void;
 }
@@ -37,13 +40,11 @@ export function AddDocumentPopup({
   const [description, setDescription] = React.useState("");
   const [showup, setShowup] = React.useState(true);
   const [addBy, setAddBy] = React.useState("");
+  const [image, setImage] = React.useState("");
   React.useEffect(() => {
-    console.log(user);
-
     if (!user) return;
     if (user.firstName && user.lastName) {
       setAddBy(user.firstName + " " + user.lastName);
-      console.log(user);
     }
     if (user) {
       setAddBy(user.email || "");
@@ -52,6 +53,7 @@ export function AddDocumentPopup({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     if (!title.trim() || !fileUrl.trim()) {
       toast.error("الرجاء ملء جميع الحقول المطلوبة");
       return;
@@ -97,7 +99,22 @@ export function AddDocumentPopup({
       return;
     }
 
-    onAdd({ title, url: fileUrl, description, showup, addBy: user?._id });
+    // Handle exists file (409) toast
+    if (fileUrl === "EXISTS_FILE_URL") {
+      toast.error(
+        "الملف موجود بالفعل بنفس الاسم. يرجى تغيير اسم الملف أو اختيار ملف آخر."
+      );
+      return;
+    }
+
+    onAdd({
+      title,
+      url: fileUrl,
+      description,
+      showup,
+      image: image,
+      addBy: user?._id,
+    });
     setTitle("");
     setFileUrl("");
     setDescription("");
@@ -129,6 +146,11 @@ export function AddDocumentPopup({
               setFileUrl(x);
             }}
           />
+          <UploadImage
+            onUploaded={(x) => {
+              setImage(x);
+            }}
+          />
           <div className="border p-2 rounded bg-gray-100 text-gray-700">
             {addBy ? `أضيف بواسطة: ${addBy}` : "جاري جلب المستخدم..."}
           </div>
@@ -140,7 +162,7 @@ export function AddDocumentPopup({
             />
             ظهور
           </label>
-          <textarea
+          <Textarea
             className="border p-2 rounded min-h-[80px]"
             placeholder="الوصف"
             value={description}

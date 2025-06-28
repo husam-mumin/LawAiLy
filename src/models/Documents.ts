@@ -19,6 +19,7 @@ export interface IDocument extends Document {
   title: string;
   description: string;
   showUp: boolean;
+  image: string,
   addedBy: Schema.Types.ObjectId;
 }
 
@@ -28,6 +29,7 @@ export type documentType = {
   documentURL: string,
   title: string,
   description: string,
+  image: string,
   showUp: boolean,
   addedBy: userType
 }
@@ -36,6 +38,7 @@ const documentSchema: Schema = new mongoose.Schema<IDocument>({
   title: { type: 'string', required: true },
   description: { type: 'string', required: true },
   showUp: { type: 'boolean', default: true },
+  image: { type: "string" },
   addedBy: { type: Schema.Types.ObjectId, ref: "User", required: true }
 }, { timestamps: true });
 

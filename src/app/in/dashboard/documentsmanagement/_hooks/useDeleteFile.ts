@@ -12,7 +12,7 @@ export function useDeleteFile() {
     setSuccess(false);
     try {
       // You may want to extract fileId from the url if needed
-      const res = await axios.delete("/api/dashboard/documents/delete", {
+      const res = await axios.delete("/api/dashboard/documents/file", {
         data: { url },
       });
       if (!res.data || !res.data.success) {

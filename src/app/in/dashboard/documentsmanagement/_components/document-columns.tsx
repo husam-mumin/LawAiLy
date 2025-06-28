@@ -8,9 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EllipsisIcon } from "lucide-react";
-import { EditPopOver } from "./EditPopOver";
-import { documentType } from "@/models/Documents";
 import { userType } from "@/models/Users";
+import Image from "next/image";
 
 export type DocumentRow = {
   _id: string;
@@ -20,11 +19,13 @@ export type DocumentRow = {
   description: string;
   showUp: boolean;
   addedBy: userType;
-  onEdit?: (row: documentType) => boolean;
-  onDelete?: (id: string) => void;
+  image: string;
 };
 
-export const documentColumns: ColumnDef<DocumentRow>[] = [
+export const documentColumns = (
+  onEdit: (row: DocumentRow) => void,
+  onDelete: (id: string) => void
+): ColumnDef<DocumentRow>[] => [
   {
     accessorKey: "title",
     header: "العنوان",
@@ -44,6 +45,25 @@ export const documentColumns: ColumnDef<DocumentRow>[] = [
     ),
   },
   {
+    accessorKey: "image",
+    header: "الصورة",
+    cell: ({ row }) => {
+      return row.original.image ? (
+        <div className="group relative inline-block">
+          <Image
+            src={row.original.image}
+            alt="صورة المستند"
+            width={40}
+            height={40}
+            className="w-10 h-10 object-cover rounded border cursor-pointer"
+          />
+        </div>
+      ) : (
+        <span className="text-gray-400">لا يوجد</span>
+      );
+    },
+  },
+  {
     accessorKey: "createAt",
     header: "تاريخ الإضافة",
     cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
@@ -58,7 +78,19 @@ export const documentColumns: ColumnDef<DocumentRow>[] = [
     cell: ({ row }) => (row.original.showUp ? "نعم" : "لا"),
   },
   {
-    accessorKey: "addBy",
+    accessorKey: "addedBy",
+    cell: ({ row }) => {
+      const addedBy = row.original.addedBy;
+      console.log("added by:", addedBy);
+
+      return (
+        <span>
+          {addedBy.firstName || addedBy.lastName
+            ? `${addedBy.firstName || ""} ${addedBy.lastName || ""}`.trim()
+            : addedBy.email || "غير معروف"}
+        </span>
+      );
+    },
     header: "أضيف بواسطة",
   },
   {
@@ -72,34 +104,17 @@ export const documentColumns: ColumnDef<DocumentRow>[] = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-48">
-          <DropdownMenuItem asChild className="justify-end">
-            <EditPopOver
-              row={row.original}
-              onSave={row.original.onEdit || (() => false)}
-            />
+          <DropdownMenuItem
+            onClick={() => onEdit(row.original)}
+            className="justify-end"
+          >
+            تعديل
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => row.original.onDelete?.(row.original._id)}
+            onClick={() => onDelete(row.original._id)}
             className="justify-end text-red-600"
           >
             حذف
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              row.original.showUp = !row.original.showUp;
-              row.original.onEdit?.({
-                _id: row.original._id,
-                title: row.original.title,
-                description: row.original.description,
-                showUp: row.original.showUp,
-                addedBy: row.original.addedBy,
-                documentURL: row.original.documentURL,
-                createdAt: row.original.createdAt,
-              });
-            }}
-            className="justify-end"
-          >
-            {row.original.showUp ? "اخفاء" : "اظهار"}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

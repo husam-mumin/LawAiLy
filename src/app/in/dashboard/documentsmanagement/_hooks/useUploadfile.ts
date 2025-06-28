@@ -21,18 +21,20 @@ export function useUploadFile() {
       formData.append("file", file);
 
       try {
-        const res = await axios.post("/api/dashboard/documents/upload", formData)
-        console.log(res.data.url);
+        const res = await axios.post("/api/dashboard/documents/file", formData)
+
         
-      
       if (!res.data || !res.data.url) {
         throw new Error("فشل في رفع الملف");
       }
       setUrl(res.data.url); // The backend should return { url: "https://drive.google.com/..." }
       return res.data.url;
     } catch (err) {
-      console.log("Upload error:", err);
-      
+      console.error("Upload error:", err);
+      if(axios.isAxiosError(err) && err.response) {
+      if (err.status == 409) {
+        setUrl(err.response.data.url);
+      }}
       if(!axios.isAxiosError(err)) {
         setError("حدث خطأ غير معروف أثناء رفع الملف");
       }

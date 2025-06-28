@@ -1,13 +1,17 @@
 import React, { useRef } from "react";
-import { useUploadFile } from "../hooks/useUploadfile";
+import { useUploadFile } from "../_hooks/useUploadfile";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 interface UploadFileProps {
   onUploaded: (url: string) => void;
+  handleUpload?: (file: File) => Promise<string | null>;
 }
 
-export default function UploadFile({ onUploaded }: UploadFileProps) {
+export default function UploadFile({
+  onUploaded,
+  handleUpload,
+}: UploadFileProps) {
   const { uploading, error, url, uploadFile } = useUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -25,9 +29,21 @@ export default function UploadFile({ onUploaded }: UploadFileProps) {
       }
 
       const toastId = toast.loading("جاري رفع الملف...");
-
+      let uploadedUrl: string | null = null;
       try {
-        const uploadedUrl = await uploadFile(file);
+        if (handleUpload) {
+          uploadedUrl = await handleUpload(file);
+        } else {
+          try {
+            uploadedUrl = await uploadFile(file);
+          } catch (err) {
+            if (err instanceof Error) {
+              toast.error(err.message, { id: toastId });
+              return;
+            }
+          }
+        }
+
         if (uploadedUrl) {
           toast.success("تم رفع الملف بنجاح!", { id: toastId });
           onUploaded(uploadedUrl);

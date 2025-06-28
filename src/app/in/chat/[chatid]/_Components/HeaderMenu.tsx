@@ -33,7 +33,6 @@ export default function HeaderMenu({ chatid }: HeaderMenuProps) {
     }
     // Redirect to the chat list or another page
     router.replace("/in");
-    console.log(`Delete chat with ID: ${chatid}`);
   }
   return (
     <div>

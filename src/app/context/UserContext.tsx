@@ -23,8 +23,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     async function fetchUser() {
-      console.log("fetch the user ..........................................");
-
       try {
         const res = await axios.get("/api/auth/currentUser");
         setUser(res.data.user || null);

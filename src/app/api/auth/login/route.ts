@@ -69,13 +69,17 @@ export async function POST(req: NextRequest) {
     });
     // Optionally, return user data (never return password)
     return NextResponse.json({ message: 'Login successful.', user: {
+      
       _id: user._id,
       email: user.email,
-      name: user.name,
-      role: user.role,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    } }, { status: 200 });
+      gender: user.gender,
+      AvatarURL: user.AvatarURL,
+      firstName: user.firstName,
+      isAdmin: user.isAdmin,
+      isBaned: user.isBaned,
+      lastName: user.lastName
+      }
+     }, { status: 200 });
 
   } catch (error) {
     let message = 'Internal server error.';

@@ -24,7 +24,6 @@ export default function Response({
   async function handleCopy() {
     if (response.response) {
       try {
-        console.log(response);
         await axios.post(`/api/chat/${chat}/${response._id}/isshared`, {
           userId: user._id,
         });

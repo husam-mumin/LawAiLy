@@ -11,7 +11,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise< { ch
     const body = await req.json();
     const { userId } = body;
 
-    console.log(userId, responseId);
     
     if (!userId) {
       return NextResponse.json({ error: 'userId is required.' }, { status: 400 });

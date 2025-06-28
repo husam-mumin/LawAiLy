@@ -1,3 +1,4 @@
+import { useUser } from "@/app/context/UserContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,12 +16,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function SidebarHeaderForChat() {
+  const { user } = useUser();
   return (
     <>
       <div className="flex items-center justify-between h-16 px-4 ">
         <SidebarTrigger />
         <SidebarMenu>
-          <LogoSection isAdmin />
+          <LogoSection isAdmin={user?.isAdmin} />
         </SidebarMenu>
       </div>
     </>
@@ -71,8 +73,10 @@ function LogoSection({ isAdmin = false, className }: LogoSectionProps) {
         className="hover:bg-transparent focus:bg-transparent active:bg-transparent"
       >
         <div className="w-full h-12 flex items-center ">
-          <Link href="/" className="cursor-pointer flex items-center gap-2">
-            <div className="size-10 bg-gray-500 rounded-full" /> Logo
+          <Link href="/in" className="cursor-pointer flex items-center gap-2">
+            <div className="w-full h-12 flex items-center ">
+              <Image src={"/MainLogo.png"} width={97} height={40} alt="logo" />
+            </div>
           </Link>
         </div>
       </SidebarMenuButton>

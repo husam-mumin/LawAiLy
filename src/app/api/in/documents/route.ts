@@ -6,9 +6,10 @@ export async function GET() {
   try {
 
     await dbConnect();
-    console.log('Fetching documents from the database...');
-    
+
     const documents = await Document.find({}).populate('addedBy', 'email firstName lastName').sort({ createdAt: -1 });
+    
+    
     return NextResponse.json(documents, { status: 200 });
   } catch (error) {
     let message = 'Internal server error.';
@@ -21,19 +22,29 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { title, url, description, showup, addBy } = body;
-    console.log('Creating a new document with data:', body);
-    if (!title || !url || !description || !addBy) {
+    const { title, documentURL, description,  showUp,  addedBy, image } = body;
+    if (!title || !documentURL || !description || !addedBy) {
       return NextResponse.json({ error: 'title, url, description, and addBy are required.' }, { status: 400 });
+    }
+
+    // Check if document with same documentURL exists
+    const existingDoc = await Document.findOne({ documentURL });
+    if (existingDoc) {
+      return NextResponse.json({
+        error: 'Document already exists.',
+        url: existingDoc.documentURL,
+        document: existingDoc,
+      }, { status: 409 });
     }
 
     // Create new document
     const newDocument = new Document({
       title,
-      documentURL: url,
+      documentURL: documentURL,
       description,
-      showup,
-      addedBy: addBy,
+      showup: showUp,
+      image: image || '',
+      addedBy: addedBy,
     });
 
     await newDocument.save();
@@ -54,16 +65,16 @@ export async function DELETE(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { url } = body;
+    const { id } = body;
 
-    if (!url) {
-      return NextResponse.json({ error: 'URL is required.' }, { status: 400 });
+    
+    if (!id) {
+      return NextResponse.json({ error: 'id is required.' }, { status: 400 });
     }
 
-    console.log('Deleting document with URL:', url);
     
     // Find and delete the document
-    const deletedDocument = await Document.findOneAndDelete({ documentURL: url });
+    const deletedDocument = await Document.findOneAndDelete({ _id: id });
 
     if (!deletedDocument) {
       return NextResponse.json({ error: 'Document not found.' }, { status: 404 });
@@ -81,25 +92,35 @@ export async function DELETE(req: Request) {
   }
 }
 
+export type UpdateDocumentRequest = {
+  id: string;
+  title: string;
+  documentURL: string;
+  description: string;
+  showUp: boolean;
+};
+
+
 export async function PUT(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { id, title, url, description, showUp } = body;
+    const {  _id, title,  documentURL,image, description, showUp } = body;
 
-    if (!id || !title || !description || !url || showUp === undefined) {
-      return NextResponse.json({ error: 'id, title, and description are required.' }, { status: 400 });
+    
+    if (!_id || !title || !description || !image || !documentURL || showUp === undefined) {
+      
+      return NextResponse.json({ error: 'id, description, url, showup are required!' }, { status: 400 });
     }
 
-    console.log('Updating document with ID:', id);
     
     // Find and update the document
-    const updatedDocument = await Document.findByIdAndUpdate(id, { title, description, documentURL: url, showUp: showUp }, { new: true });
+    const updatedDocument = await Document.findByIdAndUpdate(_id, { title, description, documentURL: documentURL, image, showUp: showUp }, { new: true });
 
     if (!updatedDocument) {
       return NextResponse.json({ error: 'Document not found.' }, { status: 404 });
     }
-
+    
     return NextResponse.json({
       message: 'Document updated successfully.',
       document: updatedDocument,
