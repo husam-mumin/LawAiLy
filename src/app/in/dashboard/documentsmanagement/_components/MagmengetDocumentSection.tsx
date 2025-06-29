@@ -10,6 +10,7 @@ import { AddDocumentPopup } from "./AddDocumentPopup";
 import { useUser } from "@/app/context/UserContext";
 import { useDeleteFile } from "../_hooks/useDeleteFile";
 import { useDeleteImage } from "../_hooks/useDeleteImage";
+import { Plus, RefreshCcw } from "lucide-react";
 
 export default function MagmengetDocumentSection() {
   const { documents, error, loading, add, edit, refresh, remove } =
@@ -31,7 +32,6 @@ export default function MagmengetDocumentSection() {
 
   const hanldeCloseAddPopup = () => {
     if (fileUrl || !saved) {
-      deleteFile(fileUrl);
       setFileUrl("");
     }
     setAddOpen(false);
@@ -150,12 +150,24 @@ export default function MagmengetDocumentSection() {
   return (
     <>
       <div className="flex flex-col   w-full">
-        <div className="flex items-center gap-4 justify-end mb-4 mt-4">
-          <Button variant={"default"} onClick={handleAddButton}>
-            اضافة مستند جديد
+        <div className="flex items-center justify-end gap-6 mb-4 ">
+          <Button
+            onClick={() => {
+              refresh(); // Fetch categories from the server
+            }}
+            className="mb-4 flex gap-2 "
+            variant="outline"
+          >
+            <RefreshCcw size={18} /> تجديد التصنيفات
           </Button>
-          <Button variant={"default"} onClick={() => refresh()}>
-            تجديد
+          <Button
+            onClick={() => {
+              handleAddButton();
+            }}
+            className="mb-4 flex gap-2 "
+            variant="outline"
+          >
+            <Plus size={18} /> إضافة تصنيف جديد
           </Button>
         </div>
         <div className="overflow-x-auto w-full">

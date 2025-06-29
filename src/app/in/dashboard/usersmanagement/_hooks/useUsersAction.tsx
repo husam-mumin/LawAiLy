@@ -10,7 +10,7 @@ export function useUsersAction() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  });
   // Fetch all users
   const fetchUsers = useCallback(async () => {
     setLoading(true);

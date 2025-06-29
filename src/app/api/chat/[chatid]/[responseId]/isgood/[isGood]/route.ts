@@ -20,7 +20,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ chatid: string, responseId: string, isGood: string}>}) {
 
   try {
-    dbConnect()
+    await dbConnect()
     const { chatid, responseId, isGood} = await params;
     
     if (!chatid || !responseId || !isGood){

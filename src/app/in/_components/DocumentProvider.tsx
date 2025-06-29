@@ -10,6 +10,8 @@ interface DocumentContextType {
   search: string;
   setSearch: (search: string) => void;
   filteredDocuments: documentType[];
+  openNot: boolean;
+  setOpenNot: (open: boolean) => void;
 }
 
 export const DocumentContext = createContext<DocumentContextType>({
@@ -20,6 +22,8 @@ export const DocumentContext = createContext<DocumentContextType>({
   search: "",
   setSearch: () => {},
   filteredDocuments: [],
+  openNot: false,
+  setOpenNot: () => {},
 });
 
 export const DocumentProvider = ({
@@ -36,6 +40,7 @@ export const DocumentProvider = ({
   const [filteredDocuments, setFilteredDocuments] = useState<documentType[]>(
     []
   );
+  const [openNot, setOpenNot] = useState(false);
 
   useEffect(() => {
     const savedFilter = localStorage.getItem("documentFilter") || "";
@@ -68,6 +73,8 @@ export const DocumentProvider = ({
         search,
         setSearch,
         filteredDocuments,
+        openNot,
+        setOpenNot,
       }}
     >
       {children}

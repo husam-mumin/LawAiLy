@@ -43,7 +43,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="p-8 ">
+    <div dir="rtl" className="p-8 ">
       <h1 className="text-3xl font-bold mb-8">لوحة التحكم</h1>
       <div className="flex flex-wrap gap-4 mb-8">
         <DashboardLink
@@ -54,13 +54,15 @@ export default function Dashboard() {
           href="/in/dashboard/documentsmanagement"
           label="إدارة الكتب"
         />
-        <DashboardLink href="/in/dashboard/news" label="إدارة الأخبار" />
         <DashboardLink
-          href="/in/dashboard/categories"
+          href="/in/dashboard/newmanagement"
+          label="إدارة الأخبار"
+        />
+        <DashboardLink
+          href="/in/dashboard/categoriesmanagement"
           label="إدارة التصنيفات"
         />
         <DashboardLink href="/in/dashboard/reports" label="التقارير" />
-        <DashboardLink href="/in/dashboard/settings" label="الإعدادات" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
         <StatCard label="عدد التصنيفات" value={stats.totalCategories} />

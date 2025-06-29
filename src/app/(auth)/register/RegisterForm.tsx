@@ -82,7 +82,9 @@ export default function RegisterForm() {
       if (checkRes.data.exists) {
         form.setError("email", {
           type: "manual",
-          message: "Email already exists",
+          message: checkRes.data.error
+            ? checkRes.data.error
+            : "Email already exists",
         });
         setLoading(false);
         return;

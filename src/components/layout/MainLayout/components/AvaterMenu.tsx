@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AvaterMenu() {
-  const { setUser } = useUser();
+  const { setUser, user } = useUser();
   const router = useRouter();
   const handleLogout = async () => {
     // Handle logout logic here
@@ -35,10 +35,7 @@ export default function AvaterMenu() {
           <AvatarFallback className="bg-blue-600 text-white">
             <span className="text-xs">A</span>
           </AvatarFallback>
-          <AvatarImage
-            src="https://avatars.githubusercontent.com/u/12345678?v=4"
-            alt="User Avatar"
-          />
+          <AvatarImage src={user?.AvatarURL} alt="User Avatar" />
           {/* You can replace the src with a dynamic user image URL */}
         </Avatar>
       </DropdownMenuTrigger>

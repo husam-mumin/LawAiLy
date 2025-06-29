@@ -33,6 +33,7 @@ export const userColumns = (
   currentUser?: userType
 ): ColumnDef<UserRow>[] => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
+
   return [
     {
       accessorKey: "AvatarURL",
@@ -72,9 +73,17 @@ export const userColumns = (
       },
     },
     {
-      accessorKey: "isAdmin",
+      accessorKey: "role",
       header: "مدير؟",
-      cell: ({ row }) => (row.original.isAdmin ? "نعم" : "لا"),
+      cell: ({ row }) => {
+        const text =
+          row.original.role == "user"
+            ? "مستخدم"
+            : row.original.role === "admin"
+            ? "مدير"
+            : "مالك";
+        return text;
+      },
     },
     {
       accessorKey: "isBaned",
@@ -94,35 +103,65 @@ export const userColumns = (
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48">
               <DropdownMenuItem
-                disabled={row.original.email === currentUser?.email} // Disable if user is admin
-                onClick={() => onDelete(row.original._id)}
+                disabled={
+                  row.original.email === currentUser?.email ||
+                  row.original.role === "owner" ||
+                  (row.original.role === "admin" &&
+                    currentUser?.role === "admin")
+                } // Disable if user is admin
+                onClick={() => {
+                  if (row.original.email === currentUser?.email) return;
+                  if (currentUser?.role === "user") return;
+                  if (row.original.role === "owner") return;
+
+                  onDelete(row.original._id);
+                }}
                 className="justify-end text-red-600"
               >
                 حذف
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() =>
+                onClick={() => {
+                  if (row.original.email === currentUser?.email) return;
+                  if (currentUser?.role === "user") return;
+                  if (row.original.role === "owner") return;
                   onEdit({
                     ...row.original,
                     isBaned: !row.original.isBaned,
-                  })
-                }
-                disabled={row.original.email == currentUser?.email} // Disable if user is admin
+                  });
+                }}
+                disabled={
+                  row.original.email == currentUser?.email ||
+                  row.original.role === "owner" ||
+                  (row.original.role === "admin" &&
+                    currentUser?.role === "admin")
+                } // Disable if user is admin
                 className="justify-end"
               >
                 {row.original.isBaned ? "إلغاء الحظر" : "حظر المستخدم"}
               </DropdownMenuItem>
               <DropdownMenuItem
-                disabled={row.original.email === currentUser?.email} // Disable if user is admin
-                onClick={() =>
+                disabled={
+                  row.original.email === currentUser?.email ||
+                  row.original.role === "owner" ||
+                  (row.original.role === "admin" &&
+                    currentUser?.role === "admin")
+                } // Disable if user is admin
+                onClick={() => {
+                  if (row.original.email === currentUser?.email) return;
+                  if (currentUser?.role === "user") return;
+                  if (row.original.role === "owner") return;
+
                   onEdit({
                     ...row.original,
-                    isAdmin: !row.original.isAdmin,
-                  })
-                }
+                    role: row.original.role === "user" ? "admin" : "user",
+                  });
+                }}
                 className="justify-end"
               >
-                {row.original.isAdmin ? "إزالة صلاحية المدير" : "تعيين كمدير"}
+                {row.original.role == "admin"
+                  ? "إزالة صلاحية المدير"
+                  : "تعيين كمدير"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

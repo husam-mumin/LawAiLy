@@ -50,7 +50,11 @@ export async function POST(req: NextRequest) {
 
 
     // In production, use bcrypt to compare hashed passwords
-    
+    if (!user.password) {
+      return NextResponse.json({
+        error: 'تم إنشاء هذا الحساب عبر تسجيل الدخول باستخدام Google. الرجاء تسجيل الدخول باستخدام Google.',
+      }, { status: 403 });
+    }
     if (!bcrypt.compareSync(password.trim(), user.password)) {
       
       return NextResponse.json({ error: 'Invalid password.' }, { status: 401 });
@@ -75,7 +79,7 @@ export async function POST(req: NextRequest) {
       gender: user.gender,
       AvatarURL: user.AvatarURL,
       firstName: user.firstName,
-      isAdmin: user.isAdmin,
+      role: user.role,
       isBaned: user.isBaned,
       lastName: user.lastName
       }

@@ -22,7 +22,8 @@ export type chatType = {
   title: string,
   messages: messageType[],
   isFavorite: boolean,
-  user: string
+  user: string,
+  createdAt?: string | Date // Added createdAt for date grouping
 }
 
 const chatSchema: Schema = new mongoose.Schema<IChat>({

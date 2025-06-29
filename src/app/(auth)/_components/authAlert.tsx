@@ -16,8 +16,9 @@ export default function Authalert({
   return (
     <Alert
       className={`px-5 absolute top-0 right-1/2 translate-1/2 w-fit flex items-center
-        
+      
     ${className}`}
+      dir="rtl"
       variant={"destructive"}
     >
       {Icon && <Icon />}

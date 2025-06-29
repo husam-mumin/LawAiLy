@@ -22,7 +22,7 @@ export default function SidebarHeaderForChat() {
       <div className="flex items-center justify-between h-16 px-4 ">
         <SidebarTrigger />
         <SidebarMenu>
-          <LogoSection isAdmin={user?.isAdmin} />
+          <LogoSection isAdmin={user?.role != "user" ? true : false} />
         </SidebarMenu>
       </div>
     </>

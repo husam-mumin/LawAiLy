@@ -10,6 +10,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { chatType } from "@/models/Chat";
 import axios, { AxiosError } from "axios";
 import { useUser } from "@/app/context/UserContext";
+import NewChatPop from "@/app/in/_components/newChatPop";
 type MainLayoutProps = {} & ReactProps;
 
 export interface SearchBarContext {
@@ -97,6 +98,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </SidebarInset>
         <AppSidebar chats={chats} />
       </SidebarProvider>
+      <NewChatPop />
     </div>
   );
 }

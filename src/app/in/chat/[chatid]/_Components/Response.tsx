@@ -1,3 +1,4 @@
+"use client";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -38,7 +39,7 @@ export default function Response({
   async function handleShare() {
     if (response.response) {
       try {
-        await axios.post(`/api/chat/${chat}/${response.id}/isshared`, {
+        await axios.post(`/api/chat/${chat}/${response._id}/isshared`, {
           userId: user._id,
         });
         // Optionally, you can show a toast or notification here
@@ -55,25 +56,27 @@ export default function Response({
           <div>Loading...</div>
         ) : response.response ? (
           <ContextMenu>
-            <ContextMenuTrigger className="bg-amber-300">
-              <div className="markdown prose">
-                <ReactMarkdown>{response.response}</ReactMarkdown>
+            <ContextMenuTrigger asChild>
+              <div className="">
+                <div className="markdown prose">
+                  <ReactMarkdown>{response.response}</ReactMarkdown>
+                </div>
               </div>
             </ContextMenuTrigger>
             <ContextMenuContent>
               <ContextMenuItem onClick={handleCopy}>copy</ContextMenuItem>
-              <ContextMenuItem asChild>
-                {/* Share to WhatsApp and record share in DB */}
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(
-                    response.response || ""
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleShare}
-                >
-                  share
-                </a>
+              <ContextMenuItem
+                onClick={() => {
+                  handleShare();
+                  window.open(
+                    `https://wa.me/?text=${encodeURIComponent(
+                      response.response || ""
+                    )}`,
+                    "_blank"
+                  );
+                }}
+              >
+                share
               </ContextMenuItem>
               <ContextMenuItem>more</ContextMenuItem>
             </ContextMenuContent>

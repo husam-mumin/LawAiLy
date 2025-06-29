@@ -94,7 +94,6 @@ export default function LoginForm() {
       // Optionally, you can store user data in local storage or context
     } catch (err: unknown) {
       // todo complete this catch
-      console.error("Login error:", error);
       // Handle login error (e.g., show error message)
       if (err instanceof AxiosError) {
         if (err.status === 401) {
@@ -108,6 +107,17 @@ export default function LoginForm() {
             title: "Login Failed",
             description:
               error?.description || "An error occurred while logging in.",
+          });
+        }
+        if (err.response?.data?.error) {
+          setError({
+            title: "هذا الحساب مستخدم عبر تسجيل الدخول باستخدام Google",
+            description: err.response.data.error,
+          });
+        } else {
+          setError({
+            title: "Login Failed",
+            description: "An error occurred while logging in.",
           });
         }
       }

@@ -1,6 +1,7 @@
 import MainLayout from "@/components/layout/MainLayout/MainLayout";
 import axios from "axios";
 import { DocumentProvider } from "./_components/DocumentProvider";
+import NotificationDialog from "./_components/notifcaitonDialog";
 type layoutProps = {
   children: React.ReactNode;
 };
@@ -35,6 +36,7 @@ export default async function layout({ children }: layoutProps) {
         <MainLayout>
           <div className="container mx-auto">{children}</div>
         </MainLayout>
+        <NotificationDialog />
       </DocumentProvider>
     </div>
   );

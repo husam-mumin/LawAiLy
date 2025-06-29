@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  
   allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev', '192.168.0.130'],
+  swcMinify: false,
   images: {
     remotePatterns: [
       {
@@ -10,6 +12,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/**",
+      }
     ],
   }
   /* config options here */

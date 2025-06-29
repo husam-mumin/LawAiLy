@@ -9,7 +9,7 @@ export function useDocumentActions(initialDocuments: documentType[] = []) {
 
   useEffect(() => {
       refresh();
-  }, []);
+  } , []);
 
   const refresh = useCallback(async () => {
     

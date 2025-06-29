@@ -9,7 +9,8 @@ import {
 import { chatType } from "@/models/Chat";
 import { HeartOff, MessageCirclePlus, MessageCircleX } from "lucide-react";
 import Link from "next/link";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense } from "react";
+import { format, isToday, isYesterday } from "date-fns";
 
 /**
  *
@@ -18,23 +19,56 @@ import React, { Suspense, useEffect, useState } from "react";
  * show it
  */
 
+// Arabic month names
+const arabicMonths = [
+  "يناير",
+  "فبراير",
+  "مارس",
+  "أبريل",
+  "مايو",
+  "يونيو",
+  "يوليو",
+  "أغسطس",
+  "سبتمبر",
+  "أكتوبر",
+  "نوفمبر",
+  "ديسمبر",
+];
+
+function getArabicDateLabel(dateString: string) {
+  const dateObj = new Date(dateString);
+  if (isToday(dateObj)) return "اليوم";
+  if (isYesterday(dateObj)) return "أمس";
+  // Format: 28 يونيو 2025
+  const day = dateObj.getDate();
+  const month = arabicMonths[dateObj.getMonth()];
+  const year = dateObj.getFullYear();
+  return `${day} ${month} ${year}`;
+}
+
 export default function SidebarContentForChat({
   chats,
 }: {
   chats: chatType[];
 }) {
-  const [chatFavorites, setChatFavorites] = useState<chatType[] | null>(null);
+  // Use useMemo to filter favorites efficiently
+  const chatFavorites = React.useMemo(
+    () => chats.filter((chat) => chat.isFavorite),
+    [chats]
+  );
 
-  useEffect(() => {
-    if (!chats) return;
-    const chatF: chatType[] = [];
-    for (let index = 0; index < chats.length; index++) {
-      if (chats[index].isFavorite) {
-        chatF.push(chats[index]);
-      }
-    }
-
-    setChatFavorites(chatF.length > 0 ? chatF : null);
+  // Group chats by date (day)
+  const chatsByDate = React.useMemo(() => {
+    if (!chats) return {};
+    return chats.reduce((acc: Record<string, chatType[]>, chat) => {
+      // Use chat.createdAt or fallback to today if missing
+      const date = chat.createdAt
+        ? format(new Date(chat.createdAt), "yyyy-MM-dd")
+        : format(new Date(), "yyyy-MM-dd");
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(chat);
+      return acc;
+    }, {});
   }, [chats]);
 
   return (
@@ -49,8 +83,7 @@ export default function SidebarContentForChat({
         <SidebarGroupLabel className="text-sm ms-auto font-semibold text-gray-700">
           سجل المحدثات
         </SidebarGroupLabel>
-        {/* Here you can map through chat history items */}
-        <ScrollArea className="h-[8rem] text-right overflow-y-auto border-2 border-black/3 rounded-2xl relative">
+        <ScrollArea className="h-[8rem] text-right overflow-y-auto relative">
           <SidebarMenu className="">
             <Suspense
               fallback={
@@ -59,20 +92,25 @@ export default function SidebarContentForChat({
                 </div>
               }
             >
-              {chats.length != 0 ? (
-                chats.map((chat) => {
-                  return (
-                    <Link
-                      key={chat._id && chat._id}
-                      href={`/in/chat/${chat._id}`}
-                      className="cursor-pointer"
-                    >
-                      <SidebarMenuItem className="p-2 text-gray-600 border-black/3  hover:bg-gray-100 cursor-pointer">
-                        {chat.title}
-                      </SidebarMenuItem>
-                    </Link>
-                  );
-                })
+              {chats.length !== 0 ? (
+                Object.entries(chatsByDate).map(([date, chatsOnDate]) => (
+                  <div key={date}>
+                    <div className="px-2 py-1 text-xs text-gray-500 font-bold border-b ">
+                      {getArabicDateLabel(date)}
+                    </div>
+                    {chatsOnDate.map((chat) => (
+                      <Link
+                        key={chat._id && chat._id}
+                        href={`/in/chat/${chat._id}`}
+                        className="cursor-pointer"
+                      >
+                        <SidebarMenuItem className="p-2 text-gray-600 border-black/3  hover:bg-gray-100 cursor-pointer">
+                          {chat.title}
+                        </SidebarMenuItem>
+                      </Link>
+                    ))}
+                  </div>
+                ))
               ) : (
                 <div className="absolute top-1/2 left-1/2 -translate-1/2">
                   <MessageCircleX className="stroke-primary/40 size-8" />
@@ -86,24 +124,21 @@ export default function SidebarContentForChat({
         <SidebarGroupLabel className="text-sm ms-auto font-semibold text-gray-700">
           الفضلة
         </SidebarGroupLabel>
-        <ScrollArea className="h-[6rem] text-right overflow-y-auto h-[8rem] overflow-y-auto border-2 rounded-2xl relative">
+        <ScrollArea className="h-[8rem] text-right overflow-y-auto relative">
           <SidebarMenu>
             <Suspense fallback={"loading..."}>
-              {chatFavorites ? (
-                chatFavorites.map((chat) => {
-                  if (!chat.isFavorite) return;
-                  return (
-                    <Link
-                      key={chat._id as string}
-                      href={`/in/chat/${chat._id}`}
-                      className="cursor-pointer"
-                    >
-                      <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
-                        {chat.title}
-                      </SidebarMenuItem>
-                    </Link>
-                  );
-                })
+              {chatFavorites.length > 0 ? (
+                chatFavorites.map((chat) => (
+                  <Link
+                    key={chat._id as string}
+                    href={`/in/chat/${chat._id}`}
+                    className="cursor-pointer"
+                  >
+                    <SidebarMenuItem className="p-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
+                      {chat.title}
+                    </SidebarMenuItem>
+                  </Link>
+                ))
               ) : (
                 <>
                   <div className="absolute top-1/2 left-1/2 -translate-1/2">

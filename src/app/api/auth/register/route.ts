@@ -22,7 +22,7 @@ type body ={
  firstName: string,
  lastName: string,
  AvatarURL: string,
- isAdmin: boolean,
+ role: 'user' | 'admin' | 'owner',
  gender: string
 }
 
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       firstName: body.firstName || '',
       lastName: body.lastName || '',
       AvatarURL: body.AvatarURL || '',
-      isAdmin: body.isAdmin || false,
+      role: body.role || 'user',
       gender,
       
     });

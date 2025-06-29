@@ -1,15 +1,4 @@
-import { Storage } from "@google-cloud/storage";
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-const storage = new Storage({
-  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || "./service-account.json",
-});
-const bucket = storage.bucket(process.env.GCS_BUCKET_NAME || "lawai"); // Default to "lawai" if not set
+import { bucket } from "../file/_action/getfunction";
 
 export async function POST(req: Request) {
   const formData = await req.formData();
@@ -42,7 +31,7 @@ export async function POST(req: Request) {
   stream.end(buffer);
   
 
-  return new Promise((resolve) => {
+  return new Promise<Response>((resolve) => {
     stream.on("finish", async () => {
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
 

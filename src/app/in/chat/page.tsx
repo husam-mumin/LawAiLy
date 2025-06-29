@@ -16,11 +16,14 @@ export default function Page() {
     error,
   } = useAddMessage();
   const [currentSuggestion, setCurrentSuggesion] = useState("");
-  const suggestion: string[] = [
-    "first you need to change something",
-    "second slug",
-    "third now you can do slug slug slug slug",
-  ];
+  const suggestion: string[] = React.useMemo(
+    () => [
+      "first you need to change something",
+      "second slug",
+      "third now you can do slug slug slug slug",
+    ],
+    []
+  );
 
   useEffect(() => {
     setCurrentSuggesion(suggestion[0]);
@@ -33,7 +36,7 @@ export default function Page() {
     return () => {
       clearInterval(sugguestToggle);
     };
-  }, []);
+  }, [suggestion]);
 
   return (
     <div className="container  mx-auto  overflow-hidden">

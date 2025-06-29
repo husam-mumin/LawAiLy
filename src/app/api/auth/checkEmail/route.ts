@@ -17,6 +17,12 @@ export async function POST(req: Request) {
   const existingUser = await User.findOne({ email: email.toLowerCase() });
 
   if (existingUser) {
+    if (!existingUser.password ) {
+      return NextResponse.json({
+        exists: true,
+        error: "هذا الحساب مستخدم عبر تسجيل الدخول باستخدام Google",
+      });
+    }
     return NextResponse.json({ exists: true })
   }
   return NextResponse.json({ exists: false })

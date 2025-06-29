@@ -20,6 +20,7 @@ export type DocumentRow = {
   showUp: boolean;
   addedBy: userType;
   image: string;
+  category?: string; // Added category field
 };
 
 export const documentColumns = (
@@ -66,7 +67,14 @@ export const documentColumns = (
   {
     accessorKey: "createAt",
     header: "تاريخ الإضافة",
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
+    cell: ({ row }) => {
+      const date = new Date(row.original.createdAt);
+      // Format: YYYY/MM/DD
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}/${month}/${day}`;
+    },
   },
   {
     accessorKey: "description",
@@ -85,13 +93,18 @@ export const documentColumns = (
 
       return (
         <span>
-          {addedBy.firstName || addedBy.lastName
+          {addedBy?.firstName || addedBy?.lastName
             ? `${addedBy.firstName || ""} ${addedBy.lastName || ""}`.trim()
-            : addedBy.email || "غير معروف"}
+            : addedBy?.email || "غير معروف"}
         </span>
       );
     },
     header: "أضيف بواسطة",
+  },
+  {
+    accessorKey: "category",
+    header: "التصنيف",
+    cell: ({ row }) => <span>{row.original.category || "غير مصنف"}</span>,
   },
   {
     id: "actions",

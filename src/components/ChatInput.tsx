@@ -91,32 +91,23 @@ export default function ChatInput({
                 )}
               </Button>
               <div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-full"
-                >
-                  {fileLoading ? (
-                    <Clock size={20} className="animate-spin" />
-                  ) : (
-                    <Label className="cursor-pointer">
-                      <Input
-                        type="file"
-                        accept="image/*,video/*,audio/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          if (
-                            e.currentTarget.files &&
-                            e.currentTarget.files[0]
-                          ) {
-                            onAttachFile(e.currentTarget.files[0]);
-                          }
-                        }}
-                      />
-                      ارفق ملف
-                    </Label>
-                  )}
-                </Button>
+                {fileLoading ? (
+                  <Clock size={20} className="animate-spin" />
+                ) : (
+                  <Label className="cursor-pointer">
+                    <Input
+                      type="file"
+                      accept="image/*,video/*,audio/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.currentTarget.files && e.currentTarget.files[0]) {
+                          onAttachFile(e.currentTarget.files[0]);
+                        }
+                      }}
+                    />
+                    ارفق ملف
+                  </Label>
+                )}
                 {attachFile && (
                   <span className="text-sm text-gray-500 ms-2">
                     Attached: {attachFile.name.slice(0, 20)}

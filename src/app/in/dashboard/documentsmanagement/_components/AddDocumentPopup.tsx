@@ -12,6 +12,15 @@ import { useUser } from "@/app/context/UserContext";
 import { toast } from "sonner";
 import UploadImage from "./Uploadimage";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { useCategoriesAction } from "@/app/in/dashboard/categoriesmanagement/_hooks/useCategoriesAction";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface AddDocumentPopupProps {
   open: boolean;
@@ -25,6 +34,7 @@ interface AddDocumentPopupProps {
     showup: boolean;
     image: string;
     addBy: string;
+    categoryId: string;
   }) => void;
 }
 
@@ -36,11 +46,14 @@ export function AddDocumentPopup({
   onAdd,
 }: AddDocumentPopupProps) {
   const { user } = useUser();
+  const { categories, loading } = useCategoriesAction();
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [showup, setShowup] = React.useState(true);
   const [addBy, setAddBy] = React.useState("");
   const [image, setImage] = React.useState("");
+  const [categoryId, setCategoryId] = React.useState("");
+
   React.useEffect(() => {
     if (!user) return;
     if (user.firstName && user.lastName) {
@@ -98,6 +111,10 @@ export function AddDocumentPopup({
       toast.error("اسم المضاف قصير جداً");
       return;
     }
+    if (!categoryId) {
+      toast.error("الرجاء اختيار التصنيف");
+      return;
+    }
 
     // Handle exists file (409) toast
     if (fileUrl === "EXISTS_FILE_URL") {
@@ -114,6 +131,7 @@ export function AddDocumentPopup({
       showup,
       image: image,
       addBy: user?._id,
+      categoryId,
     });
     setTitle("");
     setFileUrl("");
@@ -129,13 +147,15 @@ export function AddDocumentPopup({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>إضافة مستند جديد</DialogTitle>
+      <DialogContent className="max-w-lg rounded-xl shadow-2xl border-0 p-0">
+        <DialogHeader className="bg-blue-50 rounded-t-xl px-6 pt-6 pb-2">
+          <DialogTitle className="flex items-center gap-2 text-blue-700 text-xl font-bold">
+            إضافة مستند جديد
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-6 py-6">
           <input
-            className="border p-2 rounded"
+            className="border border-blue-200 focus:ring-2 focus:ring-blue-300 p-2 rounded w-full text-right placeholder:text-gray-400"
             placeholder="العنوان"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -151,26 +171,68 @@ export function AddDocumentPopup({
               setImage(x);
             }}
           />
-          <div className="border p-2 rounded bg-gray-100 text-gray-700">
-            {addBy ? `أضيف بواسطة: ${addBy}` : "جاري جلب المستخدم..."}
-          </div>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={showup}
-              onChange={(e) => setShowup(e.target.checked)}
-            />
-            ظهور
-          </label>
+          <Select value={categoryId} onValueChange={setCategoryId}>
+            <SelectTrigger
+              disabled={loading}
+              className="border border-blue-200 focus:ring-2 focus:ring-blue-300 rounded w-full p-2 text-right bg-white"
+            >
+              {loading
+                ? "جاري تحميل التصنيفات..."
+                : categories && categoryId
+                ? categories.find((cat) => cat._id === categoryId)?.name ||
+                  "اختر التصنيف"
+                : "اختر التصنيف"}
+            </SelectTrigger>
+            <SelectContent className="z-50">
+              {categories &&
+                categories.map((cat) => (
+                  <SelectItem
+                    key={cat._id}
+                    value={cat._id}
+                    className="text-right"
+                  >
+                    {cat.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
           <Textarea
-            className="border p-2 rounded min-h-[80px]"
+            className="border border-blue-200 focus:ring-2 focus:ring-blue-300 p-2 rounded min-h-[80px] text-right placeholder:text-gray-400"
             placeholder="الوصف"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <DialogFooter>
-            <Button type="submit">إضافة</Button>
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="border p-2 rounded bg-gray-100 text-gray-700 text-right">
+            {addBy ? `أضيف بواسطة: ${addBy}` : "جاري جلب المستخدم..."}
+          </div>
+          <div className="flex items-center gap-2 text-right">
+            <Label
+              htmlFor="showup-switch"
+              className="cursor-pointer select-none"
+            >
+              ظهور
+            </Label>
+            <Switch
+              checked={showup}
+              onCheckedChange={setShowup}
+              className="data-[state=checked]:bg-blue-600"
+              dir="rtl"
+              id="showup-switch"
+            />
+          </div>
+          <DialogFooter className="flex gap-2 justify-end mt-4 bg-gray-50 rounded-b-xl px-0 py-4">
+            <Button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white min-w-[90px]"
+            >
+              إضافة
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="min-w-[90px]"
+            >
               إلغاء
             </Button>
           </DialogFooter>
