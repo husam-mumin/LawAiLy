@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
  */
 
 export type PostNewChat = {
+  message: string,
   chatId: string,
   chat: chatType,
   newMessage: messageType
@@ -63,16 +64,17 @@ export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { title, userId, message } = body;
+    const {  userId, message} = body;
+    
     
 
-    if (!title || !userId || !message) {
+    if (!userId) {
       return NextResponse.json({ error: 'title, userId, and message are required.' }, { status: 400 });
     }
 
     // Create new chat
     const chat = new Chat({
-      title,
+      title: message.slice(0, 50), // Use the first 50 characters of the message as the title
       user: [userId],
       isFavorite: false,
     });
@@ -81,6 +83,7 @@ export async function POST(req: NextRequest) {
 
     await chat.save()
     // Create new message
+    
     const newMessage = new Message({
       message,
       user: userId,
@@ -90,6 +93,8 @@ export async function POST(req: NextRequest) {
     });
 
     await newMessage.save();
+
+    // todo File mange here
 
 
     return NextResponse.json({

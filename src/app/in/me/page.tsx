@@ -1,8 +1,14 @@
 "use client";
 import { useUser } from "@/app/context/UserContext";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { FileText, Mail, MessageSquare, MessagesSquare } from "lucide-react";
+import { motion } from "framer-motion";
+
+import {
+  useGsapProfileAnimation,
+  profileCardVariants,
+} from "./useProfileAnimation";
 
 interface UserType {
   _id: string;
@@ -23,6 +29,8 @@ export default function Page() {
   const { user } = useUser() as { user: UserType };
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
   const [loading, setLoading] = useState(true);
+  const cardRef = useRef<HTMLDivElement>(null);
+  useGsapProfileAnimation(cardRef as React.RefObject<HTMLDivElement>);
 
   useEffect(() => {
     if (user?._id && (user.role === "admin" || user.role === "owner")) {
@@ -43,7 +51,13 @@ export default function Page() {
 
   return (
     <div className="min-h-[calc(100dvh-5rem)] w-full flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-white">
-      <div className="bg-white/80 backdrop-blur-md shadow-none border border-gray-200 rounded-3xl p-8 w-full max-w-sm flex flex-col items-center gap-4">
+      <motion.div
+        ref={cardRef}
+        className="bg-white/80 backdrop-blur-md shadow-none border border-gray-200 rounded-3xl p-8 w-full max-w-sm flex flex-col items-center gap-4"
+        variants={profileCardVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="w-24 h-24 rounded-full border-4 border-blue-100 bg-gray-100 flex items-center justify-center text-5xl mb-1 overflow-hidden">
           {user?.AvatarURL ? (
             <Image
@@ -124,7 +138,7 @@ export default function Page() {
             )}
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

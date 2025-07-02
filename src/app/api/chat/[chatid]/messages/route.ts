@@ -57,6 +57,10 @@ export type messageResponse = {
   updateAt: Date,
 }
 
+export type chatMessagesTypeGET = {
+  chat: messageResponse[]
+}
+
 export async function GET(
    req: NextRequest, context:  { params:Promise<{ chatid : string}>}
 ) {

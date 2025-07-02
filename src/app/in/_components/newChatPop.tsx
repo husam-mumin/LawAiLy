@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import gsap from "gsap";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 // Simple inline robot SVG
-const RobotAvatar = () => (
+export const RobotAvatar = () => (
   <svg
     width="52"
     height="52"
@@ -140,7 +141,7 @@ export default function NewChatPop() {
   }, [isHovering, showMessage]);
 
   // check the path if he is in chat or Dashboard stop showing
-  const path = window.location.pathname;
+  const path = usePathname();
   if (path.includes("/in/chat") || path.includes("/in/dashboard")) {
     return null;
   }

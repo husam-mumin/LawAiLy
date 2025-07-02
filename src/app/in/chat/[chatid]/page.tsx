@@ -1,180 +1,68 @@
 "use client";
+import React from "react";
+import { useChatManager } from "./_hooks/useChatmangaer";
 import { useParams } from "next/navigation";
 
-import ChatHeader from "./_Components/ChatHeader";
-
-import ChatInput from "@/components/ChatInput";
-import { useAddMessage } from "./_hooks/useAddMessage";
-import Message from "./_Components/Message";
-import Response from "./_Components/Response";
-import { useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
-import { chatType } from "@/models/Chat";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useChatManagement } from "./_hooks/useChatManagement";
-import { responseType } from "@/models/Responses";
-import { useUser } from "../../../context/UserContext";
 /**
+ * this is a chat page the happen between customer and LLMs ai that train with law Libyan Laws
+ * todo - Add chat page functionality
+ * ChatPage component to display chat details and messages.
+ * The Page split to sections are
+ * 1. Chat Header - Displays chat title and other details.
+ * 2. Chat Messages - Displays all messages in the chat.
+ * 3. Chat Input - Displays the Input in the bottom
+ * 4. handle Loading and Error Statue
+ * 5. Auto-Scroll to Latest Message
+ * 7. Refresh Button
  *
- * we must have the Chat message with there responses
- * the order by message Create Time
- * we can accept more then one responses for the message
- * we a delay between the message and get the responses
- * when open the page we must call the getMessageAPI just one time
- * when sent new message we create message in database and return the value to give setChat
- * and check if the message sent successfully or not if not he can resent again
- * after sent we call the response action that run the loading and wait for response for the server
- * response action stop the sent action ( and he can stop the enter proses )  still under the study
- * after the presses end the sent action work again and the response appear
+ * Additional suggestions:
+ * 8. Accessibility: Ensure input and controls are accessible.
+ * 9. Empty State: Show a message if there are no messages yet.
+ * 10. Message Timestamps: Display when each message was sent.
+ * 11. Optimistic UI: Show messages immediately as user sends them.
+ * 12. Error Recovery: Allow retrying failed messages.
+ * 13. Mobile Responsiveness: Make sure layout works on mobile.
+ * 14. User Avatars: Show who sent each message visually.
+ * 15. Scroll Management: Add a scroll-to-bottom button.
+ * 16. Loading Placeholders: Use skeletons or spinners.
+ * 17. Security: Sanitize message content to prevent XSS.
  *
- * when first open
- * # check if is the first open
- * sent loading for sent setting the message
- * sent the message
+ * Behaver
+ * Loading
+ * 1. The Page Loading
+ * 2. The get Messages Loading
+ * 3. Sent Message Loading
+ * 4. get Response Ai Loading
  *
- * # chat action
- * he can make it favorite chat
- * he can delete the chat
- * he can edit the name of the chat
  *
- * # Message action
- * there are the loading before save
- * he can resent if message don't sent to the server
- * he can edit it
- * he can copy it
+ * Possible Error Messages:
+ * 1. Network Error: Failure to fetch or send messages due to connectivity issues.
+ * 2. Invalid Chat ID: Chat ID is missing, invalid, or not found.
+ * 3. Unauthorized Access: User is not authenticated or lacks permission.
+ * 4. API Error: Backend returns an error (500, 404, etc).
+ * 5. Message Send Failure: Sending a message fails due to server or validation errors.
+ * 6. AI Response Timeout: AI takes too long or fails to respond.
+ * 7. Corrupted Data: Received data is malformed or missing fields.
+ * 8. Rate Limiting: User sends messages too quickly and is blocked.
+ * 9. File Upload Error: File or image attachments fail to upload.
+ * 10. XSS/Security Error: Unsanitized content causes a security issue.
+ * 11. State Sync Error: UI state is out of sync with backend.
+ * 12. Unknown Error: Any unexpected error not covered above.
  *
- * # Response action
- * there are Loading before the show
- * he can copy it
- *
- * he can recreate new response
- * he review the response
- * he can report for the response
- *
- * @returns s
+ * @returns
  */
-
-/**
- * the Sent message process
- * To build a smooth chat interface in Next.js that:
- * 1. Shows the user's message immediately.
- * 2. Shows a "loading" state on that message.
- * 3. Updates the message after it's saved.
- * 4. Shows a response with a loading indicator.
- * 5. Replaces it with the real response after generation.
- *
- */
-export type responseWithLoading = {
-  isLoading: boolean;
-} & responseType;
 
 export default function ChatPage() {
-  const params: { chatid: string } = useParams();
-  const chatid = params.chatid;
-  const { user } = useUser();
+  const { chatid } = useParams();
+  console.log("Chat ID:", chatid);
 
-  const {
-    chatInputFiles,
-    chatInputValue,
-    chatFileUploadLoading,
-    error,
-    handleChatInputChange,
-    handleFileInputChange,
-  } = useAddMessage();
-
-  const { addNewMessage, chat } = useChatManagement(chatid);
-  const [sentLoading, setSentLoading] = useState<boolean>(false);
-  const [chatDetail, setChatDetail] = useState<chatType | null>(null);
-
-  const handleSentButton = async () => {
-    if (!user) return;
-    setSentLoading(true);
-    try {
-      addNewMessage(chatInputValue, user._id as string);
-    } catch (err) {
-      // todo handle the error
-      console.error(err);
-    }
-    setSentLoading(false);
-  };
-
-  useEffect(() => {
-    const getChat = async () => {
-      try {
-        const response = await axios.get<{ chat: chatType }>(
-          `/api/chat/${chatid}`
-        );
-        const data = response.data;
-
-        setChatDetail(data.chat);
-      } catch (error: unknown) {
-        if (error instanceof AxiosError) {
-          console.error(error.message);
-        }
-      }
-    };
-    getChat();
-  }, [chatid]);
-
-  if (!user) {
-    return <div>not auth user</div>;
-  }
+  const { chat, messages, loading, error, refresh } = useChatManager(
+    chatid as string
+  );
 
   return (
     <div>
-      <div className="w-screen md:w-180 mx-auto bg-gray-500/5 min-h-[calc(100vh-120px)] md:min-h-[calc(100vh-60px)] relative">
-        <>
-          {chatDetail ? (
-            <ChatHeader
-              title={chatDetail.title}
-              isFavorite={chatDetail.isFavorite}
-              user={user}
-            />
-          ) : (
-            <ChatHeader user={user} title="loading..." isFavorite={false} />
-          )}
-          {error ? error : ""}
-          <ScrollArea className="h-[calc(100vh-133px)] md:h-[calc(100vh-140px)] ">
-            <div className="flex flex-col pt-10 px-2">
-              <div className="h-70 w-full  mx-auto">
-                <div className=" h-full  bg-gary-400">
-                  {chat.map((chat) => {
-                    if (!chat) return;
-                    return (
-                      <div key={chat._id} className="mb-10">
-                        <div className="ms-auto mb-2">
-                          <Message value={chat.text} loading={chat.isLoading} />
-                        </div>
-                        <div className="ms-auto px-6  text-right">
-                          <Response
-                            loading={chat.isLoading ? true : false}
-                            response={chat.response as responseWithLoading}
-                            chat={chatid}
-                            user={user}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <div className="h-[10rem] w-full" />
-                </div>
-              </div>
-            </div>
-            <div className="w-full h-full"></div>
-            <div className="absolute bottom-4 right-1/2 translate-x-1/2">
-              <ChatInput
-                value={chatInputValue}
-                onChange={handleChatInputChange}
-                onSend={handleSentButton}
-                onAttachFile={handleFileInputChange}
-                attachFile={chatInputFiles}
-                loading={sentLoading}
-                fileLoading={chatFileUploadLoading}
-              />
-            </div>
-          </ScrollArea>
-        </>
-      </div>
+      <div></div>
     </div>
   );
 }

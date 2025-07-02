@@ -2,20 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Chat, { chatType } from "@/models/Chat";
 
-// GET /api/chat/[chatid]
-// Returns: {
-//   chat: { title: string },
-//   messages: [
-//     {
-//       _id: string,
-//       message: string,
-//       responses: [
-//         { _id: string, response: string, isGood: boolean | null }
-//       ]
-//     }, ...
-//   ]
-// }
-
 
 
 // /**
@@ -29,32 +15,12 @@ import Chat, { chatType } from "@/models/Chat";
 //  * 6. if any error occurs, return 500 internet Server error with the error message.
 //  */
 
-export type AIResponseType = {
-  response : string,
-  message: string,
-  chat: string, 
-  isGood: boolean | null
+
+export type ChatWithIdGet  = {
+  chat?: chatType,
+  error?: string 
 }
 
-export type filesType = {
-  fileURL: string,
-  filename: string,
-  filesize: string,
-  fileFormat: string,
-  filetext: string,
-  message: string
-}
-
-export type messageResponse = {
-  _id: string,
-  message: string,
-  users: string,
-  chat: string,
-  responses: AIResponseType,
-  files: filesType,
-  createAt: Date,
-  updateAt: Date,
-}
 
 export async function GET(
    req: NextRequest, context:  { params: Promise<{ chatid : string}>}
