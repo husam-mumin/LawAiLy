@@ -18,6 +18,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           AvatarURL: user.image || '',
           gender: profile?.gender || 'other',
+          firstName: '',
+          lastName: '',
         });
       }
       console.log(

@@ -7,7 +7,6 @@ import SuggestionsPop from "./_components/SuggestionsPop";
 import useAddMessage from "./_hook/useAddMessage";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/context/UserContext";
-
 export default function Page() {
   const { user } = useUser();
   const [currentSuggestion, setCurrentSuggesion] = useState("");
@@ -23,6 +22,8 @@ export default function Page() {
       "اطلب مقارنة بين القوانين القديمة والجديدة.",
       "استفسر عن عقوبات المخالفات المرورية.",
       "اسأل عن كيفية توثيق المستندات الرسمية.",
+      "اسأل عن أحكام الميراث في القانون الليبي.",
+      "استفسر عن القوانين المدنية وأهم مواد القانون المدني.",
     ],
     []
   );

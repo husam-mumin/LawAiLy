@@ -5,17 +5,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 // Simple inline robot SVG
-export const RobotAvatar = () => (
+export const RobotAvatar = ({ size }: { size?: number }) => (
   <svg
-    width="52"
-    height="52"
+    width={size ? size : `52`}
+    height={size ? size : `52`}
     viewBox="0 0 40 40"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
     <circle cx="20" cy="20" r="20" fill="#E0E7FF" />
-    <rect x="10" y="15" width="20" height="15" rx="7" fill="#6366F1" />
-    <rect x="16" y="10" width="8" height="8" rx="4" fill="#6366F1" />
+    <rect x="10" y="15" width="20" height="15" rx="7" fill="#2b7fff" />
+    <rect x="16" y="10" width="8" height="8" rx="4" fill="#2b7fff" />
     <circle cx="15" cy="22" r="2" fill="#fff" />
     <circle cx="25" cy="22" r="2" fill="#fff" />
     <rect x="18" y="25" width="4" height="2" rx="1" fill="#fff" />

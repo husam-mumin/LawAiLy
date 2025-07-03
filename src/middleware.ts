@@ -30,7 +30,6 @@ export default async function middleware(req: NextRequest) {
     isBaned?: boolean;
     role?: 'user' | 'admin' |'owner';
         email?: string;
-    // add other properties if needed
   };
 
   let userFromApi: UserFromApi | null = null;
@@ -76,9 +75,13 @@ export default async function middleware(req: NextRequest) {
 
   // Auth logic for /
   if (pathname === '/') {
+    console.log(userFromApi);
+    
     if (sessionCookie && userFromApi) return NextResponse.redirect(new URL('/in', req.url));
+
     return NextResponse.next();
   }
+
 
   // Admin route logic
   if (adminRoutes.some(route => pathname.startsWith(route))) {

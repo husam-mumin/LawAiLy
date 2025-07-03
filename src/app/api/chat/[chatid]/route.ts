@@ -74,3 +74,42 @@ export async function DELETE(
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export type chatPutResponse = {
+  chat: chatType
+}
+
+export async function PUT(req : NextRequest, context: { params: Promise<{ chatid: string }> }) {
+  try {
+    await dbConnect();
+    const { chatid } = await context.params;
+
+    // Validate chatid
+    if (!chatid) {
+      return NextResponse.json({ error: "Chat ID is required." }, { status: 400 });
+    }
+
+    // Parse request body
+    const body = await req.json();
+    const { title, isFavorite } = body;
+
+    // Update the chat
+    const updatedChat = await Chat.findByIdAndUpdate(
+      chatid,
+      { title, isFavorite },
+      { new: true }
+    );
+
+    
+
+    if (!updatedChat) {
+      return NextResponse.json({ error: "Chat not found." }, { status: 404 });
+    }
+
+    return NextResponse.json({ chat: updatedChat }, { status: 200 });
+  } catch (error) {
+    let message = "Internal server error.";
+    if (error instanceof Error) message = error.message;
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
