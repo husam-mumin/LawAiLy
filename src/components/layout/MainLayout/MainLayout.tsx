@@ -11,6 +11,7 @@ import { chatType } from "@/models/Chat";
 import axios, { AxiosError } from "axios";
 import { useUser } from "@/app/context/UserContext";
 import NewChatPop from "@/app/in/_components/newChatPop";
+import { OpenSidebarContext } from "./OpenSidebarContext";
 type MainLayoutProps = {} & ReactProps;
 
 export interface SearchBarContext {
@@ -73,32 +74,34 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   // ! fix the layout issue ( margin Spaces )
   return (
-    <div className="relative">
-      <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-        <SidebarInset className="w-full ">
-          <div className="w-full ">
-            <layoutContext.Provider
-              value={{
-                isActive: isSearchActive,
-                setIsActive: (newValue: boolean) => {
-                  setIsSearchActive(newValue);
-                },
-                searchQuery: searchQuery,
-                setSearchQuery: (newValue: string) => {
-                  setSearchQuery(newValue);
-                },
-                setChats,
-              }}
-            >
-              <TopBar isSidebarOpen={isSidebarOpen} />
-              {children}
-            </layoutContext.Provider>
-          </div>
-          <Toaster />
-        </SidebarInset>
-        <AppSidebar chats={chats} />
-      </SidebarProvider>
-      <NewChatPop />
+    <div className="">
+      <OpenSidebarContext.Provider value={{ isSidebarOpen, setIsSidebarOpen }}>
+        <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+          <SidebarInset className="w-full ">
+            <div className="w-full ">
+              <layoutContext.Provider
+                value={{
+                  isActive: isSearchActive,
+                  setIsActive: (newValue: boolean) => {
+                    setIsSearchActive(newValue);
+                  },
+                  searchQuery: searchQuery,
+                  setSearchQuery: (newValue: string) => {
+                    setSearchQuery(newValue);
+                  },
+                  setChats,
+                }}
+              >
+                <TopBar isSidebarOpen={isSidebarOpen} />
+                {children}
+              </layoutContext.Provider>
+            </div>
+            <Toaster />
+          </SidebarInset>
+          <AppSidebar chats={chats} />
+        </SidebarProvider>
+        <NewChatPop />
+      </OpenSidebarContext.Provider>
     </div>
   );
 }
