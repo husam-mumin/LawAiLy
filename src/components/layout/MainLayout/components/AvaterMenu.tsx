@@ -1,3 +1,4 @@
+import { useUser } from "@/app/context/UserContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -10,12 +11,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AvaterMenu() {
+  const { setUser, user } = useUser();
   const router = useRouter();
   const handleLogout = async () => {
     // Handle logout logic here
     try {
       const response = await axios.post("/api/auth/logout");
       if (response.status === 200) {
+        setUser(null); // Clear user state
         router.replace("/login");
       }
     } catch (error: unknown) {
@@ -32,18 +35,17 @@ export default function AvaterMenu() {
           <AvatarFallback className="bg-blue-600 text-white">
             <span className="text-xs">A</span>
           </AvatarFallback>
-          <AvatarImage
-            src="https://avatars.githubusercontent.com/u/12345678?v=4"
-            alt="User Avatar"
-          />
+          <AvatarImage src={user?.AvatarURL} alt="User Avatar" />
           {/* You can replace the src with a dynamic user image URL */}
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="">
         <Link href={"/in/me"}>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem className="justify-end">ملفي</DropdownMenuItem>
         </Link>
-        <DropdownMenuItem onClick={handleLogout}>logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout} className="justify-end">
+          تسجيل خروج
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

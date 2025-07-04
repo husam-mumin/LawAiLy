@@ -1,0 +1,60 @@
+import { useState } from "react";
+import axios from "axios";
+import { messageResponse } from "@/app/api/chat/[chatid]/messages/route";
+import { userType } from "@/models/Users";
+
+/**
+ * useSentAction - Hook to handle sending messages and updating message data
+ * @param chatid - The chat id
+ * @param setMessages - Setter from parent to update messages state
+ * @returns { sendMessage, sending, error, updateMessage }
+ */
+export function useSentAction(
+  chatid: string,
+  setMessages: React.Dispatch<React.SetStateAction<messageResponse[]>>,
+  postNewResponse: (message: string, messageId: string) => void,
+  user: userType,
+) {
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Send a new message
+  const sendMessage = async (content: string, files?: unknown ) => {
+    setSending(true);
+    setError(null);
+    try {
+      const res = await axios.post<messageResponse>(`/api/chat/${chatid}/messages`, {
+        mes: content,
+        userid : user._id,
+        files,
+      });
+      // Add the new message to the state
+      setMessages((prev) => [...prev, res.data]);
+      await postNewResponse(res.data.message, res.data._id)
+      return res.data;
+    } catch (err) {
+      if (err && typeof err === "object" && "message" in err) {
+        setError((err as { message?: string }).message || "فشل إرسال الرسالة.");
+      } else {
+        setError("فشل إرسال الرسالة.");
+      }
+      return null;
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // Update a message in the state (e.g., after AI response or edit)
+  const updateMessage = (id: string, data: Partial<messageResponse>) => {
+    setMessages((prev) =>
+      prev.map((msg) => (msg._id === id ? { ...msg, ...data } : msg))
+    );
+  };
+
+  return {
+    sendMessage,
+    updateMessage,
+    sending,
+    error,
+  };
+}

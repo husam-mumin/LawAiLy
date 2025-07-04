@@ -266,7 +266,7 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn("size-7", className)}
+      className={cn("size-7 sidebar-toggle", className)}
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
@@ -536,7 +536,7 @@ function SidebarMenuButton({
     <Tooltip>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
       <TooltipContent
-        side="right"
+        side="left"
         align="center"
         hidden={state !== "collapsed" || isMobile}
         {...tooltip}

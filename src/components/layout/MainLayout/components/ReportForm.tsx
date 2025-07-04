@@ -39,15 +39,15 @@ export default function ReportForm({
   const onSubmit = async (values: z.infer<typeof contactFormSchema>) => {
     const mailText = `Name: ${values.name}\nEmail: ${values.email}\nMessage: ${values.message}`;
     const response = await sendMail({
-      email: values.email,
+      email: values.email.trim(),
       subject: "Error from user" + values.name,
       text: mailText,
     });
     if (response?.messageId) {
-      toast.success("Message Sent Successfully");
+      toast.success("تم الارسال بنجح");
       setOpen(false);
     } else {
-      toast.error("Something Went Wrong");
+      toast.error("لم تنجح العملية");
     }
   };
 
@@ -55,20 +55,20 @@ export default function ReportForm({
     <Form {...form}>
       <form className="" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="">
-          <h2 className="mb-2">Name</h2>
+          <h2 className="mb-2">الاسم</h2>
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="John Doe" {...field} />
+                  <Input placeholder="حسن محمد" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <h2 className="my-2">Email:</h2>
+          <h2 className="my-2">البريد الاكتروني</h2>
           <FormField
             control={form.control}
             name="email"
@@ -81,7 +81,7 @@ export default function ReportForm({
               </FormItem>
             )}
           />
-          <h2 className="my-2">Message</h2>
+          <h2 className="my-2">الرسالة</h2>
           <FormField
             control={form.control}
             name="message"
@@ -90,7 +90,7 @@ export default function ReportForm({
                 <FormControl>
                   <Textarea
                     {...field}
-                    placeholder="My question is which framework do you prefer to use?"
+                    placeholder="حدث لي واحد اثنين ثلاثة عندما ادخل في صفحة الخ"
                   />
                 </FormControl>
                 <FormMessage />
@@ -98,7 +98,7 @@ export default function ReportForm({
             )}
           />
           <Button disabled={isLoading} className="mt-5">
-            {isLoading ? "Sending....." : "Send"}
+            {isLoading ? "...جاري الارسال" : "ارسال"}
           </Button>
         </div>
       </form>

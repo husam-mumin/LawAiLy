@@ -19,22 +19,30 @@ export interface IDocument extends Document {
   title: string;
   description: string;
   showUp: boolean;
+  image: string,
   addedBy: Schema.Types.ObjectId;
+  category?: Schema.Types.ObjectId;
 }
 
 export type documentType = {
+  _id: string,
+  createdAt: Date,
   documentURL: string,
   title: string,
   description: string,
+  image: string,
   showUp: boolean,
-  addedBy: userType
+  addedBy: userType,
+  category?: string
 }
 const documentSchema: Schema = new mongoose.Schema<IDocument>({
   documentURL: { type: 'string', required: true },
   title: { type: 'string', required: true },
   description: { type: 'string', required: true },
   showUp: { type: 'boolean', default: true },
-  addedBy: { type: Schema.Types.ObjectId, ref: "User", required: true }
+  image: { type: "string" },
+  addedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  category: { type: Schema.Types.ObjectId, ref: "Category", required: false },
 }, { timestamps: true });
 
 const DocumentModel = mongoose.models.Document || mongoose.model<IDocument>('Document', documentSchema);

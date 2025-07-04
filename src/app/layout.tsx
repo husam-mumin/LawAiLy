@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { UserProvider } from "@/app/context/UserContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,11 +25,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ar" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`
+          ${geistSans.variable} ${geistMono.variable} antialiased
+          
+          `}
       >
-        <ScrollArea className="h-dvh">{children}</ScrollArea>
+        <UserProvider>
+          <ScrollArea className="max-h-dvh">{children}</ScrollArea>
+        </UserProvider>
       </body>
     </html>
   );

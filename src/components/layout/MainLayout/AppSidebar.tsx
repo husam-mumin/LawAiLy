@@ -26,7 +26,7 @@ import { chatType } from "@/models/Chat";
 
 export default function AppSidebar({ chats }: { chats: chatType[] }) {
   return (
-    <Sidebar variant="inset">
+    <Sidebar variant="inset" side="right">
       <SidebarHeader>
         <SidebarHeaderForChat />
       </SidebarHeader>

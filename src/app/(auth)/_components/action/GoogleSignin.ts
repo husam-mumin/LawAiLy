@@ -3,6 +3,6 @@
 import { signIn } from "@/auth";
 
 export async function signinaction() {
-  await signIn("google", { redirectTo: "/in"});
+  await signIn("google", { redirectTo: "/in" });
 
 }

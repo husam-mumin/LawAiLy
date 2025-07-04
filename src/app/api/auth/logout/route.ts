@@ -12,7 +12,6 @@ export async function POST() {
   // Remove the auth cookie (adjust the cookie name as needed)
 
   try {
-    console.log("we work hard here");
     
   const cookiesStore = await cookies();
   cookiesStore.delete('session'); // Delete the session cookie

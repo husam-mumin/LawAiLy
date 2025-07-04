@@ -51,10 +51,14 @@ export type messageResponse = {
   message: string,
   users: string,
   chat: string,
-  responses: AIResponseType,
+  response: AIResponseType,
   files: filesType,
   createAt: Date,
   updateAt: Date,
+}
+
+export type chatMessagesTypeGET = {
+  chat: messageResponse[]
 }
 
 export async function GET(

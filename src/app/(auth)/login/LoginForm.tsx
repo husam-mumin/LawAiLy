@@ -18,18 +18,22 @@ import LoginAlert from "../_components/authAlert";
 import { AtomIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { loginRequestType } from "@/app/api/auth/login/route";
+import { useUser } from "@/app/context/UserContext";
 
 const formSchema = z
   .object({
     email: z
       .string()
+      .trim()
       .min(1, { message: "email required" })
       .email("Invalid email "),
     password: z.string().min(6, "Password must be at least 6 characters long"),
   })
   .superRefine(async ({ email }, ctx) => {
     if (!email) return;
-    const response = await axios.post("/api/auth/checkEmail", { email });
+    const response = await axios.post("/api/auth/checkEmail", {
+      email: email.trim(),
+    });
     const { exists } = response.data;
     if (!exists) {
       ctx.addIssue({
@@ -45,6 +49,7 @@ type ErrorType = {
   description: string;
 };
 export default function LoginForm() {
+  const { setUser } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorType | null>(null);
@@ -64,7 +69,7 @@ export default function LoginForm() {
       setLoading(true);
       // Handle login logic here
       const user = {
-        email: data.email,
+        email: data.email.trim(),
         password: data.password,
       };
 
@@ -83,12 +88,12 @@ export default function LoginForm() {
       }
       // Handle successful login (e.g., redirect, show message)
       setError(null); // Clear any previous errors
-
+      // Set user data in context
+      setUser(resdata.user);
       router.push("/in"); // Redirect to dashboard or home page
       // Optionally, you can store user data in local storage or context
     } catch (err: unknown) {
       // todo complete this catch
-      console.error("Login error:", error);
       // Handle login error (e.g., show error message)
       if (err instanceof AxiosError) {
         if (err.status === 401) {
@@ -97,12 +102,22 @@ export default function LoginForm() {
             message: "wrong password, Please check and try again.",
           });
         }
-        console.log(err.response);
         if (err.response?.data?.statusCode === 401) {
           setError({
             title: "Login Failed",
             description:
               error?.description || "An error occurred while logging in.",
+          });
+        }
+        if (err.response?.data?.error) {
+          setError({
+            title: "هذا الحساب مستخدم عبر تسجيل الدخول باستخدام Google",
+            description: err.response.data.error,
+          });
+        } else {
+          setError({
+            title: "Login Failed",
+            description: "An error occurred while logging in.",
           });
         }
       }
