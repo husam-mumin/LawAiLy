@@ -34,7 +34,7 @@ export default async function layout({ children }: layoutProps) {
     <div>
       <DocumentProvider documents={await documents()}>
         <MainLayout>
-          <div className="container mx-auto">{children}</div>
+          <div className="">{children}</div>
         </MainLayout>
         <NotificationDialog />
       </DocumentProvider>

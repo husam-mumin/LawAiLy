@@ -25,13 +25,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html dir="rtl" lang="ar" suppressHydrationWarning>
+    <html lang="ar" suppressHydrationWarning>
       <body
         className={`
           ${geistSans.variable} ${geistMono.variable} antialiased
           
           `}
-        dir="rtl"
       >
         <UserProvider>
           <ScrollArea className="max-h-dvh">{children}</ScrollArea>

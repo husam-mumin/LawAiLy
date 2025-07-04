@@ -37,7 +37,6 @@ export default function Home() {
   const [filteredDocuments, setFilteredDocuments] = useState<FetchedDocument[]>(
     []
   );
-  const [tourMode, setTourMode] = useState(false);
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(true);
   // Fetch documents from the API
@@ -82,12 +81,16 @@ export default function Home() {
   const con = useContext(OpenSidebarContext);
 
   useEffect(() => {
-    if (!user?.firstName) {
-      if (con?.isSidebarOpen) {
-        con?.setIsSidebarOpen(false);
+    if (user) {
+      if (!user?.firstName) {
+        if (con?.isSidebarOpen) {
+          con?.setIsSidebarOpen(false);
+        }
+      } else {
+        con?.setIsSidebarOpen(true);
       }
     }
-  }, [user?.firstName, con]);
+  }, [user, con]);
 
   if (loading) {
     return <div className="text-center py-20 text-xl">جاري التحميل...</div>;
@@ -105,17 +108,15 @@ export default function Home() {
         lastName: values.lastName,
       });
       setUser({ ...user, ...res.data });
-      setTourMode(true);
     } catch (err) {
-      if (err instanceof Error) {
-        console.error(err.message);
-      }
+      if (err instanceof Error) console.error(err.message);
       console.error(err);
     }
   }
 
   return (
-    <div className="h-[calc(100dvh-4rem)] overflow-y-hidden">
+    <div className="h-[calc(100dvh-4rem)] ">
+      <div className="w-full h-8" />
       {!user?.firstName && <FirstLogin onSubmit={onSubmit} />}
       <div className="py-12 px-4 min-h-screen">
         {Object.keys(grouped).length > 0 ? (
@@ -126,7 +127,7 @@ export default function Home() {
               </h2>
               <div className="flex justify-end gap-10 mb-8 flex-wrap">
                 {docs.map((doc) => (
-                  <div key={doc._id} className="cursor-pointer">
+                  <div key={doc._id} className="cursor-pointer ">
                     <Link href={`/in/doc/${doc._id}`} className="block">
                       <DocumentCard
                         title={doc.title}

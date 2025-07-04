@@ -77,7 +77,7 @@ export default function DocumentCard({
   return (
     <Card
       ref={cardRef}
-      className="cursor-pointer w-72 h-64 bg-white/80 backdrop-blur-lg shadow-lg border-2 border-white/30 rounded-3xl flex flex-col p-0 overflow-hidden relative group transition-all duration-300 hover:border-blue-600"
+      className="cursor-pointer w-72 h-64 bg-white/80 backdrop-blur-lg shadow-lg border-2 border-white/30 rounded-3xl flex flex-col p-0 relative group transition-all duration-300 hover:border-blue-600"
       tabIndex={0}
       aria-label={title}
       style={{

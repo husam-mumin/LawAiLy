@@ -210,7 +210,7 @@ const NotificationDialog = () => {
               </div>
             ) : (
               <>
-                <ul className="space-y-3 max-h-80 overflow-y-auto">
+                <ul className="space-y-3 max-h-80 ">
                   {paginatedNotifications.map((notif) => (
                     <li
                       key={notif.id}

@@ -74,7 +74,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   // ! fix the layout issue ( margin Spaces )
   return (
-    <div className="">
+    <div className="relative ">
       <OpenSidebarContext.Provider value={{ isSidebarOpen, setIsSidebarOpen }}>
         <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           <SidebarInset className="w-full ">
@@ -100,8 +100,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
           </SidebarInset>
           <AppSidebar chats={chats} />
         </SidebarProvider>
-        <NewChatPop />
       </OpenSidebarContext.Provider>
+      <NewChatPop />
     </div>
   );
 }
