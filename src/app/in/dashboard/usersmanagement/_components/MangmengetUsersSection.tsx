@@ -6,6 +6,7 @@ import { useUsersAction } from "../_hooks/useUsersAction";
 import { userType } from "@/models/Users";
 import { toast } from "sonner";
 import DeleteDialog from "./DeleteDialog";
+import { RefreshCcw } from "lucide-react";
 
 export default function MangmengetUsersSection() {
   const { edit, error, fetchUsers, loading, remove, users } = useUsersAction();
@@ -65,6 +66,7 @@ export default function MangmengetUsersSection() {
       <div className="flex flex-col   w-full">
         <div className="flex items-center gap-4 justify-end mb-4 mt-4">
           <Button variant={"default"} onClick={() => fetchUsers()}>
+            <RefreshCcw />
             تجديد
           </Button>
         </div>
@@ -73,6 +75,7 @@ export default function MangmengetUsersSection() {
             rows={rows}
             onDelete={onDelete}
             onEdit={onEdit}
+            loading={loading}
           />
         </div>
       </div>

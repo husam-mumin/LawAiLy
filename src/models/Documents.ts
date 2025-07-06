@@ -13,6 +13,7 @@
 
 import mongoose, { Schema, Document } from 'mongoose';
 import { userType } from './Users';
+import { categoryType } from './Category';
 
 export interface IDocument extends Document {
   documentURL: string;
@@ -33,7 +34,7 @@ export type documentType = {
   image: string,
   showUp: boolean,
   addedBy: userType,
-  category?: string
+  category?: categoryType 
 }
 const documentSchema: Schema = new mongoose.Schema<IDocument>({
   documentURL: { type: 'string', required: true },

@@ -12,6 +12,7 @@ import axios, { AxiosError } from "axios";
 import { useUser } from "@/app/context/UserContext";
 import NewChatPop from "@/app/in/_components/newChatPop";
 import { OpenSidebarContext } from "./OpenSidebarContext";
+import { NotificationProvider } from "@/app/context/NotficationContext";
 type MainLayoutProps = {} & ReactProps;
 
 export interface SearchBarContext {
@@ -76,30 +77,32 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="relative ">
       <OpenSidebarContext.Provider value={{ isSidebarOpen, setIsSidebarOpen }}>
-        <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-          <SidebarInset className="w-full ">
-            <div className="w-full ">
-              <layoutContext.Provider
-                value={{
-                  isActive: isSearchActive,
-                  setIsActive: (newValue: boolean) => {
-                    setIsSearchActive(newValue);
-                  },
-                  searchQuery: searchQuery,
-                  setSearchQuery: (newValue: string) => {
-                    setSearchQuery(newValue);
-                  },
-                  setChats,
-                }}
-              >
-                <TopBar isSidebarOpen={isSidebarOpen} />
-                {children}
-              </layoutContext.Provider>
-            </div>
-            <Toaster />
-          </SidebarInset>
-          <AppSidebar chats={chats} />
-        </SidebarProvider>
+        <NotificationProvider>
+          <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            <SidebarInset className="w-full ">
+              <div className="w-full ">
+                <layoutContext.Provider
+                  value={{
+                    isActive: isSearchActive,
+                    setIsActive: (newValue: boolean) => {
+                      setIsSearchActive(newValue);
+                    },
+                    searchQuery: searchQuery,
+                    setSearchQuery: (newValue: string) => {
+                      setSearchQuery(newValue);
+                    },
+                    setChats,
+                  }}
+                >
+                  <TopBar isSidebarOpen={isSidebarOpen} />
+                  {children}
+                </layoutContext.Provider>
+              </div>
+              <Toaster />
+            </SidebarInset>
+            <AppSidebar chats={chats} />
+          </SidebarProvider>
+        </NotificationProvider>
       </OpenSidebarContext.Provider>
       <NewChatPop />
     </div>

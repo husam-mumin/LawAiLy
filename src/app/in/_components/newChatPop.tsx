@@ -13,7 +13,7 @@ export const RobotAvatar = ({ size }: { size?: number }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <circle cx="20" cy="20" r="20" fill="#E0E7FF" />
+    <circle cx="20" cy="19" r="21" fill="#dbeafe" />
     <rect x="10" y="15" width="20" height="15" rx="7" fill="#2b7fff" />
     <rect x="16" y="10" width="8" height="8" rx="4" fill="#2b7fff" />
     <circle cx="15" cy="22" r="2" fill="#fff" />
@@ -156,7 +156,7 @@ export default function NewChatPop() {
       <div className="flex items-end">
         <div className="ml-2">
           <Avatar
-            className="shadow-lg border-2 border-indigo-400 bg-white"
+            className="shadow-lg border-2 border-blue-400 bg-white"
             style={{ width: 52, height: 52 }}
           >
             <RobotAvatar />
@@ -165,7 +165,7 @@ export default function NewChatPop() {
         {(showMessage || isHovering) && (
           <div
             ref={bubbleRef}
-            className="bg-indigo-100 text-indigo-900 px-4 py-2 rounded-2xl rounded-bl-none shadow-md mb-2 ml-2 absolute left-6 -top-11 w-max "
+            className="bg-blue-100 text-blue-900 px-4 py-2 rounded-2xl rounded-bl-none shadow-md mb-2 ml-2 absolute left-6 -top-11 w-max "
             style={{
               borderTopLeftRadius: 24,
               borderTopRightRadius: 24,

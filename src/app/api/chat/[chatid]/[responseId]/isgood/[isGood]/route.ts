@@ -23,18 +23,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ ch
     await dbConnect()
     const { chatid, responseId, isGood} = await params;
     
-    if (!chatid || !responseId || !isGood){
+    
+    if (!chatid || !responseId ){
       return NextResponse.json( { error: "sorry but something was wrong"}, {status: 404})
     }
 
     const response = await Response.findById(responseId)
+    
     if (!response){
       return NextResponse.json( { error: "no response find"}, { status: 404})
     }
-    response.isGood = isGood;
-    await response.save()
+    let isGoodValue: boolean | null;
+    if (isGood === "true") isGoodValue = true;
+    else if (isGood === "false") isGoodValue = false;
+    else isGoodValue = null;
+    await Response.findByIdAndUpdate( responseId , { isGood: isGoodValue }, { new: true})
+    
 
-    return NextResponse.json( { message: "changing happen successfully"}, {status: 200})
+    return NextResponse.json( { message: "changing happen successfully", isGood: isGoodValue }, {status: 200})
 
   } catch (error){
     let message = 'Internal server error.';

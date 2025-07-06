@@ -10,6 +10,7 @@ import { useUser } from "@/app/context/UserContext";
 export default function Page() {
   const { user } = useUser();
   const [currentSuggestion, setCurrentSuggesion] = useState("");
+  const [errorStatus, setErrorStatus] = useState<string | null>(null);
   const suggestion: string[] = React.useMemo(
     () => [
       "اسأل عن القوانين المتعلقة بعملك أو مشروعك.",
@@ -90,31 +91,29 @@ export default function Page() {
     userId: string,
     Flies: File[] | null | undefined
   ) => {
-    console.log("Sending message:", chatMessage);
+    setErrorStatus(null);
     if (!chatMessage || chatMessage.trim().length === 0) {
-      console.error("Message cannot be empty");
+      setErrorStatus("لا يمكن أن تكون الرسالة فارغة");
       return;
     }
     if (!userId) {
-      console.error("User ID is required to send a message");
+      setErrorStatus("معرّف المستخدم مطلوب لإرسال الرسالة");
       return;
     }
     if (chatMessage.length > 500) {
-      console.error("Message cannot exceed 500 characters");
+      setErrorStatus("لا يمكن أن تتجاوز الرسالة 500 حرف");
       return;
     }
     if (Flies && Flies.length > 5) {
-      console.error("You can only attach up to 5 files");
+      setErrorStatus("يمكنك إرفاق حتى 5 ملفات فقط");
       return;
     }
     if (Flies && Flies.some((file) => file.size > 5 * 1024 * 1024)) {
-      console.error("Each file must be less than 5MB");
+      setErrorStatus("يجب أن يكون كل ملف أقل من 5 ميجابايت");
       return;
     }
     // Call the addMessage function to send the message
-    console.log("Preparing to send message with files:", Flies);
     if (!Flies) {
-      console.log("No files to send, proceeding with message only.");
       Flies = [];
     }
     const result = await addMessage({
@@ -124,13 +123,12 @@ export default function Page() {
     });
     const { chatId } = result || {};
     if (error) {
-      // Handle error display
-      console.error("Error sending message:", error);
+      setErrorStatus("حدث خطأ أثناء إرسال الرسالة");
       return;
     }
     // redirect if success
     if (!chatId) {
-      console.error("No chat ID returned from addMessage");
+      setErrorStatus("لم يتم إرجاع معرف المحادثة من الخادم");
       return;
     }
     router.push(`/in/chat/${chatId}`);
@@ -146,7 +144,7 @@ export default function Page() {
     );
   }
   return (
-    <div className="container relative mx-auto overflow-hidden">
+    <div className="container relative mx-auto overflow-hidden ">
       <div className="flex flex-col gap-10 h-[calc(100dvh-5rem)] justify-center items-center relative ">
         <div
           ref={bannerRef}
@@ -161,22 +159,29 @@ export default function Page() {
         </div>
         <div
           ref={avatarRef}
-          className="relative z-20 size-35 bg-gradient-to-br from-gray-400 via-gray-500 to-gray-700 rounded-full shadow-xl border-4 border-white flex items-center justify-center"
+          className="relative z-20 size-35 bg-gradient-to-br rounded-full mb-8 flex items-center justify-center"
         >
+          <div
+            className="absolute bottom-0 left-1/2 -translate-x-1/2  max-w-md "
+            ref={suggestionPopRef}
+          >
+            <SuggestionsPop messages={suggestion} />
+          </div>
           {/* You can add an icon or avatar image here for more style */}
         </div>
         <div
           className="flex justify-center items-center w-full"
           ref={chatInputRef}
         >
-          <ChatInput user={user} onSend={handleSent} loading={sending} />
+          <div className="w-full max-w-xl">
+            {errorStatus && (
+              <div className="mb-4 text-center text-red-600 font-bold bg-red-50 border border-red-200 rounded-lg py-2 px-4">
+                {errorStatus}
+              </div>
+            )}
+            <ChatInput user={user} onSend={handleSent} loading={sending} />
+          </div>
         </div>
-      </div>
-      <div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2  max-w-md "
-        ref={suggestionPopRef}
-      >
-        <SuggestionsPop messages={suggestion} />
       </div>
     </div>
   );

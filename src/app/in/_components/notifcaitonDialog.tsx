@@ -7,185 +7,46 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { DocumentContext } from "./DocumentProvider";
-import { Circle } from "lucide-react";
-
-export interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  date?: string;
-  read?: boolean;
-}
-
-const initialNotifications: Notification[] = [
-  {
-    id: "1",
-    title: "مرحبًا!",
-    message: "شكرًا لانضمامك إلى منصتنا.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "2",
-    title: "تمت الموافقة على المستند",
-    message: "تمت الموافقة على مستندك.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "3",
-    title: "تم رفض المستند",
-    message: "يرجى مراجعة المستند المرفوض.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "4",
-    title: "تم تحديث الملف الشخصي",
-    message: "تم تحديث بياناتك الشخصية بنجاح.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "5",
-    title: "رسالة جديدة من الدعم",
-    message: "لديك رسالة جديدة من فريق الدعم.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "6",
-    title: "تمت إضافة مستند جديد",
-    message: "تمت إضافة مستند جديد إلى حسابك.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "7",
-    title: "تمت مشاركة مستند معك",
-    message: "قام أحد المستخدمين بمشاركة مستند معك.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "8",
-    title: "تم تغيير كلمة المرور",
-    message: "تم تغيير كلمة المرور الخاصة بك بنجاح.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "9",
-    title: "تنبيه أمني",
-    message: "تم تسجيل دخول جديد إلى حسابك.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "10",
-    title: "تم حذف مستند",
-    message: "تم حذف أحد مستنداتك.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "11",
-    title: "تم تحديث سياسة الخصوصية",
-    message: "يرجى مراجعة سياسة الخصوصية الجديدة.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "12",
-    title: "تمت إضافة مستخدم جديد",
-    message: "تمت إضافة مستخدم جديد إلى فريقك.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "13",
-    title: "تم تعليق حسابك مؤقتًا",
-    message: "يرجى التواصل مع الدعم لمزيد من التفاصيل.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "14",
-    title: "تمت جدولة اجتماع جديد",
-    message: "لديك اجتماع مجدول غدًا في الساعة 10 صباحًا.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "15",
-    title: "تمت إضافة مهمة جديدة",
-    message: "تمت إضافة مهمة جديدة إلى قائمة مهامك.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "16",
-    title: "تم تحديث مستند مشترك",
-    message: "تم تحديث مستند مشترك من قبل أحد الأعضاء.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "17",
-    title: "تمت الموافقة على طلبك",
-    message: "تمت الموافقة على طلبك الأخير.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "18",
-    title: "تم رفض طلبك",
-    message: "تم رفض طلبك الأخير. يرجى المحاولة مرة أخرى.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "19",
-    title: "تمت إضافة تعليق جديد",
-    message: "تمت إضافة تعليق جديد على مستندك.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-  {
-    id: "20",
-    title: "تمت إزالة مستخدم من الفريق",
-    message: "تمت إزالة أحد الأعضاء من فريقك.",
-    date: new Date().toLocaleString(),
-    read: false,
-  },
-];
+import { Circle, RefreshCcw } from "lucide-react";
+import { useNotificationContext } from "@/app/context/NotficationContext";
 
 const NotificationDialog = () => {
   const { setOpenNot, openNot } = React.useContext(DocumentContext);
-  const [notifications, setNotifications] =
-    React.useState<Notification[]>(initialNotifications);
+  const {
+    refresh,
+    handleDelete,
+    markAllAsRead,
+    toggleRead,
+    loading,
+    notifications,
+    error,
+  } = useNotificationContext();
+
   const [page, setPage] = React.useState(1);
-  const pageSize = 4;
+  const [refreshing, setRefreshing] = React.useState(false);
+  const pageSize = 3;
   const totalPages = Math.ceil(notifications.length / pageSize);
   const paginatedNotifications = notifications.slice(
     (page - 1) * pageSize,
     page * pageSize
   );
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const toggleRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: !n.read } : n))
-    );
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // You may want to call your notification fetch logic here
+      if (refresh) {
+        await refresh();
+      }
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (
     <Dialog open={openNot} onOpenChange={setOpenNot}>
       <DialogContent
-        className="max-w-md rounded-2xl p-0 bg-white shadow-xl"
+        className="max-w-md rounded-2xl h-max p-0 bg-white shadow-xl"
         dir="rtl"
       >
         <div className="flex flex-col px-6 pt-6 pb-2">
@@ -196,32 +57,55 @@ const NotificationDialog = () => {
             <button
               className="text-xs text-blue-600 hover:underline px-2 py-1 rounded transition-colors disabled:text-gray-300"
               onClick={markAllAsRead}
-              disabled={notifications.every((n) => n.read)}
+              disabled={notifications.every((n) => n.isRead)}
             >
               تعليم الكل كمقروء
+            </button>
+            <button
+              className="text-xs text-blue-600 hover:underline px-2 py-1 rounded transition-colors disabled:text-gray-300 flex items-center gap-1"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              title="تحديث الإشعارات"
+            >
+              {refreshing ? (
+                <span className="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-blue-500 rounded-full">
+                  <RefreshCcw className="w-4 h-4" />
+                </span>
+              ) : (
+                <RefreshCcw className="w-4 h-4" />
+              )}
+              تحديث
             </button>
           </div>
         </div>
         <DialogDescription asChild>
           <div className="px-6 pb-6">
-            {notifications.length === 0 ? (
+            {loading ? (
+              <div className="text-gray-400 text-center py-8">
+                جاري التحميل...
+              </div>
+            ) : error ? (
+              <div className="text-red-500 text-center py-8">{error}</div>
+            ) : notifications.length === 0 ? (
               <div className="text-gray-400 text-center py-8">
                 لا توجد إشعارات.
               </div>
             ) : (
               <>
-                <ul className="space-y-3 max-h-80 ">
+                <ul className="space-y-3 max-h-80">
                   {paginatedNotifications.map((notif) => (
                     <li
-                      key={notif.id}
-                      className={`bg-gray-50 rounded-xl p-4 shadow-sm flex flex-col gap-1 cursor-pointer group border border-transparent hover:border-blue-200 transition-all relative ${
-                        notif.read ? "opacity-60" : "bg-blue-50"
+                      key={notif._id}
+                      className={`rounded-xl p-4 shadow-sm flex flex-col gap-1 cursor-pointer group border transition-all relative ${
+                        notif.isRead
+                          ? "bg-gray-50 opacity-60"
+                          : "bg-blue-50 border-blue-200"
                       }`}
-                      onClick={() => toggleRead(notif.id)}
-                      title={notif.read ? "تعليم كغير مقروء" : "تعليم كمقروء"}
+                      onClick={() => toggleRead(notif._id)}
+                      title={notif.isRead ? "تعليم كغير مقروء" : "تعليم كمقروء"}
                     >
                       <div className="flex items-center gap-2">
-                        {!notif.read && (
+                        {!notif.isRead && (
                           <Circle
                             className="w-3 h-3 text-blue-500"
                             fill="#3b82f6"
@@ -229,23 +113,20 @@ const NotificationDialog = () => {
                         )}
                         <span
                           className={`font-medium ${
-                            notif.read ? "text-gray-700" : "text-gray-900"
+                            notif.isRead ? "text-gray-700" : "text-gray-900"
                           }`}
                         >
-                          {notif.title}
+                          {notif.new.title}
                         </span>
                         <span className="flex-1" />
-                        {/* Delete button on the left */}
+                        {/* Delete button on the left (RTL) */}
                         <button
-                          className="p-1 rounded hover:bg-red-50 transition-colors"
+                          className="p-1 rounded hover:bg-red-50 transition-colors ms-auto"
                           title="حذف الإشعار"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setNotifications((prev) =>
-                              prev.filter((n) => n.id !== notif.id)
-                            );
+                            handleDelete(notif._id);
                           }}
-                          style={{ marginLeft: "0", marginRight: "auto" }}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -264,21 +145,21 @@ const NotificationDialog = () => {
                         </button>
                       </div>
                       <span className="text-sm text-gray-600">
-                        {notif.message}
+                        {notif.new.content}
                       </span>
-                      {notif.date && (
+                      {notif.createdAt && (
                         <span className="text-xs text-gray-400 mt-1">
-                          {notif.date}
+                          {notif.createdAt}
                         </span>
                       )}
-                      <span className="absolute top-2 right-2 text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {notif.read ? "مقروء" : "غير مقروء"}
+                      <span className="absolute top-2 start-2 text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {notif.isRead ? "مقروء" : "غير مقروء"}
                       </span>
                     </li>
                   ))}
                 </ul>
                 {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2 mt-4">
+                  <div className="flex  justify-center items-center gap-2 mt-11">
                     <button
                       className="px-2 py-1 rounded bg-gray-100 text-gray-600 disabled:opacity-50"
                       onClick={() => setPage((p) => Math.max(1, p - 1))}

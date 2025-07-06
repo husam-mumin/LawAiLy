@@ -37,13 +37,14 @@ const GoogleIcon = ({ className }: GoogleIconProps) => {
 
 export default function GoogleLoginButton() {
   return (
-    <form action={signinaction}>
+    <form dir="rtl" action={signinaction}>
       <Button
         className="flex h-12  items-center gap-2 px-4 py-4 rounded bg-secondary text-secondary-foreground border border-gray-300 shadow hover:bg-gray-100 transition"
         type="submit"
+        dir="rtl"
       >
+        تسجيل الدخول باستخدام Google
         <GoogleIcon className="h-full" />
-        Sign in with Google
       </Button>
     </form>
   );

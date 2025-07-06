@@ -7,7 +7,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { chatType } from "@/models/Chat";
-import { HeartOff, MessageCirclePlus, MessageCircleX } from "lucide-react";
+import { MessageCirclePlus, MessageCircleX, StarOff } from "lucide-react";
 import Link from "next/link";
 import React, { Suspense } from "react";
 import { format, isToday, isYesterday } from "date-fns";
@@ -94,7 +94,7 @@ export default function SidebarContentForChat({
             >
               {chats.length !== 0 ? (
                 Object.entries(chatsByDate).map(([date, chatsOnDate]) => (
-                  <div key={date}>
+                  <div dir="rtl" key={date}>
                     <div className="px-2 py-1 text-xs text-gray-500 font-bold border-b ">
                       {getArabicDateLabel(date)}
                     </div>
@@ -105,7 +105,9 @@ export default function SidebarContentForChat({
                         className="cursor-pointer"
                       >
                         <SidebarMenuItem className="p-2 text-gray-600 border-black/3  hover:bg-gray-100 cursor-pointer">
-                          {chat.title}
+                          {chat.title.length > 15
+                            ? chat.title.slice(0, 15) + "..."
+                            : chat.title}
                         </SidebarMenuItem>
                       </Link>
                     ))}
@@ -142,7 +144,7 @@ export default function SidebarContentForChat({
               ) : (
                 <>
                   <div className="absolute top-1/2 left-1/2 -translate-1/2">
-                    <HeartOff className="stroke-primary/40 size-8" />
+                    <StarOff className="stroke-primary/40 size-8" />
                   </div>
                 </>
               )}

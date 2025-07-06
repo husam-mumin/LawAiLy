@@ -29,12 +29,12 @@ const formSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, { message: "Email is required" })
-    .email("invaild email"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
+    .min(1, { message: "البريد الإلكتروني مطلوب" })
+    .email("البريد الإلكتروني غير صالح"),
+  password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
   confirmPassword: z
     .string()
-    .min(6, "Confirm password must be at least 6 characters long"),
+    .min(6, "تأكيد كلمة المرور يجب أن يكون 6 أحرف على الأقل"),
   gender: z.enum(["male", "female"]),
 });
 
@@ -48,7 +48,7 @@ export default function RegisterForm() {
   const [error, setError] = React.useState<ErrorType | null>(null);
   const router = useRouter();
   useEffect(() => {
-    document.title = "Register - MyApp";
+    document.title = "إنشاء حساب - Lawaily";
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -68,7 +68,7 @@ export default function RegisterForm() {
     if (data.password !== data.confirmPassword) {
       form.setError("confirmPassword", {
         type: "manual",
-        message: "Passwords do not match",
+        message: "كلمتا المرور غير متطابقتين",
       });
       setLoading(false);
       return;
@@ -84,15 +84,15 @@ export default function RegisterForm() {
           type: "manual",
           message: checkRes.data.error
             ? checkRes.data.error
-            : "Email already exists",
+            : "البريد الإلكتروني مستخدم بالفعل",
         });
         setLoading(false);
         return;
       }
     } catch (err) {
       setError({
-        title: "Registration Error " + err,
-        description: "Could not verify email existence.",
+        title: "خطأ في التسجيل " + err,
+        description: "تعذر التحقق من وجود البريد الإلكتروني.",
       });
       setLoading(false);
       return;
@@ -117,9 +117,9 @@ export default function RegisterForm() {
         } else {
           response.json().then((error) => {
             setError({
-              title: "Registration Failed",
+              title: "فشل التسجيل",
               description:
-                error.error || "An error occurred during registration.",
+                error.error || "حدث خطأ أثناء عملية التسجيل.",
             });
             console.error("Registration failed:", error);
           });
@@ -127,9 +127,9 @@ export default function RegisterForm() {
       })
       .catch((error) => {
         setError({
-          title: "Registration Error",
+          title: "خطأ في التسجيل",
           description:
-            error.message || "An error occurred during registration.",
+            error.message || "حدث خطأ أثناء عملية التسجيل.",
         });
         console.error("Error during registration:", error);
       })
@@ -143,6 +143,7 @@ export default function RegisterForm() {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-4 w-80 p-6 rounded-lg"
+        dir="rtl"
       >
         {error && (
           <Authalert
@@ -156,9 +157,9 @@ export default function RegisterForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>البريد الإلكتروني</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Email" />
+                <Input {...field} placeholder="البريد الإلكتروني" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -169,9 +170,9 @@ export default function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>كلمة المرور</FormLabel>
               <FormControl>
-                <Input {...field} type="password" placeholder="Password" />
+                <Input {...field} type="password" placeholder="كلمة المرور" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -182,12 +183,12 @@ export default function RegisterForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel>تأكيد كلمة المرور</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   type="password"
-                  placeholder="Confirm Password"
+                  placeholder="تأكيد كلمة المرور"
                 />
               </FormControl>
               <FormMessage />
@@ -199,15 +200,15 @@ export default function RegisterForm() {
           name="gender"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Gender</FormLabel>
+              <FormLabel>الجنس</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={field.onChange} value={field.value} dir="rtl">
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={"Gender"} />
+                    <SelectValue placeholder={"الجنس"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="male">ذكر</SelectItem>
+                    <SelectItem value="female">أنثى</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -218,15 +219,15 @@ export default function RegisterForm() {
           type="submit"
           className="w-fit mx-auto bg-primary text-white py-2 px-10 rounded"
         >
-          {loading ? "Registering..." : "Register"}
+          {loading ? "جاري التسجيل..." : "إنشاء حساب"}
         </Button>
         <div className="text-sm text-center text-secondary-foreground/80">
-          Already have an account?{" "}
+          لديك حساب بالفعل؟{" "}
           <Link
             className="text-secondary-foreground/80 hover:text-secondary-foreground/100 transition-colors duration-200"
             href={"/login"}
           >
-            Login
+            تسجيل الدخول
           </Link>
         </div>
       </form>

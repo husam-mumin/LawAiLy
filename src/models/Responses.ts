@@ -30,7 +30,7 @@ const responseSchema: Schema = new  mongoose.Schema<IResponse>({
   response: {type: 'string', required: true},
   message: {type: 'ObjectID', ref: "Message", required: true},
   chat: { type: 'ObjectID', required: true},
-  isGood: { type: 'boolean', required: false , default: null}
+  isGood: { type: Boolean, required: false,  default: null}
 
 })
 

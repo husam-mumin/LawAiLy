@@ -27,16 +27,16 @@ import { chatType } from "@/models/Chat";
 export default function AppSidebar({ chats }: { chats: chatType[] }) {
   return (
     <Sidebar variant="inset" side="right">
-      <SidebarHeader>
+      <SidebarHeader className="h-[62px]">
         <SidebarHeaderForChat />
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="border-l-2">
         <ScrollArea className="h-[calc(100vh-4rem)] overflow-y-hidden">
           <SidebarContentForChat chats={chats} />
         </ScrollArea>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-l-2">
         <SidebarFooterForChat />
       </SidebarFooter>
     </Sidebar>

@@ -1,46 +1,14 @@
-"use client";
-import { libyaLawCategories } from "@/mock/lawCategories";
-import React, { useEffect, useState } from "react";
+import {
+  getDashboardStats,
+  getLibyaLawCategories,
+} from "./_actions/dashboardActions";
+import React from "react";
 import { DashboardLink } from "./_components/DashboardLinks";
 
-// Dashboard mock stats (replace with API calls for real data)
-const getDashboardStats = () => {
-  const totalCategories = libyaLawCategories.length;
-  const totalBooks = libyaLawCategories.reduce(
-    (sum, cat) => sum + cat.books.length,
-    0
-  );
-  // These would be fetched from the backend in a real app
-  const totalMessages = 120; // mock
-  const totalResponses = 80; // mock
-  const totalLikes = 45; // mock
-  const totalShares = 30; // mock
-  const totalReports = 7; // mock
-  return {
-    totalCategories,
-    totalBooks,
-    totalMessages,
-    totalResponses,
-    totalLikes,
-    totalShares,
-    totalReports,
-  };
-};
-
-export default function Dashboard() {
-  const [stats, setStats] = useState({
-    totalCategories: 0,
-    totalBooks: 0,
-    totalMessages: 0,
-    totalResponses: 0,
-    totalLikes: 0,
-    totalShares: 0,
-    totalReports: 0,
-  });
-
-  useEffect(() => {
-    setStats(getDashboardStats());
-  }, []);
+// Convert to server component
+export default async function Dashboard() {
+  const stats = await getDashboardStats();
+  const libyaLawCategories = await getLibyaLawCategories();
 
   return (
     <div dir="rtl" className="p-8 ">
@@ -52,7 +20,7 @@ export default function Dashboard() {
         />
         <DashboardLink
           href="/in/dashboard/documentsmanagement"
-          label="إدارة الكتب"
+          label="إدارة المستندات"
         />
         <DashboardLink
           href="/in/dashboard/newmanagement"
@@ -66,15 +34,14 @@ export default function Dashboard() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
         <StatCard label="عدد التصنيفات" value={stats.totalCategories} />
-        <StatCard label="عدد الكتب" value={stats.totalBooks} />
+        <StatCard label="عدد المستندات" value={stats.totalBooks} />
         <StatCard label="عدد الرسائل" value={stats.totalMessages} />
         <StatCard label="عدد الردود" value={stats.totalResponses} />
         <StatCard label="الإعجابات" value={stats.totalLikes} />
         <StatCard label="المشاركات" value={stats.totalShares} />
-        <StatCard label="التقارير" value={stats.totalReports} />
       </div>
       {/* Simple bar chart mockup */}
-      <h2 className="text-xl font-semibold mb-4">عدد الكتب في كل تصنيف</h2>
+      <h2 className="text-xl font-semibold mb-4">عدد المستندات في كل تصنيف</h2>
       <div className="w-full max-w-2xl bg-white p-6 rounded shadow">
         {libyaLawCategories.map((cat) => (
           <div key={cat.id} className="mb-3">

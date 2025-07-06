@@ -17,9 +17,12 @@ import { z } from "zod";
 import { sendMail } from "../lib/send-mail";
 
 const contactFormSchema = z.object({
-  name: z.string().min(2, { message: "Please Enter Your Name" }),
-  email: z.string().email({ message: "Please Enter a Valid Email" }),
-  message: z.string().min(10, { message: "Please Enter a Message" }),
+  name: z.string().min(2, { message: "يرجى إدخال اسمك" }),
+  email: z.string().email({ message: "يرجى إدخال بريد إلكتروني صحيح" }),
+  message: z
+    .string()
+    .min(1, { message: "يرجى إدخال رسالة" })
+    .min(10, { message: "يرجى إدخال رسالة اطول" }),
 });
 
 export default function ReportForm({
@@ -37,14 +40,14 @@ export default function ReportForm({
   });
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof contactFormSchema>) => {
-    const mailText = `Name: ${values.name}\nEmail: ${values.email}\nMessage: ${values.message}`;
+    const mailText = `الاسم: ${values.name}\nالبريد الإلكتروني: ${values.email}\nالرسالة: ${values.message}`;
     const response = await sendMail({
       email: values.email.trim(),
-      subject: "Error from user" + values.name,
+      subject: "بلاغ من المستخدم " + values.name,
       text: mailText,
     });
     if (response?.messageId) {
-      toast.success("تم الارسال بنجح");
+      toast.success("تم الإرسال بنجاح");
       setOpen(false);
     } else {
       toast.error("لم تنجح العملية");
@@ -68,14 +71,14 @@ export default function ReportForm({
               </FormItem>
             )}
           />
-          <h2 className="my-2">البريد الاكتروني</h2>
+          <h2 className="my-2">البريد الإلكتروني</h2>
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="john@example.com" {...field} />
+                  <Input placeholder="ahmed@example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -90,7 +93,7 @@ export default function ReportForm({
                 <FormControl>
                   <Textarea
                     {...field}
-                    placeholder="حدث لي واحد اثنين ثلاثة عندما ادخل في صفحة الخ"
+                    placeholder="يرجى كتابة تفاصيل البلاغ أو المشكلة هنا"
                   />
                 </FormControl>
                 <FormMessage />
@@ -98,7 +101,7 @@ export default function ReportForm({
             )}
           />
           <Button disabled={isLoading} className="mt-5">
-            {isLoading ? "...جاري الارسال" : "ارسال"}
+            {isLoading ? "...جاري الإرسال" : "إرسال"}
           </Button>
         </div>
       </form>

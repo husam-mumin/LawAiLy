@@ -140,7 +140,7 @@ function ChatDropDowmMenu({
 }: ChatDropDownMenuProps) {
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu dir="rtl">
         <DropdownMenuTrigger asChild>
           <Button variant={"ghost"}>
             <EllipsisVertical className="h-4 w-4" />

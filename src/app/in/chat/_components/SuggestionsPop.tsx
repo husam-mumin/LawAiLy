@@ -102,16 +102,16 @@ export default function SuggestionsPop({ messages }: { messages: string[] }) {
     <div className="flex items-end justify-center w-fit relative">
       <div className="ml-2">
         <Avatar
-          className="shadow-lg border-2 border-indigo-400 bg-white"
-          style={{ width: 52, height: 52 }}
+          className="shadow-lg border-2 border-blue-400 "
+          style={{ width: 150, height: 150 }}
         >
-          <RobotAvatar />
+          <RobotAvatar size={150} />
         </Avatar>
       </div>
       {showMessage && (
         <div
           ref={bubbleRef}
-          className="bg-indigo-100 text-center text-indigo-900 px-4 py-2 rounded-2xl shadow-md mb-2 ml-2 absolute left-1/2 -translate-x-1/2 -top-11 w-max"
+          className="bg-blue-100 text-center text-blue-900 px-4 py-2 rounded-2xl shadow-md  ml-2 absolute left-1/2 -translate-x-1/2 -bottom-12 w-max"
           style={{
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,

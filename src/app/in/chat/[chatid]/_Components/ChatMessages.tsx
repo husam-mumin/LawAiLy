@@ -1,28 +1,47 @@
-import { messageResponse } from "@/app/api/chat/[chatid]/messages/route";
-import React, { useEffect, useRef } from "react";
+import {
+  AIResponseType,
+  messageResponse,
+} from "@/app/api/chat/[chatid]/messages/route";
+import React, { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { RobotAvatar } from "@/app/in/_components/newChatPop";
 import ReactMarkdown from "react-markdown";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUser } from "@/app/context/UserContext";
 import { AvatarFallback } from "@radix-ui/react-avatar";
-import { RefreshCcw } from "lucide-react";
+import { CopyCheck, CopyIcon, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useResponseAction } from "../_hooks/useResponseAction";
+import { chatType } from "@/models/Chat";
 
 type ChatMessagesProps = {
   Messages: messageResponse[];
   responseLoading: boolean;
   sendingError: string | null;
+  chat?: chatType;
+  setMessages: React.Dispatch<React.SetStateAction<messageResponse[]>>;
 };
 
 export default function ChatMessages({
+  chat,
   Messages,
   responseLoading,
   sendingError,
+  setMessages,
 }: ChatMessagesProps) {
   const { user } = useUser();
+  const [copyed, setCopyed] = useState(false);
+  const { shareResponse, setGoodStatus } = useResponseAction({
+    chatId: chat?._id || "",
+    userId: user?._id || "",
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
   // Scroll instantly on mount or enter
   useEffect(() => {
@@ -68,6 +87,57 @@ export default function ChatMessages({
     }
   }, [Messages.length]);
 
+  function handleShare(responseId: string) {
+    // add to share count in the database
+    // This function can be used to share the message or perform any action
+    shareResponse(responseId)
+      .then((res) => {
+        if (res) {
+          console.log("Response shared successfully");
+        } else {
+          console.error("Failed to share response");
+        }
+      })
+      .catch((err) => {
+        console.error("Error sharing response:", err);
+      });
+  }
+
+  async function handleGoodStatus(
+    response: AIResponseType,
+    isGood: boolean | null
+  ) {
+    if (response.isGood === isGood) {
+      await setGoodStatus(response._id, null);
+      const messages = Messages.map((msg) => {
+        if (msg.response && msg.response._id === response._id) {
+          msg.response.isGood = null;
+        }
+        return msg;
+      });
+      setMessages([...messages]);
+      return;
+    }
+    setGoodStatus(response._id, isGood)
+      .then((res) => {
+        if (res) {
+          const messages = Messages.map((msg) => {
+            if (msg.response && msg.response._id === response._id) {
+              msg.response.isGood = res.isGood;
+            }
+            return msg;
+          });
+          setMessages([...messages]);
+          console.log("Response status updated successfully");
+        } else {
+          console.error("Failed to update response status");
+        }
+      })
+      .catch((err) => {
+        console.error("Error updating response status:", err);
+      });
+  }
+
   if (!Messages || Messages.length === 0) {
     return (
       <div className="text-center text-gray-400 py-8">لا توجد رسائل بعد.</div>
@@ -96,11 +166,12 @@ export default function ChatMessages({
                 {/* User Info */}
                 <div className="flex items-center gap-2 mb-1">
                   <div className="flex items-center gap-1">
-                    <Avatar className="text-blue-500 w-6 h-6">
+                    <Avatar className="text-blue-500 bg-blue-100 flex justify-center items-center text-xs w-6 h-6">
                       <AvatarImage src={user?.AvatarURL} alt="user Image" />
                       <AvatarFallback>
                         {user?.firstName
-                          ? user.firstName + " " + user.lastName
+                          ? user.firstName[0] +
+                            (user.lastName ? user.lastName[0] : "")
                           : user?.email.slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
@@ -166,20 +237,176 @@ export default function ChatMessages({
                       <div className="text-gray-800 whitespace-pre-line break-words text-base">
                         <ReactMarkdown>{msg.response.response}</ReactMarkdown>
                       </div>
-                      {msg.response.isGood !== null && (
-                        <div className="text-xs mt-2">
-                          التقييم:{" "}
-                          {msg.response.isGood ? (
-                            <span className="text-green-600 font-bold">
-                              جيد
-                            </span>
-                          ) : (
-                            <span className="text-red-600 font-bold">
-                              غير جيد
-                            </span>
-                          )}
-                        </div>
-                      )}
+                      <div className="text-xs mt-2">
+                        التقييم:
+                        {msg.response.isGood !== null ? (
+                          <>
+                            {msg.response.isGood ? (
+                              <span className="text-green-600 font-bold ms-1">
+                                جيد
+                              </span>
+                            ) : (
+                              <span className="text-red-600 font-bold ms-1">
+                                غير جيد
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="font-bold ms-1">غير مقيم</span>
+                        )}
+                      </div>
+                      <div className="mt-2">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant={"ghost"}
+                              size={"sm"}
+                              onClick={() => {
+                                handleShare(msg._id);
+                                navigator.clipboard.writeText(
+                                  msg.response.response
+                                );
+                                setCopyed(true);
+                                setTimeout(() => {
+                                  setCopyed(false);
+                                }, 2000);
+                              }}
+                            >
+                              {!copyed ? <CopyIcon /> : <CopyCheck />}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {copyed ? "تم النسخ بنجاح!" : "نسخ الرد"}
+                          </TooltipContent>
+                        </Tooltip>
+                        {/* share to whatsapp */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant={"ghost"}
+                              size={"sm"}
+                              className="ml-2"
+                              onClick={() => {
+                                handleShare(msg._id);
+                                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
+                                  msg.response.response
+                                )}`;
+                                window.open(whatsappUrl, "_blank");
+                              }}
+                            >
+                              <svg
+                                width="29px"
+                                height="29px"
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.5"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                color="#000000"
+                              >
+                                <path
+                                  d="M22 12C22 17.5228 17.5228 22 12 22C10.1786 22 8.47087 21.513 7 20.6622L2 21.5L2.83209 16C2.29689 14.7751 2 13.4222 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                                  stroke="#000000"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                ></path>
+                                <path
+                                  d="M12.9604 13.8683L15.0399 13.4624L17 14.2149V16.0385C17 16.6449 16.4783 17.1073 15.8901 16.9783C14.3671 16.6444 11.5997 15.8043 9.67826 13.8683C7.84859 12.0248 7.22267 9.45734 7.01039 8.04128C6.92535 7.47406 7.3737 7 7.94306 7H9.83707L10.572 8.96888L10.1832 11.0701"
+                                  stroke="#000000"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                ></path>
+                              </svg>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>مشاركة على واتساب</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant={"ghost"}
+                              size={"sm"}
+                              className="ml-2"
+                              onClick={() => {
+                                handleGoodStatus(msg.response, true);
+                              }}
+                            >
+                              {
+                                <svg
+                                  width="29px"
+                                  height="29px"
+                                  strokeWidth="1.5"
+                                  viewBox="0 0 24 24"
+                                  fill={
+                                    msg.response.isGood ? "#000000" : "none"
+                                  }
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  color="#fff"
+                                >
+                                  <path
+                                    d="M16.4724 20H4.1C3.76863 20 3.5 19.7314 3.5 19.4V9.6C3.5 9.26863 3.76863 9 4.1 9H6.86762C7.57015 9 8.22116 8.6314 8.5826 8.02899L11.293 3.51161C11.8779 2.53688 13.2554 2.44422 13.9655 3.33186C14.3002 3.75025 14.4081 4.30635 14.2541 4.81956L13.2317 8.22759C13.1162 8.61256 13.4045 9 13.8064 9H18.3815C19.7002 9 20.658 10.254 20.311 11.5262L18.4019 18.5262C18.1646 19.3964 17.3743 20 16.4724 20Z"
+                                    stroke="#000000"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                  ></path>
+                                  <path
+                                    d="M7 20L7 9"
+                                    stroke="#000000"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  ></path>
+                                </svg>
+                              }
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>رد جيد</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant={"ghost"}
+                              size={"sm"}
+                              className="ml-2"
+                              onClick={() => {
+                                console.log(msg.response);
+
+                                handleGoodStatus(msg.response, false);
+                              }}
+                            >
+                              <svg
+                                width="29px"
+                                height="29px"
+                                strokeWidth="1.5"
+                                viewBox="0 0 24 24"
+                                fill={
+                                  msg.response.isGood === false
+                                    ? "#000000"
+                                    : "none"
+                                }
+                                xmlns="http://www.w3.org/2000/svg"
+                                color="#000000"
+                              >
+                                <path
+                                  d="M16.4724 3.5H4.1C3.76863 3.5 3.5 3.76863 3.5 4.1V13.9C3.5 14.2314 3.76863 14.5 4.1 14.5H6.86762C7.57015 14.5 8.22116 14.8686 8.5826 15.471L11.293 19.9884C11.8779 20.9631 13.2554 21.0558 13.9655 20.1681C14.3002 19.7497 14.4081 19.1937 14.2541 18.6804L13.2317 15.2724C13.1162 14.8874 13.4045 14.5 13.8064 14.5H18.3815C19.7002 14.5 20.658 13.246 20.311 11.9738L18.4019 4.97376C18.1646 4.10364 17.3743 3.5 16.4724 3.5Z"
+                                  stroke="#000000"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                ></path>
+                                <path
+                                  d="M7 14.5L7 3.5"
+                                  stroke="#000000"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                ></path>
+                              </svg>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>رد غير جيد</TooltipContent>
+                        </Tooltip>
+                      </div>
                     </div>
                   </div>
                 )}

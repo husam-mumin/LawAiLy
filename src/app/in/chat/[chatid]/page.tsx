@@ -91,7 +91,7 @@ export default function ChatPage() {
     chatid as string,
     setMessages,
     PostNewResponse,
-    user || { _id: "", email: "", gender: "" }
+    user || { _id: "", email: "", gender: "", role: "user" }
   );
 
   useEffect(() => {
@@ -218,6 +218,16 @@ export default function ChatPage() {
     setOpenDeleteDialog(false);
   };
 
+  if (!chat) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+        <div className="text-xl font-bold text-gray-700">
+          لا توجد محادثة بهذا المعرف.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div>
@@ -231,9 +241,11 @@ export default function ChatPage() {
             />
           </div>
           <ChatMessages
+            chat={chat}
             sendingError={SentingError}
             Messages={messages}
             responseLoading={responseLoading}
+            setMessages={setMessages}
           />
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2">
             <ChatInput
@@ -245,7 +257,7 @@ export default function ChatPage() {
                 await sendMessage(message, flies);
               }}
               loading={sending}
-              user={user || { _id: "", email: "", gender: "" }}
+              user={user || { _id: "", email: "", gender: "", role: "user" }}
             />
           </div>
         </div>

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Check, X, RefreshCcw } from "lucide-react";
+import axios from "axios";
 
 interface NewsItem {
   id: string;
@@ -12,16 +13,25 @@ interface NewsItem {
 }
 
 const fetchNewsHistory = async (): Promise<NewsItem[]> => {
-  const res = await fetch("/api/news");
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await axios.get("/api/news");
+    return res.data;
+  } catch {
+    return [];
+  }
 };
 
 const postNews = async (title: string, content: string) => {
-  await fetch("/api/news", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, content }),
+  await axios.post("/api/news", { title, content });
+  const notificationPayload = {
+    icon: "/miniLogo.png",
+    title,
+    content,
+  };
+  await axios.post("/api/in/user/notification/sent", {
+    payload: {
+      ...notificationPayload,
+    },
   });
 };
 
@@ -48,6 +58,25 @@ const NewMangmenetSection: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
   const [posting, setPosting] = useState(false);
+  const [orderBy, setOrderBy] = useState<"title" | "content" | "createdAt">(
+    "createdAt"
+  );
+  const [orderDir, setOrderDir] = useState<"asc" | "desc">("desc");
+
+  const sortedNews = React.useMemo(() => {
+    const sorted = [...news].sort((a, b) => {
+      let aValue: string | number = a[orderBy];
+      let bValue: string | number = b[orderBy];
+      if (orderBy === "createdAt") {
+        aValue = new Date(a[orderBy]).getTime();
+        bValue = new Date(b[orderBy]).getTime();
+      }
+      if (aValue < bValue) return orderDir === "asc" ? -1 : 1;
+      if (aValue > bValue) return orderDir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [news, orderBy, orderDir]);
 
   useEffect(() => {
     setLoading(true);
@@ -133,14 +162,50 @@ const NewMangmenetSection: React.FC = () => {
               <table dir="rtl" className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                      onClick={() => {
+                        setOrderBy("title");
+                        setOrderDir(
+                          orderBy === "title" && orderDir === "asc"
+                            ? "desc"
+                            : "asc"
+                        );
+                      }}
+                    >
                       العنوان
+                      {orderBy === "title" &&
+                        (orderDir === "asc" ? " ▲" : " ▼")}
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                      onClick={() => {
+                        setOrderBy("content");
+                        setOrderDir(
+                          orderBy === "content" && orderDir === "asc"
+                            ? "desc"
+                            : "asc"
+                        );
+                      }}
+                    >
                       المحتوى
+                      {orderBy === "content" &&
+                        (orderDir === "asc" ? " ▲" : " ▼")}
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                      onClick={() => {
+                        setOrderBy("createdAt");
+                        setOrderDir(
+                          orderBy === "createdAt" && orderDir === "asc"
+                            ? "desc"
+                            : "asc"
+                        );
+                      }}
+                    >
                       التاريخ
+                      {orderBy === "createdAt" &&
+                        (orderDir === "asc" ? " ▲" : " ▼")}
                     </th>
                   </tr>
                 </thead>
@@ -204,8 +269,8 @@ const NewMangmenetSection: React.FC = () => {
                       </td>
                     </tr>
                   )}
-                  {news && news.length > 0 ? (
-                    news.map((item) => (
+                  {sortedNews && sortedNews.length > 0 ? (
+                    sortedNews.map((item) => (
                       <tr
                         key={item.id}
                         className="hover:bg-gray-50 transition-colors"
@@ -216,8 +281,19 @@ const NewMangmenetSection: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {item.content}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
-                          {new Date(item.createdAt).toLocaleString()}
+                        <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-400 ">
+                          {item.createdAt
+                            ? new Date(item.createdAt).toLocaleDateString(
+                                "ar",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )
+                            : "—"}
                         </td>
                       </tr>
                     ))

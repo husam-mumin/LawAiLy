@@ -66,7 +66,7 @@ export default function Page() {
           transition={{ duration: 1 }}
           className="text-5xl md:text-7xl font-extrabold text-blue-900 text-center mb-6 drop-shadow-lg"
         >
-          لوايلي
+          مستشاري
         </motion.h1>
         <motion.p
           ref={descRef}
@@ -157,7 +157,7 @@ export default function Page() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 2 }}
       >
-        &copy; {new Date().getFullYear()} لوايلي. جميع الحقوق محفوظة.
+        <div dir="ltr">&copy; 2025 جميع الحقوق محفوظة </div>
       </motion.footer>
     </main>
   );

@@ -34,7 +34,7 @@ interface AddDocumentPopupProps {
     showup: boolean;
     image: string;
     addBy: string;
-    categoryId: string;
+    category?: string;
   }) => void;
 }
 
@@ -131,7 +131,7 @@ export function AddDocumentPopup({
       showup,
       image: image,
       addBy: user?._id,
-      categoryId,
+      category: categoryId,
     });
     setTitle("");
     setFileUrl("");

@@ -31,6 +31,7 @@ import Response from "@/models/Responses";
 //  */
 
 export type AIResponseType = {
+  _id: string,
   response : string,
   message: string,
   chat: string, 

@@ -9,6 +9,98 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 
+// Mock data for dashboard reports
+const mockUsers = [
+  {
+    _id: "1",
+    AvatarURL: "https://randomuser.me/api/portraits/men/32.jpg",
+    firstName: "أحمد",
+    lastName: "علي",
+    email: "ahmed@example.com",
+    role: "admin",
+  },
+  {
+    _id: "2",
+    AvatarURL: "https://randomuser.me/api/portraits/women/44.jpg",
+    firstName: "سارة",
+    lastName: "محمد",
+    email: "sara@example.com",
+    role: "user",
+  },
+  {
+    _id: "3",
+    AvatarURL: "https://randomuser.me/api/portraits/men/65.jpg",
+    firstName: "خالد",
+    lastName: "سالم",
+    email: "khaled@example.com",
+    role: "user",
+  },
+  {
+    _id: "4",
+    AvatarURL: "https://randomuser.me/api/portraits/women/68.jpg",
+    firstName: "ليلى",
+    lastName: "حسن",
+    email: "layla@example.com",
+    role: "user",
+  },
+  {
+    _id: "5",
+    AvatarURL: "https://randomuser.me/api/portraits/men/12.jpg",
+    firstName: "مروان",
+    lastName: "يوسف",
+    email: "marwan@example.com",
+    role: "owner",
+  },
+];
+
+const mockDocuments = [
+  {
+    _id: "d1",
+    title: "قانون العمل الليبي",
+    category: "القوانين",
+    addedBy: { firstName: "أحمد" },
+    showUp: true,
+  },
+  {
+    _id: "d2",
+    title: "قانون المرور",
+    category: "القوانين",
+    addedBy: { firstName: "سارة" },
+    showUp: false,
+  },
+  {
+    _id: "d3",
+    title: "دستور ليبيا",
+    category: "الدساتير",
+    addedBy: { firstName: "خالد" },
+    showUp: true,
+  },
+  {
+    _id: "d4",
+    title: "قانون الشركات",
+    category: "القوانين",
+    addedBy: { firstName: "ليلى" },
+    showUp: true,
+  },
+  {
+    _id: "d5",
+    title: "قانون الأسرة",
+    category: "القوانين",
+    addedBy: { firstName: "مروان" },
+    showUp: false,
+  },
+];
+
+const mockData = {
+  users: mockUsers,
+  documents: mockDocuments,
+  chats: Array(10).fill({}),
+  messages: Array(20).fill({}),
+  responses: Array(8).fill({}),
+  likes: Array(15).fill({}),
+  shares: Array(5).fill({}),
+};
+
 // Example API endpoints (replace with your actual endpoints)
 const endpoints = [
   { key: "users", label: "المستخدمون", url: "/api/dashboard/users" },
@@ -18,33 +110,14 @@ const endpoints = [
   { key: "responses", label: "الردود", url: "/api/dashboard/responses" },
   { key: "likes", label: "الإعجابات", url: "/api/dashboard/likes" },
   { key: "shares", label: "المشاركات", url: "/api/dashboard/shares" },
-  { key: "reports", label: "التقارير", url: "/api/dashboard/reports" },
 ];
 
 export default function ReportsDashboard() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [data, setData] = useState<{ [key: string]: any[] }>({});
-  const [loading, setLoading] = useState(true);
+  const [data] = useState<{ [key: string]: any[] }>(mockData);
+  const loading = false;
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const results: { [key: string]: any } = {};
-      await Promise.all(
-        endpoints.map(async (ep) => {
-          try {
-            const res = await fetch(ep.url);
-            results[ep.key] = await res.json();
-          } catch {
-            results[ep.key] = [];
-          }
-        })
-      );
-      setData(results);
-      setLoading(false);
-    }
-    fetchData();
+    // No fetch, just use mock data
   }, []);
 
   const handlePrint = () => {

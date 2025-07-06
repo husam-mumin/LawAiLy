@@ -77,7 +77,7 @@ export default function DocumentCard({
   return (
     <Card
       ref={cardRef}
-      className="cursor-pointer w-72 h-64 bg-white/80 backdrop-blur-lg shadow-lg border-2 border-white/30 rounded-3xl flex flex-col p-0 relative group transition-all duration-300 hover:border-blue-600"
+      className="cursor-pointer w-full h-full  backdrop-blur-lg   flex flex-col p-0 relative group transition-all duration-300 hover:border-blue-600"
       tabIndex={0}
       aria-label={title}
       style={{
@@ -91,7 +91,7 @@ export default function DocumentCard({
             src={image}
             alt={title}
             fill
-            className="object-cover bg-gray-200 group-hover:brightness-90 transition duration-200 rounded-t-3xl"
+            className="object-cover bg-gray-200 group-hover:brightness-90 transition duration-200 "
             sizes="288px"
             priority={false}
           />

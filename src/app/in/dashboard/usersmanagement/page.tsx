@@ -20,7 +20,9 @@ export default function UserManagement() {
       </div>
       <div className="flex flex-col gap-4 mt-4 w-full">
         <div className="ms-auto w-full">
-          <MangmengetUsersSection />
+          <React.Suspense fallback={<div className="text-center py-8 text-lg text-blue-600">جاري تحميل بيانات المستخدمين...</div>}>
+            <MangmengetUsersSection />
+          </React.Suspense>
         </div>
       </div>
     </div>

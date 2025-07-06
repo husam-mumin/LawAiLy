@@ -38,6 +38,8 @@ export function useDocumentActions(initialDocuments: documentType[] = []) {
   const add = useCallback(async (doc: Partial<documentType>) => {
     setLoading(true);
     try {
+
+      
       const res = await axios.post("/api/in/documents", {
         ...doc,
         addedBy: doc.addedBy?._id || "غير معروف",

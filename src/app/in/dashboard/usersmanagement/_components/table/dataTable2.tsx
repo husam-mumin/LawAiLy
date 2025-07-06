@@ -34,6 +34,9 @@ export const userColumns = (
 ): ColumnDef<UserRow>[] => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
 
+  if (!currentUser) {
+    return [];
+  }
   return [
     {
       accessorKey: "AvatarURL",
@@ -74,13 +77,13 @@ export const userColumns = (
     },
     {
       accessorKey: "role",
-      header: "مدير؟",
+      header: "الوظيفة",
       cell: ({ row }) => {
         const text =
           row.original.role == "user"
             ? "مستخدم"
             : row.original.role === "admin"
-            ? "مدير"
+            ? "مشرف"
             : "مالك";
         return text;
       },
@@ -107,13 +110,19 @@ export const userColumns = (
                   row.original.email === currentUser?.email ||
                   row.original.role === "owner" ||
                   (row.original.role === "admin" &&
-                    currentUser?.role === "admin")
+                    currentUser?.role === "admin") ||
+                  (currentUser?.role === "admin" &&
+                    row.original.role === "admin")
                 } // Disable if user is admin
                 onClick={() => {
                   if (row.original.email === currentUser?.email) return;
                   if (currentUser?.role === "user") return;
                   if (row.original.role === "owner") return;
-
+                  if (
+                    currentUser?.role === "admin" &&
+                    row.original.role === "admin"
+                  )
+                    return;
                   onDelete(row.original._id);
                 }}
                 className="justify-end text-red-600"
@@ -125,6 +134,11 @@ export const userColumns = (
                   if (row.original.email === currentUser?.email) return;
                   if (currentUser?.role === "user") return;
                   if (row.original.role === "owner") return;
+                  if (
+                    currentUser?.role === "admin" &&
+                    row.original.role === "admin"
+                  )
+                    return;
                   onEdit({
                     ...row.original,
                     isBaned: !row.original.isBaned,
@@ -134,7 +148,9 @@ export const userColumns = (
                   row.original.email == currentUser?.email ||
                   row.original.role === "owner" ||
                   (row.original.role === "admin" &&
-                    currentUser?.role === "admin")
+                    currentUser?.role === "admin") ||
+                  (currentUser?.role === "admin" &&
+                    row.original.role === "admin")
                 } // Disable if user is admin
                 className="justify-end"
               >
@@ -143,15 +159,15 @@ export const userColumns = (
               <DropdownMenuItem
                 disabled={
                   row.original.email === currentUser?.email ||
-                  row.original.role === "owner" ||
-                  (row.original.role === "admin" &&
-                    currentUser?.role === "admin")
+                  currentUser.role === "admin" ||
+                  currentUser.role === "user"
                 } // Disable if user is admin
                 onClick={() => {
                   if (row.original.email === currentUser?.email) return;
                   if (currentUser?.role === "user") return;
-                  if (row.original.role === "owner") return;
 
+                  if (row.original.role === "owner") return;
+                  if (currentUser?.role === "admin") return;
                   onEdit({
                     ...row.original,
                     role: row.original.role === "user" ? "admin" : "user",
@@ -180,11 +196,13 @@ export interface UserDataTableProps {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  loading?: boolean;
 }
 
 export function DataTable2<TData, TValue>({
   columns,
   data,
+  loading = false,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -214,7 +232,15 @@ export function DataTable2<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                <span className="animate-pulse text-gray-400">
+                  جاري التحميل...
+                </span>
+              </TableCell>
+            </TableRow>
+          ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
@@ -230,7 +256,7 @@ export function DataTable2<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                لا توجد نتائج.
               </TableCell>
             </TableRow>
           )}

@@ -69,7 +69,7 @@ export function DataTable1<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                لا توجد بيانات لعرضها
               </TableCell>
             </TableRow>
           )}

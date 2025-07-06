@@ -24,7 +24,7 @@ export default function ReportButton() {
           </div>
         </SidebarMenuButton>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent dir="rtl">
         <DialogHeader className="text-right sm:text-right">
           <DialogTitle>ابلاغ عن مشكلة</DialogTitle>
           <DialogDescription>

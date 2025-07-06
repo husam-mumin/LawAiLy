@@ -43,6 +43,28 @@ export default function Page() {
     name: "",
     description: "",
   });
+  const [orderBy, setOrderBy] = useState<"name" | "description" | "count">(
+    "name"
+  );
+  const [orderDir, setOrderDir] = useState<"asc" | "desc">("asc");
+
+  const sortedCategories = React.useMemo(() => {
+    const sorted = [...categories].sort((a, b) => {
+      let aValue = a[orderBy];
+      let bValue = b[orderBy];
+      if (orderBy === "count") {
+        aValue = typeof aValue === "number" ? aValue : -1;
+        bValue = typeof bValue === "number" ? bValue : -1;
+      } else {
+        aValue = aValue || "";
+        bValue = bValue || "";
+      }
+      if (aValue < bValue) return orderDir === "asc" ? -1 : 1;
+      if (aValue > bValue) return orderDir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [categories, orderBy, orderDir]);
 
   const handleAddCategory = async () => {
     setAdding(true);
@@ -167,14 +189,49 @@ export default function Page() {
               <table dir="rtl" className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                      onClick={() => {
+                        setOrderBy("name");
+                        setOrderDir(
+                          orderBy === "name" && orderDir === "asc"
+                            ? "desc"
+                            : "asc"
+                        );
+                      }}
+                    >
                       الاسم
+                      {orderBy === "name" && (orderDir === "asc" ? " ▲" : " ▼")}
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                      onClick={() => {
+                        setOrderBy("description");
+                        setOrderDir(
+                          orderBy === "description" && orderDir === "asc"
+                            ? "desc"
+                            : "asc"
+                        );
+                      }}
+                    >
                       الوصف
+                      {orderBy === "description" &&
+                        (orderDir === "asc" ? " ▲" : " ▼")}
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                      onClick={() => {
+                        setOrderBy("count");
+                        setOrderDir(
+                          orderBy === "count" && orderDir === "asc"
+                            ? "desc"
+                            : "asc"
+                        );
+                      }}
+                    >
                       العدد
+                      {orderBy === "count" &&
+                        (orderDir === "asc" ? " ▲" : " ▼")}
                     </th>
                     <th
                       className="py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-1 whitespace-nowrap"
@@ -234,8 +291,8 @@ export default function Page() {
                       </td>
                     </tr>
                   )}
-                  {categories && categories.length > 0 ? (
-                    categories.map((cat: categoryType) => (
+                  {sortedCategories && sortedCategories.length > 0 ? (
+                    sortedCategories.map((cat: categoryType) => (
                       <tr
                         key={cat._id}
                         className={
@@ -322,6 +379,7 @@ export default function Page() {
                               <Button
                                 size="icon"
                                 variant="ghost"
+                                disabled={cat._id == "0"}
                                 aria-label="تعديل التصنيف"
                                 className="hover:bg-blue-100"
                                 onClick={() => handleEditClick(cat)}
@@ -331,6 +389,7 @@ export default function Page() {
                               <Button
                                 size="icon"
                                 variant="ghost"
+                                disabled={cat._id == "0"}
                                 aria-label="حذف التصنيف"
                                 className="hover:bg-red-100"
                                 onClick={() => handleDeleteClick(cat._id)}

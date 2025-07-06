@@ -11,6 +11,7 @@ import { useUser } from "@/app/context/UserContext";
 import { useDeleteFile } from "../_hooks/useDeleteFile";
 import { useDeleteImage } from "../_hooks/useDeleteImage";
 import { Plus, RefreshCcw } from "lucide-react";
+import { categoryType } from "@/models/Category";
 
 export default function MagmengetDocumentSection() {
   const { documents, error, loading, add, edit, refresh, remove } =
@@ -44,6 +45,7 @@ export default function MagmengetDocumentSection() {
     showup: boolean;
     image: string;
     addBy: string;
+    category?: string;
   }) => {
     try {
       if (!user) {
@@ -56,6 +58,7 @@ export default function MagmengetDocumentSection() {
         description: doc.description,
         image: doc.image,
         showUp: doc.showup,
+        category: doc.category as categoryType | undefined,
         addedBy: user,
       });
       if (success) {
@@ -144,6 +147,7 @@ export default function MagmengetDocumentSection() {
       image: doc.image,
       showUp: doc.showUp,
       addedBy: doc.addedBy,
+      category: doc.category,
     }));
   }, [documents, loading, error]);
 
@@ -158,7 +162,7 @@ export default function MagmengetDocumentSection() {
             className="mb-4 flex gap-2 "
             variant="outline"
           >
-            <RefreshCcw size={18} /> تجديد التصنيفات
+            <RefreshCcw size={18} /> تجديد المستندات
           </Button>
           <Button
             onClick={() => {
@@ -167,7 +171,7 @@ export default function MagmengetDocumentSection() {
             className="mb-4 flex gap-2 "
             variant="outline"
           >
-            <Plus size={18} /> إضافة تصنيف جديد
+            <Plus size={18} /> إضافة مستند جديد
           </Button>
         </div>
         <div className="overflow-x-auto w-full">

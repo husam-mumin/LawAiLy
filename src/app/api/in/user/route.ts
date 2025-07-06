@@ -36,15 +36,31 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "User id is required" }, { status: 400 });
     }
     const body = await req.json();
-    const { firstName, lastName } = body;
-    if (!firstName || !lastName) {
+    
+    const { firstName, lastName, photoUrl } = body;
+    if ((!firstName && !lastName) && !photoUrl) {
+      console.log("First name, last name and photoUrl are required");
       return NextResponse.json({ error: "First name and last name are required" }, { status: 400 });
     }
-    const user = await User.findByIdAndUpdate(
+    let user = null;
+    if(!firstName) {
+
+    user = await User.findByIdAndUpdate(
+      id,
+      {
+        AvatarURL: body.photoUrl
+      },
+      { new: true, runValidators: true, select: "-password" }
+    ).lean();
+    } else {
+
+
+    user = await User.findByIdAndUpdate(
       id,
       { firstName, lastName },
       { new: true, runValidators: true, select: "-password" }
     ).lean();
+    }
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

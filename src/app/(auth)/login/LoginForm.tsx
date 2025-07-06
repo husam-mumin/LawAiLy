@@ -25,9 +25,9 @@ const formSchema = z
     email: z
       .string()
       .trim()
-      .min(1, { message: "email required" })
-      .email("Invalid email "),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
+      .min(1, { message: "البريد الإلكتروني مطلوب" })
+      .email("البريد الإلكتروني غير صالح"),
+    password: z.string().min(6, "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل"),
   })
   .superRefine(async ({ email }, ctx) => {
     if (!email) return;
@@ -38,7 +38,7 @@ const formSchema = z
     if (!exists) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Email not found. Please check and try again.",
+        message: "البريد الإلكتروني غير موجود. يرجى التحقق والمحاولة مرة أخرى.",
         path: ["email"],
       });
     }
@@ -54,7 +54,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorType | null>(null);
   useEffect(() => {
-    document.title = "Login - MyApp";
+    document.title = "تسجيل الدخول - Lawaily";
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -81,8 +81,8 @@ export default function LoginForm() {
 
       if (resdata.error) {
         setError({
-          title: "Login Failed",
-          description: resdata.error || "An error occurred while logging in.",
+          title: "فشل تسجيل الدخول",
+          description: resdata.error || "حدث خطأ أثناء تسجيل الدخول.",
         });
         throw new Error(resdata.error);
       }
@@ -99,14 +99,14 @@ export default function LoginForm() {
         if (err.status === 401) {
           form.setError("password", {
             type: "validate",
-            message: "wrong password, Please check and try again.",
+            message: "كلمة مرور خاطئة، يرجى التحقق والمحاولة مرة أخرى.",
           });
         }
         if (err.response?.data?.statusCode === 401) {
           setError({
-            title: "Login Failed",
+            title: "فشل تسجيل الدخول",
             description:
-              error?.description || "An error occurred while logging in.",
+              error?.description || "حدث خطأ أثناء تسجيل الدخول.",
           });
         }
         if (err.response?.data?.error) {
@@ -116,8 +116,8 @@ export default function LoginForm() {
           });
         } else {
           setError({
-            title: "Login Failed",
-            description: "An error occurred while logging in.",
+            title: "فشل تسجيل الدخول",
+            description: "حدث خطأ أثناء تسجيل الدخول.",
           });
         }
       }
@@ -139,16 +139,17 @@ export default function LoginForm() {
       )}
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 w-80 p-6  rounded-lg"
+        className="flex flex-col gap-4 w-80 p-6 rounded-lg"
+        dir="rtl"
       >
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>البريد الإلكتروني</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Email" />
+                <Input {...field} placeholder="البريد الإلكتروني" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -159,9 +160,9 @@ export default function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>كلمة المرور</FormLabel>
               <FormControl>
-                <Input {...field} type="password" placeholder="Password" />
+                <Input {...field} type="password" placeholder="كلمة المرور" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -169,9 +170,9 @@ export default function LoginForm() {
         />
         <Button
           type="submit"
-          className="w-fit mx-auto  bg-primary text-white py-2 px-10 rounded"
+          className="w-fit mx-auto bg-primary text-white py-2 px-10 rounded"
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
         </Button>
       </form>
     </Form>

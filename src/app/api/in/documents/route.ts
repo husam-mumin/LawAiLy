@@ -1,6 +1,7 @@
-import {  NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Document from '@/models/Documents';
+import Category from '@/models/Category';
 export type fetchedDocumentType = {
   _id: string;
   createdAt: Date;
@@ -21,16 +22,21 @@ export type fetchedDocumentType = {
 description: string;
   };
 };
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-
     await dbConnect();
-
+    // Fix: Ensure full URL for searchParams
+    const { searchParams } = new URL(req.url, `http://${req.headers.get("host")}`);
+    if (searchParams.get('noneCategoryCount') === '1') {
+      // Count documents with no category or category is null
+      const count = await Document.countDocuments({ $or: [ { category: null }, { category: { $exists: false } } ] });
+      return NextResponse.json({ noneCategoryCount: count }, { status: 200 });
+    }
+    // Populate both 'addedBy' and 'category'
     const documents = await Document.find({})
-    .populate('addedBy', 'email firstName lastName')
-    .sort({ createdAt: -1 });
-    
-    
+      .populate('addedBy category', 'email firstName lastName name description')
+      .sort({ createdAt: -1 });
+      
     return NextResponse.json(documents, { status: 200 });
   } catch (error) {
     let message = 'Internal server error.';
@@ -47,7 +53,7 @@ export async function POST(req: Request) {
     if (!title || !documentURL || !description || !addedBy) {
       return NextResponse.json({ error: 'title, url, description, and addBy are required.' }, { status: 400 });
     }
-
+    
     // Check if document with same documentURL exists
     const existingDoc = await Document.findOne({ documentURL });
     if (existingDoc) {
@@ -70,7 +76,10 @@ export async function POST(req: Request) {
     });
 
     await newDocument.save();
-
+    // Increment the category's document count if a category is provided
+    if (category) {
+      await Category.findByIdAndUpdate(category, { $inc: { count: 1 } });
+    }
     return NextResponse.json({
       message: 'Document created successfully.',
       document: newDocument,
@@ -100,6 +109,11 @@ export async function DELETE(req: Request) {
 
     if (!deletedDocument) {
       return NextResponse.json({ error: 'Document not found.' }, { status: 404 });
+    }
+
+    // Decrement the category's document count if a category is present
+    if (deletedDocument.category) {
+      await Category.findByIdAndUpdate(deletedDocument.category, { $inc: { count: -1 } });
     }
 
     return NextResponse.json({

@@ -35,8 +35,8 @@ export default async function layout({ children }: layoutProps) {
       <DocumentProvider documents={await documents()}>
         <MainLayout>
           <div className="">{children}</div>
+          <NotificationDialog />
         </MainLayout>
-        <NotificationDialog />
       </DocumentProvider>
     </div>
   );

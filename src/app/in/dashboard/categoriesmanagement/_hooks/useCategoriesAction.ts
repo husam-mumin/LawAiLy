@@ -18,8 +18,18 @@ export function useCategoriesAction(initialCategories: categoryType[] = []) {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get("/api/dashboard/categories");
-      setCategories(res.data.data || []);
+      const [categoriesRes, noneCountRes] = await Promise.all([
+        axios.get("/api/dashboard/categories"),
+        axios.get("/api/in/documents?noneCategoryCount=1")
+      ]);
+      const noneCategory: categoryType = {
+        _id: "0",
+        name: "بدون تصنيف",
+        description: "هذا للمستندات غير المصنفة",
+        count: noneCountRes.data.noneCategoryCount || 0
+      };
+      const listofCategories = [noneCategory, ...(categoriesRes.data.data || [])];
+      setCategories(listofCategories || []);
       setLoading(false);
     } catch (e: unknown) {
       setError((e as Error).message || "حدث خطأ أثناء الجلب");

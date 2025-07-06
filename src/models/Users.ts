@@ -20,6 +20,7 @@ export interface IUser extends Document {
   gender: string,
   firstName?: string,
   lastName?: string,
+  pushSubscription?: Record<string, unknown>; // Optional field for push notifications
   role?: 'user' | 'admin' | 'owner',
   AvatarURL?: string,
   DocumentID?: string,
@@ -33,7 +34,8 @@ export type userType = {
   gender: string,
   firstName?: string,
   lastName?: string,
-  role?: 'user' | 'admin' | 'owner',
+  role: 'user'  | 'owner' | 'admin',
+  pushSubscription?: Record<string, unknown>; // Optional field for push notifications
   AvatarURL?: string,
   DocumentID?: string,
   isBaned?: boolean
@@ -45,6 +47,7 @@ const UserSchema: Schema = new mongoose.Schema<IUser>({
   gender: {type: 'string', required: true},
   firstName: {type: 'string'},
   lastName: {type: 'string'},
+  pushSubscription: { type: Object, required: false }, // Optional field for push notifications
   role: {type: "string", required: true, default: 'user'},
   AvatarURL: {type: "string" },
   DocumentID: { type: Schema.Types.ObjectId, ref: "Document" },

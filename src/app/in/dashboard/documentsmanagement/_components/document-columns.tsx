@@ -10,6 +10,12 @@ import {
 import { EllipsisIcon } from "lucide-react";
 import { userType } from "@/models/Users";
 import Image from "next/image";
+import { categoryType } from "@/models/Category";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type DocumentRow = {
   _id: string;
@@ -20,7 +26,7 @@ export type DocumentRow = {
   showUp: boolean;
   addedBy: userType;
   image: string;
-  category?: string; // Added category field
+  category?: categoryType; // Added category field
 };
 
 export const documentColumns = (
@@ -65,7 +71,7 @@ export const documentColumns = (
     },
   },
   {
-    accessorKey: "createAt",
+    accessorKey: "createdAt",
     header: "تاريخ الإضافة",
     cell: ({ row }) => {
       const date = new Date(row.original.createdAt);
@@ -75,10 +81,41 @@ export const documentColumns = (
       const day = String(date.getDate()).padStart(2, "0");
       return `${year}/${month}/${day}`;
     },
+    sortingFn: (a, b) => {
+      // Sort by createdAt (date)
+      const aDate = a.original.createdAt
+        ? new Date(a.original.createdAt).getTime()
+        : 0;
+      const bDate = b.original.createdAt
+        ? new Date(b.original.createdAt).getTime()
+        : 0;
+      return aDate - bDate;
+    },
   },
   {
     accessorKey: "description",
     header: "الوصف",
+    cell: ({ row }) => {
+      const description = row.original.description || "لا يوجد وصف";
+      return (
+        <span className="text-sm text-gray-600">
+          <Tooltip>
+            <TooltipTrigger className="cursor-pointer">
+              {description.length > 20 ? (
+                <span className="line-clamp-2">
+                  {description.slice(0, 20)}...
+                </span>
+              ) : (
+                description
+              )}
+            </TooltipTrigger>
+            <TooltipContent>
+              <span>{description}</span>
+            </TooltipContent>
+          </Tooltip>
+        </span>
+      );
+    },
   },
   {
     accessorKey: "showup",
@@ -89,8 +126,6 @@ export const documentColumns = (
     accessorKey: "addedBy",
     cell: ({ row }) => {
       const addedBy = row.original.addedBy;
-      console.log("added by:", addedBy);
-
       return (
         <span>
           {addedBy?.firstName || addedBy?.lastName
@@ -100,11 +135,43 @@ export const documentColumns = (
       );
     },
     header: "أضيف بواسطة",
+    sortingFn: (a, b) => {
+      // Sort by firstName + lastName or email
+      const getName = (user: {
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+      }) =>
+        user?.firstName || user?.lastName
+          ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+          : user?.email || "";
+      const aName = getName(a.original.addedBy).toLowerCase();
+      const bName = getName(b.original.addedBy).toLowerCase();
+      if (aName < bName) return -1;
+      if (aName > bName) return 1;
+      return 0;
+    },
   },
   {
     accessorKey: "category",
     header: "التصنيف",
-    cell: ({ row }) => <span>{row.original.category || "غير مصنف"}</span>,
+    cell: ({ row }) => {
+      return <span>{row.original.category?.name || "غير مصنف"}</span>;
+    },
+    sortingFn: (a, b) => {
+      // Sort by category name, nulls last
+      console.log("a", a, "b", b);
+
+      const aName = a.original.category?.name || "";
+      const bName = b.original.category?.name || "";
+
+      if (!aName && bName) return 1;
+      if (aName && !bName) return -1;
+      if (!aName && !bName) return 0;
+      if (aName < bName) return -1;
+      if (aName > bName) return 1;
+      return 0;
+    },
   },
   {
     id: "actions",
