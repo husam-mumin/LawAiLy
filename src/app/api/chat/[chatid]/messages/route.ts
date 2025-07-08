@@ -54,7 +54,7 @@ export type messageResponse = {
   chat: string,
   response: AIResponseType,
   files: filesType,
-  createAt: Date,
+  createdAt: Date,
   updateAt: Date,
 }
 

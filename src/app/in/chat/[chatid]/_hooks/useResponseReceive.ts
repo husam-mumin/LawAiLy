@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { responseType } from "@/models/Responses";
+import { messageResponse } from "@/app/api/chat/[chatid]/messages/route";
 
 /**
  * useResponseReceive
@@ -20,7 +21,7 @@ export function useResponseReceive() {
    * Request an AI response for a message in a chat.
    * @param params { chatid: string, message: string, messageid: string }
    */
-  const receive = async ({ chatid, message, messageid }: { chatid: string; message: string; messageid: string }) => {
+  const receive = async ({ chatid, message, messages, messageid }: { chatid: string; message: string; messages: messageResponse[], messageid: string }) => {
     setLoading(true);
     setError(null);
     setResult(null);
@@ -28,6 +29,7 @@ export function useResponseReceive() {
       const res = await axios.post<responseType>("/api/chat/response", {
         chat: chatid,
         message,
+        messages,
         messageid,
       });
       setResult(res.data);

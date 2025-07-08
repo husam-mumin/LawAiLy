@@ -34,6 +34,8 @@ const formSchema = z
     const response = await axios.post("/api/auth/checkEmail", {
       email: email.trim(),
     });
+    console.log("Email check response:", response.data);
+
     const { exists } = response.data;
     if (!exists) {
       ctx.addIssue({
@@ -90,6 +92,7 @@ export default function LoginForm() {
       setError(null); // Clear any previous errors
       // Set user data in context
       setUser(resdata.user);
+
       router.push("/in"); // Redirect to dashboard or home page
       // Optionally, you can store user data in local storage or context
     } catch (err: unknown) {
@@ -105,8 +108,7 @@ export default function LoginForm() {
         if (err.response?.data?.statusCode === 401) {
           setError({
             title: "فشل تسجيل الدخول",
-            description:
-              error?.description || "حدث خطأ أثناء تسجيل الدخول.",
+            description: error?.description || "حدث خطأ أثناء تسجيل الدخول.",
           });
         }
         if (err.response?.data?.error) {

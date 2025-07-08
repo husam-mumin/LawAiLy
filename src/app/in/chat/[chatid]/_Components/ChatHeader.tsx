@@ -24,6 +24,9 @@ type ChatHeaderProps = {
   loading?: boolean;
   setDeleteDialog: (e: boolean) => void;
   refresh: () => void;
+  openDeleteButtonRef?: React.Ref<HTMLButtonElement>;
+  dropdownOpen?: boolean;
+  setDropdownOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type ChatTitleProps = {
@@ -128,6 +131,7 @@ type ChatDropDownMenuProps = {
   copyLink: () => void;
   shareChat: () => string;
   refresh: () => void;
+  triggerRef?: React.Ref<HTMLButtonElement>; // <-- new prop
 };
 function ChatDropDowmMenu({
   setEditTitle,
@@ -137,12 +141,23 @@ function ChatDropDowmMenu({
   copyLink,
   shareChat,
   refresh,
-}: ChatDropDownMenuProps) {
+  triggerRef, // <-- new prop
+  dropdownOpen,
+  setDropdownOpen,
+}: ChatDropDownMenuProps & {
+  triggerRef?: React.Ref<HTMLButtonElement>;
+  dropdownOpen?: boolean;
+  setDropdownOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   return (
     <>
-      <DropdownMenu dir="rtl">
+      <DropdownMenu
+        dir="rtl"
+        open={dropdownOpen}
+        onOpenChange={setDropdownOpen}
+      >
         <DropdownMenuTrigger asChild>
-          <Button variant={"ghost"}>
+          <Button variant={"ghost"} ref={triggerRef}>
             <EllipsisVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -171,8 +186,10 @@ function ChatDropDowmMenu({
           <DropdownMenuItem
             className="text-red-600 focus:bg-red-50"
             style={{ color: "#dc2626" }}
-            // ! This is a custom dropdown item open dialog but broke the application buttons after close the dialog
-            onClick={() => setOpenDailog(true)}
+            onClick={() => {
+              if (setDropdownOpen) setDropdownOpen(false);
+              setTimeout(() => setOpenDailog(true), 50);
+            }}
           >
             <Trash2 className="h-4 w-4 ml-2 text-red-600" /> حذف المحادثة
           </DropdownMenuItem>
@@ -202,6 +219,9 @@ export default function ChatHeader({
   loading,
   setDeleteDialog,
   refresh,
+  openDeleteButtonRef,
+  dropdownOpen,
+  setDropdownOpen,
 }: ChatHeaderProps) {
   const [editHeader, setEditHeader] = useState(false);
   const [isFavorite, setIsFavorite] = useState(chat?.isFavorite ?? false);
@@ -231,6 +251,9 @@ export default function ChatHeader({
           copyLink={copyLink}
           shareChat={shareChat}
           refresh={handleRefresh}
+          triggerRef={openDeleteButtonRef}
+          dropdownOpen={dropdownOpen}
+          setDropdownOpen={setDropdownOpen}
         />
         <ChatTitle
           editTitle={editHeader}

@@ -31,10 +31,9 @@ export function useChatManager(chatid: string) {
 
       // Post new Response because the message has not Response
       res.data.chat.forEach((msg) => {
-        console.log("Message responses:", msg.response);
         if (!msg.response && !processingMessages.current.has(msg._id)) {
           processingMessages.current.add(msg._id);
-          PostNewResponse(msg.message, msg._id);
+          PostNewResponse(msg.message, res.data.chat ,  msg._id);
         }
       });
     } catch (err: unknown) {
@@ -72,11 +71,11 @@ export function useChatManager(chatid: string) {
     }
   };
 
-  const PostNewResponse = async (message: string, messageid: string ) => {
+  const PostNewResponse = async (message: string, messages: messageResponse[], messageid: string ) => {
     setResponseLoading(true);
     setError(null);
     try {
-      const res = await axios.post(`/api/chat/response`, { message, messageid, chat: chatid});
+      const res = await axios.post(`/api/chat/response`, { message,messages, messageid, chat: chatid});
       console.log("Response posted:", res.data);
       setMessages((prev) => {
         const editArray = prev.map((msg) =>

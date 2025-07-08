@@ -6,12 +6,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { DocumentContext } from "./DocumentProvider";
 import { Circle, RefreshCcw } from "lucide-react";
 import { useNotificationContext } from "@/app/context/NotficationContext";
+import { useOpenNot } from "@/app/context/UserContext";
 
 const NotificationDialog = () => {
-  const { setOpenNot, openNot } = React.useContext(DocumentContext);
+  const { setOpenNot, openNot } = useOpenNot();
   const {
     refresh,
     handleDelete,

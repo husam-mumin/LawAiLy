@@ -5,7 +5,7 @@
  * 3. Title
  * 4. Description 
  * 5. showUp 
- * 6. CreateAt 
+ * 6. createdAt 
  * 7. UpdateAt 
  * 8. AddedBy 
  * 

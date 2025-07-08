@@ -1,123 +1,88 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { JWTPayload, jwtVerify } from "jose";
 
-const protectedRoutes = [
-  '/dashboard',
-  '/in',
-];
+export interface UserPayload extends JWTPayload {
+  id: number;
+  email: string;
+  role: "admin" | "user" | "owner";
+  isBanned: boolean;
+}
 
-const adminRoutes = [
-  '/in/dashboard',
-];
-
-const userLoginRoutes = [
-  '/login',
-  '/register'
-];
-
-const publicRoutes = [
-  '/'
-];
+const ADMIN_PATHS = ["/in/dashboard"];
+const user_authenticated_paths = [];
+const publicRoutes = ["/"];
+const secret = new TextEncoder().encode(process.env.REFRESH_SECRET!);
 
 export default async function middleware(req: NextRequest) {
+  const token = await req.cookies.get("refreshToken")?.value;
+  const url = req.nextUrl.clone();
   const pathname = req.nextUrl.pathname;
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session');
-  const apiCalled = cookieStore.get('api_called')?.value;
-  
-  
-  type UserFromApi = {
-    isBaned?: boolean;
-    role?: 'user' | 'admin' |'owner';
-        email?: string;
-  };
+  console.log("Middleware pathname:", pathname);
 
-  let userFromApi: UserFromApi | null = null;
+  // console.log("Middleware token:", token?.slice(0, 5));
 
-  // Always prefer userFromApi for authorization logic
-  if (!apiCalled) {
-    if (sessionCookie?.value ) {
-      try {
-        const apiUrl = `${req.nextUrl.origin || ''}/api/in/user?id=${encodeURIComponent( sessionCookie.value  || "")}`;
-        const res = await fetch(apiUrl, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
-        if (res.ok) {
-          userFromApi = await res.json() as UserFromApi;
-          cookieStore.set('api_called', JSON.stringify(userFromApi), {
-            maxAge: 60 * 1, // 1 minute
-            httpOnly: true,
-          });
-        }
-      } catch {}
-    }
-  } else {
-    try {
-      userFromApi = JSON.parse(apiCalled) as UserFromApi;
-    } catch (error) {
-      console.error("Error parsing api_called cookie:", error);
-      userFromApi = null;
-    }
-  }
-
-  // Ban logic
-  if (
-    userFromApi?.isBaned &&
-    protectedRoutes.some(route => pathname.startsWith(route))
-  ) {
-    return NextResponse.redirect(new URL('/banUser', req.url));
-  }
-
-  if (
-    !userFromApi?.isBaned &&
-    pathname === '/banUser'
-  ) {
-    return NextResponse.redirect(new URL('/in', req.url));
-  }
-
-  // Auth logic for /
-  if (pathname === '/') {
-    console.log(userFromApi);
-    
-    if (sessionCookie && userFromApi) return NextResponse.redirect(new URL('/in', req.url));
+  // Skip middleware for /api/auth/login and /api/auth/register
+  if (pathname.startsWith("/api/auth")) {
+    // console.log("Middleware: Skipping for auth login/register");
 
     return NextResponse.next();
   }
 
-
-  // Admin route logic
-  if (adminRoutes.some(route => pathname.startsWith(route))) {
-    if (userFromApi?.role == 'user') {
-      return NextResponse.redirect(new URL('/in', req.url));
-    }
-  }
-
-  // Protected route logic
-  if (protectedRoutes.some(route => pathname.startsWith(route))) {
-    if (!sessionCookie || !userFromApi) {
-      return NextResponse.redirect(new URL('/login', req.url));
-    }
-  }
-
-  // User login routes
-  if (userLoginRoutes.some(route => pathname.startsWith(route))) {
-    if (sessionCookie && userFromApi) {
-      return NextResponse.redirect(new URL('/in', req.url));
-    }
+  if (publicRoutes.some((route) => pathname == route)) {
+    // Allow access to public routes
     return NextResponse.next();
   }
-
-  // Public routes
-  if (publicRoutes.some(route => pathname.startsWith(route))) {
-    return NextResponse.next();
-  }
-
-  // API routes
-  if (pathname.startsWith('/api')) {
-    if (!sessionCookie || !userFromApi) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!token) {
+    if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
+      // If already on the login page, allow access
+      return NextResponse.next();
     }
+
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+  if (pathname.startsWith("/api")) {
     return NextResponse.next();
   }
+  try {
+    const { payload } = await jwtVerify<UserPayload>(token, secret);
+    if (payload.isBaned) {
+      url.pathname = "/banUser";
+      return NextResponse.redirect("/banUser");
+    }
 
-  // Default allow
-  return NextResponse.next();
+    if (
+      pathname.startsWith("/in/dashboard") &&
+      payload.role !== "admin" &&
+      payload.role !== "owner"
+    ) {
+      url.pathname = "/in";
+      return NextResponse.redirect(url);
+    }
+    if (pathname.startsWith("/in")) {
+      return NextResponse.next();
+    }
+
+    url.pathname = "/in";
+    return NextResponse.redirect(url);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("JWT verification error:", error.message);
+    } else {
+      console.error("JWT verification error:", error);
+    }
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
 }
+export const config = {
+  matcher: [
+    "/in/:path*", // Protect all /in and subroutes
+    "/api/:path*", // Protect all API routes
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/banUser", // If you want to protect this as well
+  ],
+};

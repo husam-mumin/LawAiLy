@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,16 @@ interface DeleteDialogProps {
   description?: string;
 }
 
+function useClientFormattedDate(dateValue: string | number | Date | undefined) {
+  const [formatted, setFormatted] = useState("");
+  useEffect(() => {
+    if (dateValue) {
+      setFormatted(new Date(dateValue).toLocaleString());
+    }
+  }, [dateValue]);
+  return formatted;
+}
+
 export default function DeleteDialog({
   open,
   onOpenChange,
@@ -31,6 +41,8 @@ export default function DeleteDialog({
   title = "تأكيد الحذف",
   description = "هل أنت متأكد أنك تريد حذف هذا المستند؟ لا يمكن التراجع عن هذا الإجراء.",
 }: DeleteDialogProps) {
+  const createdAtFormatted = useClientFormattedDate(row.createdAt);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -59,7 +71,7 @@ export default function DeleteDialog({
           />
           <Label className="font-semibold">تاريخ الإضافة</Label>
           <Input
-            value={new Date(row.createdAt).toLocaleString()}
+            value={createdAtFormatted}
             readOnly
             className="border rounded px-2 py-1 bg-gray-100"
           />

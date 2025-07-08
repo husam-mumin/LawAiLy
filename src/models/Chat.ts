@@ -3,7 +3,7 @@
  * 1. ID
  * 2.title
  * 3. isFavorite
- * 3.CreateAt
+ * 3.createdAtt
  * 4.UpdateAt
  */
 

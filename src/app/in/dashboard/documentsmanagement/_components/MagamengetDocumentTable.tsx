@@ -39,7 +39,7 @@ export default function MagamengetDocumentTable({
         let bValue = (b as Record<string, any>)[orderBy];
         // Special handling for category (sort nulls last)
 
-        // Special handling for createAt (date ordering)
+        // Special handling for createdAtt (date ordering)
         if (aValue instanceof Date) aValue = aValue.getTime();
         if (bValue instanceof Date) bValue = bValue.getTime();
         if (aValue === null || aValue === undefined) aValue = "";

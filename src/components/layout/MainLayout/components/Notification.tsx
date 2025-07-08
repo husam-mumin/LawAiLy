@@ -1,17 +1,21 @@
-import { DocumentContext } from "@/app/in/_components/DocumentProvider";
 import { Button } from "@/components/ui/button";
 import { Bell } from "lucide-react";
 import React from "react";
 import { useNotificationContext } from "@/app/context/NotficationContext";
+import { useOpenNot } from "@/app/context/UserContext";
 
 export default function Notification() {
-  const { setOpenNot } = React.useContext(DocumentContext);
+  const { setOpenNot } = useOpenNot();
   const { notifications } = useNotificationContext();
   return (
     <Button
       className="relative"
       variant={"ghost"}
-      onClick={() => setOpenNot(true)}
+      onClick={() => {
+        console.log("Notification button clicked");
+
+        setOpenNot(true);
+      }}
     >
       <Bell className="size-5" />
       {notifications && notifications.filter((e) => !e.isRead).length > 0 && (

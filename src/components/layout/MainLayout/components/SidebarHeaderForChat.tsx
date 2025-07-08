@@ -42,7 +42,13 @@ export function LogoSection({ isAdmin = false }: LogoSectionProps) {
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton asChild>
             <div className="w-full h-full flex items-center justify-center ">
-              <Image src={"/mainLogo.png"} width={120} height={51} alt="logo" />
+              <Image
+                src={"/mainLogo.png"}
+                width={120}
+                height={51}
+                alt="logo"
+                style={{ height: "auto" }}
+              />
             </div>
           </SidebarMenuButton>
         </DropdownMenuTrigger>
@@ -69,7 +75,13 @@ export function LogoSection({ isAdmin = false }: LogoSectionProps) {
       <div className="w-full h-12 flex items-center ">
         <Link href="/in" className="cursor-pointer flex items-center gap-2">
           <div className="w-full h-12 flex items-center ">
-            <Image src={"/MainLogo.png"} width={120} height={40} alt="logo" />
+            <Image
+              src={"/MainLogo.png"}
+              width={120}
+              height={40}
+              alt="logo"
+              style={{ height: "auto" }}
+            />
           </div>
         </Link>
       </div>

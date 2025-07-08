@@ -86,7 +86,7 @@ export function useNotification() {
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   return {
     notifications,

@@ -8,7 +8,10 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     if (!id) {
-      return NextResponse.json({ error: "User id is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User id is required" },
+        { status: 400 }
+      );
     }
     const user = await User.findById(id).select("-password").lean();
     if (!user) {
@@ -23,9 +26,9 @@ export async function GET(req: Request) {
 }
 
 export type userPatch = {
-  user: userType
-  error?: string
-}
+  user: userType;
+  error?: string;
+};
 
 export async function PATCH(req: Request) {
   try {
@@ -33,33 +36,35 @@ export async function PATCH(req: Request) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     if (!id) {
-      return NextResponse.json({ error: "User id is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User id is required" },
+        { status: 400 }
+      );
     }
     const body = await req.json();
-    
+
     const { firstName, lastName, photoUrl } = body;
-    if ((!firstName && !lastName) && !photoUrl) {
-      console.log("First name, last name and photoUrl are required");
-      return NextResponse.json({ error: "First name and last name are required" }, { status: 400 });
+    if (!firstName && !lastName && !photoUrl) {
+      return NextResponse.json(
+        { error: "First name and last name are required" },
+        { status: 400 }
+      );
     }
     let user = null;
-    if(!firstName) {
-
-    user = await User.findByIdAndUpdate(
-      id,
-      {
-        AvatarURL: body.photoUrl
-      },
-      { new: true, runValidators: true, select: "-password" }
-    ).lean();
+    if (!firstName) {
+      user = await User.findByIdAndUpdate(
+        id,
+        {
+          AvatarURL: body.photoUrl,
+        },
+        { new: true, runValidators: true, select: "-password" }
+      ).lean();
     } else {
-
-
-    user = await User.findByIdAndUpdate(
-      id,
-      { firstName, lastName },
-      { new: true, runValidators: true, select: "-password" }
-    ).lean();
+      user = await User.findByIdAndUpdate(
+        id,
+        { firstName, lastName },
+        { new: true, runValidators: true, select: "-password" }
+      ).lean();
     }
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });

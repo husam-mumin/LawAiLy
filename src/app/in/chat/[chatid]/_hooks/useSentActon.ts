@@ -12,7 +12,8 @@ import { userType } from "@/models/Users";
 export function useSentAction(
   chatid: string,
   setMessages: React.Dispatch<React.SetStateAction<messageResponse[]>>,
-  postNewResponse: (message: string, messageId: string) => void,
+  postNewResponse: (message: string,messages: messageResponse[], messageId: string) => void,
+  messages: messageResponse[],
   user: userType,
 ) {
   const [sending, setSending] = useState(false);
@@ -30,7 +31,7 @@ export function useSentAction(
       });
       // Add the new message to the state
       setMessages((prev) => [...prev, res.data]);
-      await postNewResponse(res.data.message, res.data._id)
+      await postNewResponse(res.data.message,messages ,res.data._id)
       return res.data;
     } catch (err) {
       if (err && typeof err === "object" && "message" in err) {

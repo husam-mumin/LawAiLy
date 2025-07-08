@@ -6,7 +6,7 @@ import { Plus, Check, X, RefreshCcw } from "lucide-react";
 import axios from "axios";
 
 interface NewsItem {
-  id: string;
+  _id: string;
   title: string;
   content: string;
   createdAt: string;
@@ -75,6 +75,8 @@ const NewMangmenetSection: React.FC = () => {
       if (aValue > bValue) return orderDir === "asc" ? 1 : -1;
       return 0;
     });
+    console.log("Sorted News:", sorted);
+
     return sorted;
   }, [news, orderBy, orderDir]);
 
@@ -88,6 +90,7 @@ const NewMangmenetSection: React.FC = () => {
 
   useEffect(() => {
     requestNotificationPermission();
+    console.log(sortedNews);
   }, []);
 
   const handleAddNews = () => {
@@ -272,7 +275,7 @@ const NewMangmenetSection: React.FC = () => {
                   {sortedNews && sortedNews.length > 0 ? (
                     sortedNews.map((item) => (
                       <tr
-                        key={item.id}
+                        key={item._id}
                         className="hover:bg-gray-50 transition-colors"
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">

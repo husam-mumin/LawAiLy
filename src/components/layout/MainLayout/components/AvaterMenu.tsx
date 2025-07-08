@@ -19,6 +19,7 @@ export default function AvaterMenu() {
       const response = await axios.post("/api/auth/logout");
       if (response.status === 200) {
         setUser(null); // Clear user state
+        localStorage.removeItem("user"); // Clear user from local storage
         router.replace("/login");
       }
     } catch (error: unknown) {

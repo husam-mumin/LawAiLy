@@ -4,7 +4,7 @@
  * 2. Response
  * 3. message
  * 4. Chat
- * 5. CreateAt
+ * 5. createdAt
  * 6. isGood
  * 
  */

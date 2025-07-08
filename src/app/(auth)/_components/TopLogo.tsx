@@ -10,6 +10,7 @@ export default function TopLogo() {
           className="w-fit h-fit"
           width={150}
           height={100}
+          style={{ height: "auto" }}
           alt="logo"
         />
       </div>

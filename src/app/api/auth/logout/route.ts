@@ -1,23 +1,22 @@
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 /**
- * logout API route 
+ * logout API route
  * This route handle user logout by deleting the session cookie.
- * and handle any errors that may occur during the process. 
- * 
+ * and handle any errors that may occur during the process.
+ *
  */
 
 export async function POST() {
   // Remove the auth cookie (adjust the cookie name as needed)
 
   try {
-    
-  const cookiesStore = await cookies();
-  cookiesStore.delete('session'); // Delete the session cookie
-  return NextResponse.json({ message: "User logout successfully"}, {status: 200})
+    const res = NextResponse.json({ message: "Logged out" });
+    res.cookies.set("token", "", { maxAge: 0 });
+    res.cookies.set("refreshToken", "", { maxAge: 0 });
+    return res;
   } catch (error) {
-    let message = 'Internal server error.';
+    let message = "Internal server error.";
     if (error instanceof Error) message = error.message;
     return NextResponse.json({ error: message }, { status: 500 });
   }

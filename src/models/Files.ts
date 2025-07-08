@@ -1,7 +1,7 @@
 /**
  * # Files
  * 1. ID 
- * 2. CreateAt
+ * 2. createdAt
  * 3. FileURL
  * 4. FileText
  * 5. MessageID 

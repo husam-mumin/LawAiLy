@@ -49,14 +49,23 @@ export default function Home() {
   // Fetch documents from the API
   const searchContext = useContext(layoutContext);
   const { searchQuery, setSearchQuery } = searchContext || {};
+
+  // New: fetchDocuments function using axios
+  const fetchDocuments = async () => {
+    try {
+      const res = await axios.get("/api/in/documents", {
+        withCredentials: true,
+      });
+      setDocuments(res.data);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetch("/api/in/documents")
-      .then((res) => res.json())
-      .then((data) => {
-        setDocuments(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    fetchDocuments();
     if (!setSearchQuery) return;
     setSearchQuery("");
   }, []);
@@ -156,7 +165,36 @@ export default function Home() {
   }, [user]);
 
   if (loading) {
-    return <div className="text-center py-20 text-xl">جاري التحميل...</div>;
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-white z-50">
+        <svg
+          className="animate-spin h-16 w-16 text-blue-500 mb-6 drop-shadow-lg"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8z"
+          ></path>
+        </svg>
+        <div className="text-2xl font-bold text-blue-700 animate-pulse mb-2">
+          جاري التحميل...
+        </div>
+        <div className="text-md text-blue-400 animate-fade-in">
+          يرجى الانتظار قليلاً
+        </div>
+      </div>
+    );
   }
   if (!user) {
     return;

@@ -37,14 +37,14 @@ export default async function Dashboard() {
         <StatCard label="عدد المستندات" value={stats.totalBooks} />
         <StatCard label="عدد الرسائل" value={stats.totalMessages} />
         <StatCard label="عدد الردود" value={stats.totalResponses} />
-        <StatCard label="الإعجابات" value={stats.totalLikes} />
+        <StatCard label="الإعجابات" value={stats.totalLike} />
         <StatCard label="المشاركات" value={stats.totalShares} />
       </div>
       {/* Simple bar chart mockup */}
       <h2 className="text-xl font-semibold mb-4">عدد المستندات في كل تصنيف</h2>
       <div className="w-full max-w-2xl bg-white p-6 rounded shadow">
         {libyaLawCategories.map((cat) => (
-          <div key={cat.id} className="mb-3">
+          <div key={cat._id} className="mb-3">
             <div className="flex justify-between mb-1">
               <span>{cat.name}</span>
               <span>{cat.books.length}</span>

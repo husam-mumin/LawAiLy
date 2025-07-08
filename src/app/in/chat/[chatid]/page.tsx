@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useChatManager } from "./_hooks/useChatmangaer";
 import { useParams, useRouter } from "next/navigation";
 import ChatHeader from "./_Components/ChatHeader";
@@ -91,8 +91,12 @@ export default function ChatPage() {
     chatid as string,
     setMessages,
     PostNewResponse,
+    messages,
     user || { _id: "", email: "", gender: "", role: "user" }
   );
+
+  const openDeleteButtonRef = useRef<HTMLButtonElement>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // control dropdown
 
   useEffect(() => {
     if (!loading && chat) {
@@ -102,6 +106,16 @@ export default function ChatPage() {
   useEffect(() => {
     console.log("Open Delete Dialog:", openDeleteDialog);
   }, [openDeleteDialog]);
+
+  const handleOpenDeleteDialog = () => {
+    setDropdownOpen(false); // close dropdown before opening dialog
+    setTimeout(() => setOpenDeleteDialog(true), 50); // open dialog after dropdown closes
+  };
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    // Return focus to the dropdown trigger button
+    openDeleteButtonRef.current?.focus();
+  };
 
   if (pageLoading) {
     return (
@@ -234,10 +248,13 @@ export default function ChatPage() {
         <div className="flex flex-col min-w-full">
           <div className="w-full md:w-[36rem] mx-auto">
             <ChatHeader
-              setDeleteDialog={setOpenDeleteDialog}
+              setDeleteDialog={handleOpenDeleteDialog}
               chat={chat}
               loading={loading}
               refresh={refresh}
+              openDeleteButtonRef={openDeleteButtonRef}
+              dropdownOpen={dropdownOpen}
+              setDropdownOpen={setDropdownOpen}
             />
           </div>
           <ChatMessages
@@ -262,11 +279,13 @@ export default function ChatPage() {
           </div>
         </div>
       </div>
-      <ConfirmDialog
-        deleteChat={handlerDeleteChat}
-        openDialog={openDeleteDialog}
-        setOpenDialog={setOpenDeleteDialog}
-      />
+      {openDeleteDialog && (
+        <ConfirmDialog
+          deleteChat={handlerDeleteChat}
+          openDialog={openDeleteDialog}
+          setOpenDialog={handleCloseDeleteDialog}
+        />
+      )}
     </>
   );
 }

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -133,65 +134,119 @@ html[dir="ltr"] {
 
 
 .markdown h1 {
-  @apply text-3xl font-bold text-gray-800 mb-4 mt-6 leading-tight;
+  @apply text-3xl font-bold mb-4 mt-6 leading-tight;
+  color: var(--color-foreground);
 }
 
 .markdown h2 {
-  @apply text-2xl font-bold text-gray-800 mb-3 mt-5 leading-snug;
+  @apply text-2xl font-bold mb-3 mt-5 leading-snug;
+  color: var(--color-foreground);
 }
 
 .markdown h3 {
-  @apply text-xl font-semibold text-gray-800 mb-2 mt-4;
+  @apply text-xl font-semibold mb-2 mt-4;
+  color: var(--color-foreground);
 }
 
 .markdown h4 {
-  @apply text-lg font-semibold text-gray-800 mb-2 mt-3;
+  @apply text-lg font-semibold mb-2 mt-3;
+  color: var(--color-foreground);
 }
 
 .markdown p {
-  @apply mb-4 leading-relaxed text-gray-700;
+  @apply mb-4 leading-relaxed inline;
+  color: var(--color-muted-foreground);
 }
 
 .markdown ul {
-  @apply list-disc pl-6 mb-4;
+  list-style-type: disc;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
 }
 
 .markdown ol {
-  @apply list-decimal pl-6 mb-4;
+  list-style-type: decimal;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
 }
 
 .markdown li {
-  @apply mb-1;
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+  padding-left: 0.2em;
+  position: relative;
+}
+
+.markdown ul li:last-child,
+.markdown ol li:last-child {
+  margin-bottom: 0;
+}
+
+.markdown ul ul,
+.markdown ol ul {
+  list-style-type: circle;
+  margin-bottom: 0;
+  margin-top: 0.2em;
+}
+
+.markdown ol ol,
+.markdown ul ol {
+  list-style-type: lower-latin;
+  margin-bottom: 0;
+  margin-top: 0.2em;
 }
 
 .markdown a {
-  @apply text-blue-600 underline hover:text-blue-800;
+  @apply underline transition-colors;
+  color: var(--color-primary);
+}
+.markdown a:hover {
+  color: var(--color-primary-foreground);
 }
 
 .markdown blockquote {
-  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 mb-4 bg-gray-50;
+  @apply border-l-4 pl-4 italic mb-4;
+  background: var(--color-muted);
+  border-color: var(--color-border);
+  color: var(--color-muted-foreground);
 }
 
 .markdown pre {
-  @apply bg-gray-900 text-gray-100 rounded p-4 overflow-x-auto mb-4;
+  @apply rounded p-4 overflow-x-auto mb-4 font-mono text-sm shadow;
+  background: #18181b;
+  color: #f4f4f5;
 }
 
 .markdown code {
-  @apply bg-gray-100 text-pink-600 rounded px-1 py-0.5 font-mono text-sm;
+  @apply rounded px-1 py-0.5 font-mono text-sm;
+  background: #f4f4f5;
+  color: #d946ef;
+}
+
+.markdown pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
 }
 
 .markdown img {
-  @apply max-w-full rounded my-4;
+  @apply max-w-full rounded my-4 shadow;
 }
 
 .markdown table {
-  @apply w-full border-collapse my-4;
+  @apply w-full border-collapse my-4 text-sm;
+  background: var(--color-card);
+  color: var(--color-foreground);
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
 }
 
 .markdown th, .markdown td {
-  @apply border border-gray-300 px-3 py-2;
+  @apply px-3 py-2;
+  border: 1px solid var(--color-border);
 }
 
 .markdown th {
-  @apply bg-gray-100 font-semibold;
+  background: #f4f4f5;
+  font-weight: 600;
 }
