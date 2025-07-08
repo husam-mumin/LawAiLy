@@ -5,10 +5,10 @@
  * 3. gender
  * 4. firstName
  * 5. lastName 
- * 6. isAdmin
+ * 6. role
  * 7. AvatarURL 
  * 8. ID 
- * 9.CreateAt
+ * 9.createdAt
  * 10. isBaned 
  * 
  */
@@ -16,23 +16,26 @@ import mongoose, { Schema, Document } from 'mongoose'
 
 export interface IUser extends Document {
   email: string,
-  password: string, 
+  password?: string, 
   gender: string,
   firstName?: string,
   lastName?: string,
-  isAdmin?: boolean,
+  pushSubscription?: Record<string, unknown>; // Optional field for push notifications
+  role?: 'user' | 'admin' | 'owner',
   AvatarURL?: string,
   DocumentID?: string,
   isBaned?: boolean
 }
 
 export type userType = {
+  _id: string,
   email: string,
-  password: string, 
+  password?: string, 
   gender: string,
   firstName?: string,
   lastName?: string,
-  isAdmin?: boolean,
+  role: 'user'  | 'owner' | 'admin',
+  pushSubscription?: Record<string, unknown>; // Optional field for push notifications
   AvatarURL?: string,
   DocumentID?: string,
   isBaned?: boolean
@@ -40,11 +43,12 @@ export type userType = {
 
 const UserSchema: Schema = new mongoose.Schema<IUser>({
   email: {type: 'string', required: true, unique: true},
-  password: {type: 'string', required: true},
+  password: {type: 'string'},
   gender: {type: 'string', required: true},
   firstName: {type: 'string'},
   lastName: {type: 'string'},
-  isAdmin: {type: "Boolean", required: true, default: false},
+  pushSubscription: { type: Object, required: false }, // Optional field for push notifications
+  role: {type: "string", required: true, default: 'user'},
   AvatarURL: {type: "string" },
   DocumentID: { type: Schema.Types.ObjectId, ref: "Document" },
   isBaned: { type: 'boolean', default: false }

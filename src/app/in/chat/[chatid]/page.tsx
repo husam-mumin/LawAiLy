@@ -1,174 +1,291 @@
 "use client";
-import { useParams } from "next/navigation";
-
+import React, { useEffect, useRef, useState } from "react";
+import { useChatManager } from "./_hooks/useChatmangaer";
+import { useParams, useRouter } from "next/navigation";
 import ChatHeader from "./_Components/ChatHeader";
-
+import ChatMessages from "./_Components/ChatMessages";
+import { useChatActions } from "../_hook/useChatActions";
+import ConfirmDialog from "./_Components/ConfirmDialog";
+import { Button } from "@/components/ui/button";
 import ChatInput from "@/components/ChatInput";
-import { useAddMessage } from "./_hooks/useAddMessage";
-import { useUser } from "@/hooks/useUser";
-import { useChatMangement } from "./_hooks/useChatMangement";
-import Message from "./_Components/Message";
-import Response from "./_Components/Response";
-import { useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
-import { chatType } from "@/models/Chat";
-import { ScrollArea } from "@/components/ui/scroll-area";
-/**
- *
- * we must have the Chat message with there responses
- * the order by message Create Time
- * we can accept more then one responses for the message
- * we a delay between the message and get the responses
- * when open the page we must call the getMessageAPI just one time
- * when sent new message we create message in database and return the value to give setChat
- * and check if the message sent successfully or not if not he can resent again
- * after sent we call the response action that run the loading and wait for response for the server
- * response action stop the sent action ( and he can stop the enter proses )  still under the study
- * after the presses end the sent action work again and the response appear
- *
- * when first open
- * # check if is the first open
- * sent loading for sent senting the message
- * sent the message
- *
- * # chat action
- * he can make it favorite chat
- * he can delete the chat
- * he can edit the name of the chat
- *
- * # Message action
- * there are the loading before save
- * he can resent if message don't sent to the server
- * he can edit it
- * he can copy it
- *
- * # Response action
- * there are Loading before the show
- * he can copy it
- *
- * he can recreate new response
- * he review the response
- * he can report for the response
- *
- * @returns s
- */
+import { useUser } from "@/app/context/UserContext";
+import { useSentAction } from "./_hooks/useSentActon";
 
 /**
- * the Sent message process
- * To build a smooth chat interface in Next.js that:
- * 1. Shows the user's message immediatel.
- * 2. Shows a "loading" state on that message.
- * 3. Updates the message after it's saved.
- * 4. Shows a response with a loading indicator.
- * 5. Replaces it with the real response after generation.
+ * this is a chat page the happen between customer and LLMs ai that train with law Libyan Laws
+ * todo - Add chat page functionality
+ * ChatPage component to display chat details and messages.
+ * The Page split to sections are
+ * 1. Chat Header - Displays chat title (editable by user) and other details.
+ * 2. Chat Messages - Displays all messages in the chat.
+ * 3. Chat Input - Displays the Input in the bottom
+ * 4. handle Loading and Error Statue
+ * 5. Auto-Scroll to Latest Message
+ * 7. Refresh Button
+ * 8. Copy Response: Allow users to copy chat responses easily (important).
+ * 9. Share Chat: Provide a way to share the entire chat (important).
+ * 10. Share Response: Allow sharing a single response (e.g., via link or social media).
+ * 11. User Experience: Ensure smooth and intuitive user experience.
+ * 12. Response Review: Allow users to review, are the AI responses good?.
  *
+ * Additional suggestions:
+ * 11. Accessibility: Ensure input and controls are accessible.
+ * 12. Empty State: Show a message if there are no messages yet.
+ * 13. Message Timestamps: Display when each message was sent.
+ * 14. Optimistic UI: Show messages immediately as user sends them.
+ * 15. Error Recovery: Allow retrying failed messages.
+ * 16. Mobile Responsiveness: Make sure layout works on mobile.
+ * 17. User Avatars: Show who sent each message visually.
+ * 18. Scroll Management: Add a scroll-to-bottom button.
+ * 19. Loading Placeholders: Use skeletons or spinners.
+ * 20. Security: Sanitize message content to prevent XSS.
+ *
+ * Behaver
+ * Loading
+ * 1. The Page Loading
+ * 2. The get Messages Loading
+ * 3. Sent Message Loading
+ * 4. get Response Ai Loading
+ *
+ *
+ * Possible Error Messages:
+ * 1. Network Error: Failure to fetch or send messages due to connectivity issues.
+ * 2. Invalid Chat ID: Chat ID is missing, invalid, or not found.
+ * 3. Unauthorized Access: User is not authenticated or lacks permission.
+ * 4. API Error: Backend returns an error (500, 404, etc).
+ * 5. Message Send Failure: Sending a message fails due to server or validation errors.
+ * 6. AI Response Timeout: AI takes too long or fails to respond.
+ * 7. Corrupted Data: Received data is malformed or missing fields.
+ * 8. Rate Limiting: User sends messages too quickly and is blocked.
+ * 9. File Upload Error: File or image attachments fail to upload.
+ * 10. XSS/Security Error: Unsanitized content causes a security issue.
+ * 11. State Sync Error: UI state is out of sync with backend.
+ * 12. Unknown Error: Any unexpected error not covered above.
+ *
+ * @returns
  */
 
 export default function ChatPage() {
-  const params: { chatid: string } = useParams();
-  const chatid = params.chatid;
-  const user = useUser();
-
+  const { chatid } = useParams();
+  const [pageLoading, setPageLoading] = useState(true);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const {
-    chatInputFiles,
-    chatInputValue,
-    chatfileUploadLoading,
+    chat,
+    messages,
+    loading,
+    responseLoading,
     error,
-    handleChatInputChange,
-    handleFileInputChange,
-  } = useAddMessage();
+    setMessages,
+    PostNewResponse,
+    refresh,
+  } = useChatManager(chatid as string);
 
-  const { addNewMessage, chat } = useChatMangement(chatid);
-  const [sentLoading, setSentLoading] = useState<boolean>(false);
-  const [chatDeital, setChatDeital] = useState<chatType | null>(null);
+  const { user } = useUser();
+  const { deleteChat } = useChatActions(chat);
+  const router = useRouter();
+  const {
+    sendMessage,
+    sending,
+    error: SentingError,
+  } = useSentAction(
+    chatid as string,
+    setMessages,
+    PostNewResponse,
+    messages,
+    user || { _id: "", email: "", gender: "", role: "user" }
+  );
 
-  const handleSentButton = async () => {
-    if (!user) return;
-    setSentLoading(true);
-    try {
-      addNewMessage(chatInputValue, user._id as string);
-    } catch (err) {
-      console.log(err);
-    }
-    setSentLoading(false);
-    console.log("the f chat", chat);
-  };
+  const openDeleteButtonRef = useRef<HTMLButtonElement>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // control dropdown
 
   useEffect(() => {
-    const getChat = async () => {
-      try {
-        const response = await axios.get<chatType>(`/api/chat/${chatid}`);
-        const data = response.data;
+    if (!loading && chat) {
+      setPageLoading(false);
+    }
+  }, [loading, chat]);
+  useEffect(() => {
+    console.log("Open Delete Dialog:", openDeleteDialog);
+  }, [openDeleteDialog]);
 
-        setChatDeital(data);
-      } catch (error: unknown) {
-        if (error instanceof AxiosError) {
-          console.error(error.message);
-        }
-      }
-    };
-    getChat();
-  }, []);
+  const handleOpenDeleteDialog = () => {
+    setDropdownOpen(false); // close dropdown before opening dialog
+    setTimeout(() => setOpenDeleteDialog(true), 50); // open dialog after dropdown closes
+  };
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    // Return focus to the dropdown trigger button
+    openDeleteButtonRef.current?.focus();
+  };
+
+  if (pageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+        <div className="flex flex-col items-center gap-4">
+          <svg
+            className="animate-spin h-12 w-12 text-blue-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+          <div className="text-2xl font-bold text-gray-700 animate-pulse">
+            جاري تحميل الصفحة...
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+        <div className="flex flex-col items-center gap-4">
+          <svg
+            className="animate-spin h-12 w-12 text-blue-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+          <div className="text-2xl font-bold text-gray-700 animate-pulse">
+            جاري التحميل...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center flex-col justify-center h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+        <div className="flex flex-col items-center gap-4 p-8 bg-white/80 rounded-xl shadow-lg border border-red-200">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="h-16 w-16 text-red-500 mb-2 "
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+              className="opacity-20"
+            />
+            <path
+              fill="currentColor"
+              d="M12 8v4m0 4h.01"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <div className="text-red-600 text-2xl font-bold text-center">
+            حدث خطأ أثناء تحميل المحادثة
+            <br />
+            يرجى المحاولة مرة أخرى لاحقًا.
+          </div>
+          <Button
+            variant={"secondary"}
+            onClick={() => router.push("/in")}
+            className="mt-4"
+          >
+            العودة إلى الصفحة الرئيسية
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const handlerDeleteChat = async () => {
+    const res = await deleteChat();
+    if (res !== false) {
+      router.push("/in");
+    }
+    setOpenDeleteDialog(false);
+  };
+
+  if (!chat) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+        <div className="text-xl font-bold text-gray-700">
+          لا توجد محادثة بهذا المعرف.
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="w-screen md:w-180 mx-auto bg-gray-500/5 min-h-[calc(100vh-120px)] md:min-h-[calc(100vh-60px)] relative">
-        <>
-          {chatDeital ? (
+    <>
+      <div>
+        <div className="flex flex-col min-w-full">
+          <div className="w-full md:w-[36rem] mx-auto">
             <ChatHeader
-              title={chatDeital.title}
-              isFavorite={chatDeital.isFavorite}
+              setDeleteDialog={handleOpenDeleteDialog}
+              chat={chat}
+              loading={loading}
+              refresh={refresh}
+              openDeleteButtonRef={openDeleteButtonRef}
+              dropdownOpen={dropdownOpen}
+              setDropdownOpen={setDropdownOpen}
             />
-          ) : (
-            <ChatHeader title="loading..." isFavorite={false} />
-          )}
-          {error ? error : ""}
-          <ScrollArea className="h-[calc(100vh-133px)] md:h-[calc(100vh-140px)] ">
-            <div className="flex flex-col pt-10 px-2">
-              <div className="h-70 w-full  mx-auto">
-                <div className=" h-full  bg-gary-400">
-                  {chat.map((chat) => {
-                    if (!chat) return;
-                    return (
-                      <div key={chat._id} className="mb-10">
-                        <div className="ms-auto mb-7">
-                          <Message value={chat.text} loading={chat.isLoading} />
-                        </div>
-                        <div className="ms-auto  text-right">
-                          {chat.response ? (
-                            <Response
-                              value={chat.response.response}
-                              loading={chat.response?.isLoading}
-                            />
-                          ) : (
-                            <Response
-                              value="ops something go wrong"
-                              loading={true}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <div className="h-[10rem] w-full" />
-                </div>
-              </div>
-            </div>
-            <div className="w-full h-full"></div>
-            <div className="absolute bottom-4 right-1/2 translate-x-1/2">
-              <ChatInput
-                value={chatInputValue}
-                onChange={handleChatInputChange}
-                onSend={handleSentButton}
-                onAttachFile={handleFileInputChange}
-                attachFile={chatInputFiles}
-                loading={sentLoading}
-                fileLoading={chatfileUploadLoading}
-              />
-            </div>
-          </ScrollArea>
-        </>
+          </div>
+          <ChatMessages
+            chat={chat}
+            sendingError={SentingError}
+            Messages={messages}
+            responseLoading={responseLoading}
+            setMessages={setMessages}
+          />
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2">
+            <ChatInput
+              onSend={async (
+                message: string,
+                userId: string,
+                flies?: File[] | null
+              ) => {
+                await sendMessage(message, flies);
+              }}
+              loading={sending}
+              user={user || { _id: "", email: "", gender: "", role: "user" }}
+            />
+          </div>
+        </div>
       </div>
-    </div>
+      {openDeleteDialog && (
+        <ConfirmDialog
+          deleteChat={handlerDeleteChat}
+          openDialog={openDeleteDialog}
+          setOpenDialog={handleCloseDeleteDialog}
+        />
+      )}
+    </>
   );
 }

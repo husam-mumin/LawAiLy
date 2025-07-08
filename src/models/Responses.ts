@@ -4,7 +4,7 @@
  * 2. Response
  * 3. message
  * 4. Chat
- * 5. CreateAt
+ * 5. createdAt
  * 6. isGood
  * 
  */
@@ -19,6 +19,7 @@ export interface IResponse extends Document {
 }
 
 export type responseType = {
+  _id?: string,
   response: string, 
   message: string,
   chat: string,
@@ -29,7 +30,7 @@ const responseSchema: Schema = new  mongoose.Schema<IResponse>({
   response: {type: 'string', required: true},
   message: {type: 'ObjectID', ref: "Message", required: true},
   chat: { type: 'ObjectID', required: true},
-  isGood: { type: 'boolean', required: false , default: null}
+  isGood: { type: Boolean, required: false,  default: null}
 
 })
 

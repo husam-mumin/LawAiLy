@@ -18,23 +18,29 @@ import LoginAlert from "../_components/authAlert";
 import { AtomIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { loginRequestType } from "@/app/api/auth/login/route";
+import { useUser } from "@/app/context/UserContext";
 
 const formSchema = z
   .object({
     email: z
       .string()
-      .min(1, { message: "email required" })
-      .email("Invalid email "),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
+      .trim()
+      .min(1, { message: "البريد الإلكتروني مطلوب" })
+      .email("البريد الإلكتروني غير صالح"),
+    password: z.string().min(6, "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل"),
   })
   .superRefine(async ({ email }, ctx) => {
     if (!email) return;
-    const response = await axios.post("/api/auth/checkEmail", { email });
+    const response = await axios.post("/api/auth/checkEmail", {
+      email: email.trim(),
+    });
+    console.log("Email check response:", response.data);
+
     const { exists } = response.data;
     if (!exists) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Email not found. Please check and try again.",
+        message: "البريد الإلكتروني غير موجود. يرجى التحقق والمحاولة مرة أخرى.",
         path: ["email"],
       });
     }
@@ -45,11 +51,12 @@ type ErrorType = {
   description: string;
 };
 export default function LoginForm() {
+  const { setUser } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorType | null>(null);
   useEffect(() => {
-    document.title = "Login - MyApp";
+    document.title = "تسجيل الدخول - Lawaily";
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -64,7 +71,7 @@ export default function LoginForm() {
       setLoading(true);
       // Handle login logic here
       const user = {
-        email: data.email,
+        email: data.email.trim(),
         password: data.password,
       };
 
@@ -76,33 +83,43 @@ export default function LoginForm() {
 
       if (resdata.error) {
         setError({
-          title: "Login Failed",
-          description: resdata.error || "An error occurred while logging in.",
+          title: "فشل تسجيل الدخول",
+          description: resdata.error || "حدث خطأ أثناء تسجيل الدخول.",
         });
         throw new Error(resdata.error);
       }
       // Handle successful login (e.g., redirect, show message)
       setError(null); // Clear any previous errors
+      // Set user data in context
+      setUser(resdata.user);
 
       router.push("/in"); // Redirect to dashboard or home page
       // Optionally, you can store user data in local storage or context
     } catch (err: unknown) {
       // todo complete this catch
-      console.error("Login error:", error);
       // Handle login error (e.g., show error message)
       if (err instanceof AxiosError) {
         if (err.status === 401) {
           form.setError("password", {
             type: "validate",
-            message: "wrong password, Please check and try again.",
+            message: "كلمة مرور خاطئة، يرجى التحقق والمحاولة مرة أخرى.",
           });
         }
-        console.log(err.response);
         if (err.response?.data?.statusCode === 401) {
           setError({
-            title: "Login Failed",
-            description:
-              error?.description || "An error occurred while logging in.",
+            title: "فشل تسجيل الدخول",
+            description: error?.description || "حدث خطأ أثناء تسجيل الدخول.",
+          });
+        }
+        if (err.response?.data?.error) {
+          setError({
+            title: "هذا الحساب مستخدم عبر تسجيل الدخول باستخدام Google",
+            description: err.response.data.error,
+          });
+        } else {
+          setError({
+            title: "فشل تسجيل الدخول",
+            description: "حدث خطأ أثناء تسجيل الدخول.",
           });
         }
       }
@@ -124,16 +141,17 @@ export default function LoginForm() {
       )}
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 w-80 p-6  rounded-lg"
+        className="flex flex-col gap-4 w-80 p-6 rounded-lg"
+        dir="rtl"
       >
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>البريد الإلكتروني</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Email" />
+                <Input {...field} placeholder="البريد الإلكتروني" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -144,9 +162,9 @@ export default function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>كلمة المرور</FormLabel>
               <FormControl>
-                <Input {...field} type="password" placeholder="Password" />
+                <Input {...field} type="password" placeholder="كلمة المرور" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -154,9 +172,9 @@ export default function LoginForm() {
         />
         <Button
           type="submit"
-          className="w-fit mx-auto  bg-primary text-white py-2 px-10 rounded"
+          className="w-fit mx-auto bg-primary text-white py-2 px-10 rounded"
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
         </Button>
       </form>
     </Form>

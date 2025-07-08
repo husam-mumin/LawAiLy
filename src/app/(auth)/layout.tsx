@@ -6,7 +6,7 @@ type layoutProps = {
 
 export default function layout({ children }: layoutProps) {
   return (
-    <div>
+    <div dir="rtl">
       <div>{children}</div>
     </div>
   );

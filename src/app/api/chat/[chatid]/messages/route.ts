@@ -31,6 +31,7 @@ import Response from "@/models/Responses";
 //  */
 
 export type AIResponseType = {
+  _id: string,
   response : string,
   message: string,
   chat: string, 
@@ -51,10 +52,14 @@ export type messageResponse = {
   message: string,
   users: string,
   chat: string,
-  responses: AIResponseType,
+  response: AIResponseType,
   files: filesType,
-  createAt: Date,
+  createdAt: Date,
   updateAt: Date,
+}
+
+export type chatMessagesTypeGET = {
+  chat: messageResponse[]
 }
 
 export async function GET(

@@ -4,7 +4,7 @@
  * 2. Message
  * 3. User
  * 4. Chat
- * 5. CreateAt
+ * 5. createdAt
  * 6. Responses
  * 7. Files
  */
