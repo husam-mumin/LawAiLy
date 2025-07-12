@@ -12,8 +12,6 @@ export default function Notification() {
       className="relative"
       variant={"ghost"}
       onClick={() => {
-        console.log("Notification button clicked");
-
         setOpenNot(true);
       }}
     >

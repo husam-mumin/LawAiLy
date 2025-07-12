@@ -34,7 +34,6 @@ const formSchema = z
     const response = await axios.post("/api/auth/checkEmail", {
       email: email.trim(),
     });
-    console.log("Email check response:", response.data);
 
     const { exists } = response.data;
     if (!exists) {

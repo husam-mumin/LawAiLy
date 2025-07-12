@@ -79,7 +79,6 @@ export async function GET(
         path: "files",
         model: "File",
       });
-    console.log("Chat found:", chat);
     if (!chat) {
       return NextResponse.json({ error: "Chat not found." }, { status: 404 });
     }

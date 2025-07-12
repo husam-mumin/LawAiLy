@@ -31,8 +31,6 @@ export default function DocPage() {
           `/api/in/document?id=${slug}`
         );
         if (res.data && res.data.documentURL) {
-          console.log("Fetched document:", res.data);
-
           setDocument(res.data);
         } else {
           setError("لم يتم العثور على ملف PDF.");

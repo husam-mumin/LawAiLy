@@ -24,8 +24,6 @@ export type fetchedDocumentType = {
 };
 export async function GET(req: NextRequest) {
   try {
-    console.log("GET request to /api/in/documents");
-
     await dbConnect();
     const { searchParams } = new URL(
       req.url,
@@ -33,7 +31,6 @@ export async function GET(req: NextRequest) {
     );
 
     // Fix: Ensure full URL for searchParams
-    console.log("Search Params:", searchParams.toString());
     if (searchParams.get("noneCategoryCount") === "1") {
       // Count documents with no category or category is null
       const count = await Document.countDocuments({
@@ -42,13 +39,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ noneCategoryCount: count }, { status: 200 });
     }
 
-    console.log("Fetching all documents...");
     // Populate both 'addedBy' and 'category'
     const documents = await Document.find({})
       .populate("addedBy category", "email firstName lastName name description")
       .sort({ createdAt: -1 });
-
-    console.log("Documents fetched:", documents.length);
 
     return NextResponse.json(documents, { status: 200 });
   } catch (error) {

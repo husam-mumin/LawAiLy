@@ -68,6 +68,7 @@ export default function Home() {
     fetchDocuments();
     if (!setSearchQuery) return;
     setSearchQuery("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

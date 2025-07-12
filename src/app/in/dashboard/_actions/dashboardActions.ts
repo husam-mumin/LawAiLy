@@ -47,7 +47,6 @@ export async function getLibyaLawCategories() {
     ...cat,
     books: books.filter((b) => b.category?.toString() === cat._id.toString()),
   }));
-  console.log(books);
 
   // Add uncategorized books
   const uncategorizedBooks = books.filter((b) => !b.category);

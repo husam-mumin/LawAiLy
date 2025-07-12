@@ -1,4 +1,4 @@
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export interface DecodedUser {
   _id: string;
@@ -12,8 +12,8 @@ export interface DecodedUser {
 
 export function decodeUserFromJWT(token: string): DecodedUser | null {
   try {
-    return jwt_decode(token) as DecodedUser;
-  } catch (e) {
+    return jwtDecode(token) as DecodedUser;
+  } catch {
     return null;
   }
 }

@@ -22,17 +22,17 @@ export function useHeaderAction(chat: chatType | null, onSuccess?: () => void) {
   const deleteChat = useCallback(
     async () => {
       try {
-
-      if (!chat || !chat._id) return;
-      const res = await axios.delete(`/api/chat/${chat._id}`);
-      if (res.status !== 200) {
-        throw new Error("Failed to delete chat");
-      }
-      return true;
+        if (!chat || !chat._id) return;
+        const res = await axios.delete(`/api/chat/${chat._id}`);
+        if (res.status !== 200) {
+          throw new Error("Failed to delete chat");
+        }
+        return true;
       } catch {
-        return false
+        return false;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [chat, onSuccess]
   );
 
@@ -49,22 +49,28 @@ export function useHeaderAction(chat: chatType | null, onSuccess?: () => void) {
   }, [shareChat]);
 
   // Toggle favorite with status
-  const [favoriteStatus, setFavoriteStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [favoriteStatus, setFavoriteStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
 
-  const toggleFavorite = useCallback(async (isFavorite: boolean) => {
-    if (!chat || !chat._id) return;
-    setFavoriteStatus("loading");
-    try {
-      const res = await axios.put<chatPutResponse>(`/api/chat/${chat._id}`, 
-        { ...chat, isFavorite: !isFavorite }) as import("axios").AxiosResponse<chatPutResponse>;
-      if (onSuccess) onSuccess();
-      const { chat: updatedChat } = res.data;
-      return updatedChat.isFavorite;
-    } catch {
-      
-      return;
-    }
-  }, [chat, onSuccess]);
+  const toggleFavorite = useCallback(
+    async (isFavorite: boolean) => {
+      if (!chat || !chat._id) return;
+      setFavoriteStatus("loading");
+      try {
+        const res = (await axios.put<chatPutResponse>(`/api/chat/${chat._id}`, {
+          ...chat,
+          isFavorite: !isFavorite,
+        })) as import("axios").AxiosResponse<chatPutResponse>;
+        if (onSuccess) onSuccess();
+        const { chat: updatedChat } = res.data;
+        return updatedChat.isFavorite;
+      } catch {
+        return;
+      }
+    },
+    [chat, onSuccess]
+  );
 
   return {
     renameChat,

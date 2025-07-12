@@ -22,7 +22,6 @@ export default function PDFViewer({ url }: { url: string }) {
       </div>
     );
   }
-  console.log("PDF URL:", url);
 
   return (
     <div className="flex flex-col items-center w-full h-full">

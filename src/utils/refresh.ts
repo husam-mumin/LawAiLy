@@ -7,7 +7,6 @@ export async function silentRefresh() {
     });
     if (res.ok) {
       const data = await res.json();
-      console.log("Token refreshed");
       return data.accessToken;
     }
   } catch (e) {

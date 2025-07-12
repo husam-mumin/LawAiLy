@@ -66,8 +66,6 @@ export default function ChatMessages({
   }, []);
   // Smooth scroll when new message is sent
   useEffect(() => {
-    console.log("scroll ref", scrollRef.current);
-
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
@@ -93,17 +91,7 @@ export default function ChatMessages({
   function handleShare(responseId: string) {
     // add to share count in the database
     // This function can be used to share the message or perform any action
-    shareResponse(responseId)
-      .then((res) => {
-        if (res) {
-          console.log("Response shared successfully");
-        } else {
-          console.error("Failed to share response");
-        }
-      })
-      .catch((err) => {
-        console.error("Error sharing response:", err);
-      });
+    shareResponse(responseId);
   }
 
   async function handleGoodStatus(
@@ -131,7 +119,6 @@ export default function ChatMessages({
             return msg;
           });
           setMessages([...messages]);
-          console.log("Response status updated successfully");
         } else {
           console.error("Failed to update response status");
         }
@@ -206,18 +193,28 @@ export default function ChatMessages({
                     {Array.isArray(msg.files) && msg.files.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2 justify-start items-center">
                         {msg.files.map((file, idx) => {
-                          const type =
-                            typeof file === "object"
-                              ? file.fileformat || "other"
-                              : "other";
-                          const name =
-                            typeof file === "object"
-                              ? file.filename || file.name || file.id || "ملف"
-                              : String(file);
-                          const url =
-                            typeof file === "object"
-                              ? file.fileURL || file.url || undefined
-                              : undefined;
+                          // Support both legacy and new file object shapes
+                          type FileObj = {
+                            fileformat?: string;
+                            type?: string;
+                            filename?: string;
+                            name?: string;
+                            id?: string;
+                            fileURL?: string;
+                            url?: string;
+                            path?: string;
+                          };
+                          let type = "other";
+                          let name = "ملف";
+                          let url: string | undefined = undefined;
+                          if (typeof file === "object" && file !== null) {
+                            const f = file as FileObj;
+                            type = f.fileformat ?? f.type ?? "other";
+                            name = f.filename ?? f.name ?? f.id ?? "ملف";
+                            url = f.fileURL ?? f.url ?? f.path ?? undefined;
+                          } else {
+                            name = String(file);
+                          }
                           if (type.startsWith("image/") && url) {
                             // Show only the image preview, no name or type
                             return (
@@ -482,8 +479,6 @@ export default function ChatMessages({
                                 size={"sm"}
                                 className="ml-2"
                                 onClick={() => {
-                                  console.log(msg.response);
-
                                   handleGoodStatus(msg.response, false);
                                 }}
                               >

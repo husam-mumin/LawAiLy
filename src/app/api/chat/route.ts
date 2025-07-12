@@ -83,8 +83,6 @@ export async function POST(req: NextRequest) {
       fileIds = body.files || [];
     }
 
-    console.log("Request body:", { userId, message, fileIds });
-
     if (!userId) {
       return NextResponse.json(
         { error: "title, userId, and message are required." },

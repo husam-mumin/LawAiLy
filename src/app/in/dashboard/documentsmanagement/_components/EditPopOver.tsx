@@ -58,7 +58,7 @@ export function EditPopOver({
       setDocumentURL(row.documentURL);
       setShowup(row.showUp);
       setImage(row.image || "");
-      setCategoryId(row.category || "");
+      setCategoryId(row.category ? String(row.category) : "");
     }
   }, [open, row]);
 
@@ -127,7 +127,7 @@ export function EditPopOver({
         documentURL: documentURL,
         addedBy: row.addedBy,
         image: image || "",
-        category: categoryId,
+        category: categories?.find((cat) => cat._id === categoryId),
         createdAt:
           typeof row.createdAt === "string"
             ? new Date(row.createdAt)

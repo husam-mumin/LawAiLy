@@ -8,8 +8,6 @@ export interface UserPayload extends JWTPayload {
   isBanned: boolean;
 }
 
-const ADMIN_PATHS = ["/in/dashboard"];
-const user_authenticated_paths = [];
 const publicRoutes = ["/"];
 const secret = new TextEncoder().encode(process.env.REFRESH_SECRET!);
 

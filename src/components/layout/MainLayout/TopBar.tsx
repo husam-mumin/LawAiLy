@@ -19,9 +19,6 @@ export default function TopBar({ isSidebarOpen = false }: TopBarProps) {
   const searchContext = useContext(layoutContext);
   const { isActive, searchQuery, setSearchQuery } = searchContext || {};
   const isMobile = useIsMobile();
-  console.log("isMobile in TopBar:", isMobile);
-
-  console.log("user in TopBar:", user);
 
   if (!user) {
     return null; // or handle the case when user is not available

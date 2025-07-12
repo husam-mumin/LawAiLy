@@ -108,7 +108,6 @@ export default function Page() {
       setErrorStatus("يمكنك إرفاق حتى 5 ملفات فقط");
       return;
     }
-    console.log("Sending message:", { chatMessage, userId, Flies });
     // Validate file size
     // Call the addMessage function to send the message
     if (!Flies) {

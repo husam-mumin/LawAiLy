@@ -160,7 +160,6 @@ export const documentColumns = (
     },
     sortingFn: (a, b) => {
       // Sort by category name, nulls last
-      console.log("a", a, "b", b);
 
       const aName = a.original.category?.name || "";
       const bName = b.original.category?.name || "";

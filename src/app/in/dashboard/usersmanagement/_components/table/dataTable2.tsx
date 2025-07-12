@@ -32,8 +32,6 @@ export const userColumns = (
   onDelete: (id: string) => void,
   currentUser?: userType
 ): ColumnDef<UserRow>[] => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-
   if (!currentUser) {
     return [];
   }

@@ -11,7 +11,9 @@ export const config = {
 };
 
 function generateUniqueFileName(originalName: string): string {
-  const ext = originalName.includes('.') ? '.' + originalName.split('.').pop() : '';
+  const ext = originalName.includes(".")
+    ? "." + originalName.split(".").pop()
+    : "";
   return `${Date.now()}-${randomUUID()}${ext}`;
 }
 
@@ -26,7 +28,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: "File too large. Max size is 2MB." }, { status: 413 });
+      return NextResponse.json(
+        { error: "File too large. Max size is 2MB." },
+        { status: 413 }
+      );
     }
     const buffer = Buffer.from(await file.arrayBuffer());
     const uniqueName = generateUniqueFileName(file.name);
@@ -36,22 +41,28 @@ export async function POST(req: NextRequest) {
       metadata: { contentType: file.type },
     });
     stream.end(buffer);
-    return await new Promise((resolve) => {
+    return await new Promise<NextResponse>((resolve) => {
       stream.on("finish", async () => {
         const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
         // Save file info to DB
-        resolve(
-          NextResponse.json({ url: publicUrl }, { status: 200 })
-        );
+        resolve(NextResponse.json({ url: publicUrl }, { status: 200 }));
       });
       stream.on("error", (err) => {
         console.error("GCS upload error:", err);
-        resolve(NextResponse.json({ error: "Error uploading file to GCS" }, { status: 500 }));
+        resolve(
+          NextResponse.json(
+            { error: "Error uploading file to GCS" },
+            { status: 500 }
+          )
+        );
       });
     });
   } catch (err) {
     console.error("Upload error:", err);
-    return NextResponse.json({ error: "Unexpected error during upload" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Unexpected error during upload" },
+      { status: 500 }
+    );
   }
 }
 
@@ -60,9 +71,14 @@ export async function DELETE(req: NextRequest) {
   try {
     const { url: fileUrl } = await req.json();
     if (!fileUrl) {
-      return NextResponse.json({ error: "File URL is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "File URL is required" },
+        { status: 400 }
+      );
     }
-    const match = fileUrl.match(/https:\/\/storage\.googleapis\.com\/[^\/]+\/(.+)/);
+    const match = fileUrl.match(
+      /https:\/\/storage\.googleapis\.com\/[^\/]+\/(.+)/
+    );
     const filename = match ? match[1] : null;
     if (!filename) {
       return NextResponse.json({ error: "Invalid file URL" }, { status: 400 });
@@ -70,7 +86,10 @@ export async function DELETE(req: NextRequest) {
     const file = bucket.file(filename);
     const [exists] = await file.exists();
     if (!exists) {
-      return NextResponse.json({ error: "File does not exist" }, { status: 404 });
+      return NextResponse.json(
+        { error: "File does not exist" },
+        { status: 404 }
+      );
     }
     await file.delete();
     // Remove from DB
@@ -78,7 +97,10 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     console.error("GCS delete error:", err);
-    return NextResponse.json({ error: "Error deleting file from GCS" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error deleting file from GCS" },
+      { status: 500 }
+    );
   }
 }
 
@@ -96,6 +118,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(files, { status: 200 });
   } catch (err) {
     console.error("GCS get error:", err);
-    return NextResponse.json({ error: "Error fetching files from DB" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error fetching files from DB" },
+      { status: 500 }
+    );
   }
 }

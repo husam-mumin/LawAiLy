@@ -103,9 +103,7 @@ export default function ChatPage() {
       setPageLoading(false);
     }
   }, [loading, chat]);
-  useEffect(() => {
-    console.log("Open Delete Dialog:", openDeleteDialog);
-  }, [openDeleteDialog]);
+  useEffect(() => {}, [openDeleteDialog]);
 
   const handleOpenDeleteDialog = () => {
     setDropdownOpen(false); // close dropdown before opening dialog

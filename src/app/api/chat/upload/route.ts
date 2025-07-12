@@ -19,7 +19,7 @@ function generateUniqueFileName(originalName: string): string {
 
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   await dbConnect();
   try {
     const formData = await req.formData();
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       metadata: { contentType: file.type },
     });
     stream.end(buffer);
-    return await new Promise((resolve) => {
+    return await new Promise<Response>((resolve) => {
       stream.on("finish", async () => {
         const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
         const gcsUri = `gs://${bucket.name}/${blob.name}`;
@@ -49,7 +49,6 @@ export async function POST(req: Request) {
         if (file.type.startsWith("image/")) {
           extractedText = await extractTextFromGCS(publicUrl, "image");
         } else if (file.type === "application/pdf") {
-          console.log("Processing PDF file for OCR");
           // Use GCS URI for PDF OCR
           extractedText = await extractTextFromGCS(
             gcsUri,

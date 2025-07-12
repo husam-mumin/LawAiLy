@@ -1,12 +1,11 @@
-const SERVICE_WORKER_FILE_PATH = './sw.js';
+const SERVICE_WORKER_FILE_PATH = "./sw.js";
 
-export async function registerAndSubscribe(
-): Promise<void> {
+export async function registerAndSubscribe(): Promise<void> {
   try {
     await navigator.serviceWorker.register(SERVICE_WORKER_FILE_PATH);
     await subscribe();
   } catch (e) {
-    console.error('Failed to register service-worker: ', e);
+    console.error("Failed to register service-worker: ", e);
   }
 }
 async function subscribe(): Promise<void> {
@@ -18,43 +17,41 @@ async function subscribe(): Promise<void> {
       });
     })
     .then((subscription: PushSubscription) => {
-      console.info('Created subscription Object: ', subscription.toJSON());
-        // submit subscription to server.
-        submitSubscription(subscription).then(() => {
-      });
+      console.info("Created subscription Object: ", subscription.toJSON());
+      // submit subscription to server.
+      submitSubscription(subscription).then(() => {});
     })
-    .catch(e => {
-      console.error('Failed to subscribe cause of: ', e);
+    .catch((e) => {
+      console.error("Failed to subscribe cause of: ", e);
     });
 }
 
-async function submitSubscription(subscription: PushSubscription): Promise<void> {
-  const  user  = localStorage.getItem('userid') ? localStorage.getItem('userid') || '{}' : {};
+async function submitSubscription(
+  subscription: PushSubscription
+): Promise<void> {
+  const user = localStorage.getItem("userid")
+    ? localStorage.getItem("userid") || "{}"
+    : {};
 
-  
-  
-  const endpointUrl = '/api/in/user/pushSubscription';
-  const res = await fetch(endpointUrl, {
-    method: 'POST',
+  const endpointUrl = "/api/in/user/pushSubscription";
+  await fetch(endpointUrl, {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ subscription, userId: user }),
   });
-  const result = await res.json();
-  console.log(result);
 }
 
-export function checkPermissionStateAndAct(
-): void {
+export function checkPermissionStateAndAct(): void {
   const state: NotificationPermission = Notification.permission;
   switch (state) {
-    case 'denied':
+    case "denied":
       break;
-    case 'granted':
+    case "granted":
       registerAndSubscribe();
       break;
-    case 'default':
+    case "default":
       registerAndSubscribe();
       break;
   }

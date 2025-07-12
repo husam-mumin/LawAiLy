@@ -39,7 +39,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             localStorage.setItem("user", JSON.stringify(res.data.user));
           }
         } catch (err) {
-          console.log(err);
+          console.error(err);
           setUser(null);
         } finally {
           setLoading(false);

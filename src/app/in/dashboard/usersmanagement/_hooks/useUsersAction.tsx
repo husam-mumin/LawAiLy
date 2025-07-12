@@ -10,6 +10,7 @@ export function useUsersAction() {
 
   useEffect(() => {
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // Fetch all users
   const fetchUsers = useCallback(async () => {

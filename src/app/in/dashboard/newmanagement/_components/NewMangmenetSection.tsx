@@ -75,7 +75,6 @@ const NewMangmenetSection: React.FC = () => {
       if (aValue > bValue) return orderDir === "asc" ? 1 : -1;
       return 0;
     });
-    console.log("Sorted News:", sorted);
 
     return sorted;
   }, [news, orderBy, orderDir]);
@@ -90,7 +89,7 @@ const NewMangmenetSection: React.FC = () => {
 
   useEffect(() => {
     requestNotificationPermission();
-    console.log(sortedNews);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddNews = () => {

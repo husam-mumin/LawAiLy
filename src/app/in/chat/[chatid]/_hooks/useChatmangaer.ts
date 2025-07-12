@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios, { AxiosError } from "axios";
 import { chatType } from "@/models/Chat";
-import {  messageResponse } from "@/app/api/chat/[chatid]/messages/route";
+import { messageResponse } from "@/app/api/chat/[chatid]/messages/route";
 
 /**
  * useChatManager
@@ -25,15 +25,16 @@ export function useChatManager(chatid: string) {
     setMessagesLoading(true);
     setError(null);
     try {
-      const res = await axios.get<{ chat: messageResponse[]}>(`/api/chat/${chatid}/messages`);
-      console.log("Fetched messages:", res.data.chat);
+      const res = await axios.get<{ chat: messageResponse[] }>(
+        `/api/chat/${chatid}/messages`
+      );
       setMessages(res.data.chat || []);
 
       // Post new Response because the message has not Response
       res.data.chat.forEach((msg) => {
         if (!msg.response && !processingMessages.current.has(msg._id)) {
           processingMessages.current.add(msg._id);
-          PostNewResponse(msg.message, res.data.chat ,  msg._id);
+          PostNewResponse(msg.message, res.data.chat, msg._id);
         }
       });
     } catch (err: unknown) {
@@ -47,7 +48,7 @@ export function useChatManager(chatid: string) {
     } finally {
       setMessagesLoading(false);
     }
-  }
+  };
 
   // Only fetch chat, do not fetch messages here
   const fetchChat = async () => {
@@ -56,7 +57,6 @@ export function useChatManager(chatid: string) {
     try {
       const res = await axios.get(`/api/chat/${chatid}`);
       setChat(res.data.chat || null);
-      console.log("Fetched chat:", res.data.chat);
       // Do NOT call fetchMessages here
     } catch (err: unknown) {
       let msg = "فشل تحميل المحادثة.";
@@ -71,19 +71,24 @@ export function useChatManager(chatid: string) {
     }
   };
 
-  const PostNewResponse = async (message: string, messages: messageResponse[], messageid: string ) => {
+  const PostNewResponse = async (
+    message: string,
+    messages: messageResponse[],
+    messageid: string
+  ) => {
     setResponseLoading(true);
     setError(null);
     try {
-      const res = await axios.post(`/api/chat/response`, { message,messages, messageid, chat: chatid});
-      console.log("Response posted:", res.data);
+      const res = await axios.post(`/api/chat/response`, {
+        message,
+        messages,
+        messageid,
+        chat: chatid,
+      });
       setMessages((prev) => {
         const editArray = prev.map((msg) =>
-          msg._id === messageid
-            ? { ...msg, response: res.data.response }
-            : msg
+          msg._id === messageid ? { ...msg, response: res.data.response } : msg
         );
-        console.log("Updated messages with new response:", editArray);
         return [...editArray];
       });
     } catch (err: unknown) {
@@ -99,7 +104,7 @@ export function useChatManager(chatid: string) {
       // Remove from processing set so it can be retried if needed
       processingMessages.current.delete(messageid);
     }
-  }
+  };
 
   // Fetch chat when chatid changes
   useEffect(() => {
@@ -113,5 +118,15 @@ export function useChatManager(chatid: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat]);
 
-  return { chat, messages, loading,setMessages, error, messagesLoading,responseLoading, PostNewResponse, refresh: fetchChat };
+  return {
+    chat,
+    messages,
+    loading,
+    setMessages,
+    error,
+    messagesLoading,
+    responseLoading,
+    PostNewResponse,
+    refresh: fetchChat,
+  };
 }

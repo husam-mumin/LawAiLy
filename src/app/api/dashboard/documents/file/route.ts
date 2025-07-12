@@ -9,7 +9,9 @@ export const config = {
 
 // Helper to generate a unique file name, preserving extension
 function generateUniqueFileName(originalName: string): string {
-  const ext = originalName.includes('.') ? '.' + originalName.split('.').pop() : '';
+  const ext = originalName.includes(".")
+    ? "." + originalName.split(".").pop()
+    : "";
   return `${Date.now()}-${randomUUID()}${ext}`;
 }
 
@@ -32,7 +34,7 @@ export async function POST(req: Request) {
 
   stream.end(buffer);
 
-  return new Promise((resolve) => {
+  return new Promise<Response>((resolve) => {
     stream.on("finish", () => {
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
       resolve(
@@ -61,7 +63,9 @@ export async function DELETE(req: Request) {
 
     // Extract the object path from the public URL
     // Example: https://storage.googleapis.com/bucket-name/folder/file.pdf
-    const match = fileUrl.match(/https:\/\/storage\.googleapis\.com\/[^\/]+\/(.+)/);
+    const match = fileUrl.match(
+      /https:\/\/storage\.googleapis\.com\/[^\/]+\/(.+)/
+    );
     const filename = match ? match[1] : null;
 
     if (!filename) {
