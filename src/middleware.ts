@@ -15,7 +15,6 @@ export default async function middleware(req: NextRequest) {
   const token = await req.cookies.get("refreshToken")?.value;
   const url = req.nextUrl.clone();
   const pathname = req.nextUrl.pathname;
-  console.log("Middleware pathname:", pathname);
 
   // console.log("Middleware token:", token?.slice(0, 5));
 

@@ -33,7 +33,6 @@ export async function GET(req: NextRequest) {
     const { payload } = await jwtVerify<UserPayload>(token, secret);
 
     const userId = payload.id;
-    console.log("User ID from token payload:", userId);
     if (!userId) {
       return NextResponse.json(
         { user: null, error: "Unauthorized. No session cookie found." },

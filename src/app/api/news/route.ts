@@ -23,14 +23,17 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const { title, content } = await req.json();
     if (!title || !content) {
-      return NextResponse.json({ error: "العنوان والمحتوى مطلوبان" }, { status: 400 });
+      return NextResponse.json(
+        { error: "العنوان والمحتوى مطلوبان" },
+        { status: 400 }
+      );
     }
     // Create the news item
     const news = await News.create({ title, content });
     // Get all users
     const users = await Users.find({}, "_id");
     // Create a notification for each user
-    const notifications = users.map((user: {_id: string}) => ({
+    const notifications = users.map((user: { _id: string }) => ({
       user: user._id,
       read: false,
       new: news._id.toString(), // Ensure news ID is a string
@@ -38,12 +41,9 @@ export async function POST(req: NextRequest) {
     // Insert notifications in bulk
 
     await NewsUser.insertMany(notifications);
-    
-    
+
     return NextResponse.json(news, { status: 201 });
   } catch (error) {
-    console.log(error);
-    
     let message = "خطأ في الخادم الداخلي.";
     if (error instanceof Error) message = error.message;
     return NextResponse.json({ error: message }, { status: 500 });

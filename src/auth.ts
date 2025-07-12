@@ -9,8 +9,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],
   callbacks: {
     async signIn({ user, profile }) {
-      console.log("User signing in:", user, profile);
-
       await dbConnect();
 
       const existingUser = await User.findOne({ email: user.email });
@@ -25,9 +23,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           lastName: "",
         });
       }
-      console.log(profile?.gender);
       // Set a session cookie with the user ID
-      console.log("User signed in:", dbUser);
 
       if (!dbUser?._id) return false;
       const tokenPayload = {
