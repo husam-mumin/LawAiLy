@@ -149,7 +149,7 @@ export default function NewChatPop() {
   return (
     <Link
       href={"/in/chat"}
-      className="fixed bottom-8 left-8 z-50 flex flex-col items-start"
+      className="fixed bottom-8 left-2  md:left-8 z-50 flex flex-col items-start"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -165,7 +165,8 @@ export default function NewChatPop() {
         {(showMessage || isHovering) && (
           <div
             ref={bubbleRef}
-            className="bg-blue-100 text-blue-900 px-4 py-2 rounded-2xl rounded-bl-none shadow-md mb-2 ml-2 absolute left-6 -top-11 w-max "
+            dir="rtl"
+            className="bg-blue-100 text-blue-900 max-w-[300px] md:max-w-max px-4 py-2 rounded-2xl rounded-bl-none shadow-md mb-2 ml-2 absolute left-6 bottom-13 w-max "
             style={{
               borderTopLeftRadius: 24,
               borderTopRightRadius: 24,

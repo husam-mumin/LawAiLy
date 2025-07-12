@@ -15,6 +15,8 @@ const NewsSchema = new Schema<NewsType>({
   createdAt: { type: Date, default: Date.now },
 });
 
-const News = (mongoose.models.News as Model<NewsType>) || mongoose.model<NewsType>("News", NewsSchema);
+const News =
+  (mongoose.models.News as Model<NewsType>) ||
+  mongoose.model<NewsType>("News", NewsSchema);
 
 export default News;

@@ -66,7 +66,7 @@ export default async function Dashboard() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-white rounded shadow p-6 flex flex-col items-center">
+    <div className="bg-white text-center rounded shadow p-6 flex flex-col items-center">
       <span className="text-2xl font-bold text-blue-600 mb-2">{value}</span>
       <span className="text-gray-700 text-sm">{label}</span>
     </div>

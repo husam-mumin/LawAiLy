@@ -5,7 +5,7 @@ import { PostNewChat } from "@/app/api/chat/route";
 export interface AddMessageParams {
   message: string;
   userId: string;
-  files?: File[];
+  files?: { id: string }[];
 }
 
 export interface AddMessageResult {
@@ -37,7 +37,7 @@ export default function useAddMessage(): AddMessageResult {
   const [error, setError] = useState<string | null>(null);
   const [chat, setChat] = useState<PostNewChat | null>(null);
 
-  const addMessage = async ({  message, userId, files }: AddMessageParams) => {
+  const addMessage = async ({ message, userId, files }: AddMessageParams) => {
     setLoading(true);
     setError(null);
     try {
@@ -45,22 +45,31 @@ export default function useAddMessage(): AddMessageResult {
       let config = {};
       if (files && files.length > 0) {
         const formData = new FormData();
+        const filesIds: string[] = [];
+        files.forEach((file) => {
+          if (file.id) {
+            filesIds.push(file.id);
+          }
+        });
         formData.append("message", message);
         formData.append("username", userId);
+        formData.append("FileId", JSON.stringify(filesIds));
         data = formData;
         config = { headers: { "Content-Type": "multipart/form-data" } };
       } else {
-        data = {  message, userId};
+        data = { message, userId };
         config = { headers: { "Content-Type": "application/json" } };
       }
-      const res = await axios.post('/api/chat', data, config);
-      if (res.status != 201 ) throw new Error("فشل إرسال الرسالة");
+      const res = await axios.post("/api/chat", data, config);
+      if (res.status != 201) throw new Error("فشل إرسال الرسالة");
       setChat(res.data as PostNewChat);
       return res.data as PostNewChat;
     } catch (e) {
-      const err = (e);
-      if(axios.isAxiosError(err)) {
-        setError(err?.response?.data?.message || err?.message || "حدث خطأ غير متوقع");
+      const err = e;
+      if (axios.isAxiosError(err)) {
+        setError(
+          err?.response?.data?.message || err?.message || "حدث خطأ غير متوقع"
+        );
       }
       if (e instanceof Error) {
         setError(e.message);
@@ -72,5 +81,5 @@ export default function useAddMessage(): AddMessageResult {
     }
   };
 
-  return { loading, error,  addMessage, chat };
+  return { loading, error, addMessage, chat };
 }

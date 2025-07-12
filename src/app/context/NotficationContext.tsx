@@ -75,12 +75,14 @@ export function useNotification() {
     try {
       await axios.delete(`/api/in/user/notification?id=${_id}`);
       setNotifications((prev) => prev.filter((n) => n._id !== _id));
+      return true;
     } catch (err) {
       if (axios.isAxiosError(err)) {
         // Handle specific axios error
         console.error("Axios error:", err.response?.data || err.message);
         await fetchNotifications();
       }
+      return false;
     }
   };
 
@@ -106,7 +108,7 @@ interface NotificationContextType {
   refresh: () => void;
   markAllAsRead: () => Promise<void>;
   toggleRead: (_id: string) => Promise<void>;
-  handleDelete: (_id: string) => Promise<void>;
+  handleDelete: (_id: string) => Promise<boolean>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(

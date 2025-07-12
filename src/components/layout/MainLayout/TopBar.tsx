@@ -9,6 +9,7 @@ import Notification from "./components/Notification";
 import { Search } from "lucide-react";
 import { LogoSection } from "./components/SidebarHeaderForChat";
 import { useUser } from "@/app/context/UserContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 type TopBarProps = {
   isSidebarOpen?: boolean;
 } & ReactProps;
@@ -17,6 +18,8 @@ export default function TopBar({ isSidebarOpen = false }: TopBarProps) {
   const { user } = useUser();
   const searchContext = useContext(layoutContext);
   const { isActive, searchQuery, setSearchQuery } = searchContext || {};
+  const isMobile = useIsMobile();
+  console.log("isMobile in TopBar:", isMobile);
 
   console.log("user in TopBar:", user);
 
@@ -30,7 +33,7 @@ export default function TopBar({ isSidebarOpen = false }: TopBarProps) {
           <AvaterMenu />
           <Notification />
         </div>
-        {isActive && (
+        {isActive && !isMobile && (
           <div
             className={`flex   items-center justify-center ${
               isSidebarOpen ? "w-fit mx-auto" : ""

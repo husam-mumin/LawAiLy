@@ -269,9 +269,14 @@ export default function ChatPage() {
               onSend={async (
                 message: string,
                 userId: string,
-                flies?: File[] | null
+                files: string[]
               ) => {
-                await sendMessage(message, flies);
+                // Convert string[] to expected file object[]
+                const fileObjects = files.map((fileUrl) => ({
+                  id: fileUrl, // or generate a unique id if needed
+                  fileURL: fileUrl,
+                }));
+                await sendMessage(message, fileObjects);
               }}
               loading={sending}
               user={user || { _id: "", email: "", gender: "", role: "user" }}

@@ -9,6 +9,14 @@ import { Form, FormField } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import ReactProps from "@/Types/ReactProps";
+
+// Define ChatFile type at top level
+export interface ChatFile {
+  file: File;
+  status: "loading" | "done" | "error";
+  text: string;
+  id?: string;
+}
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useMobileKeybard } from "@/hooks/useKeyboardFix";
@@ -18,17 +26,12 @@ import { userType } from "@/models/Users";
 export const formSchema = z.object({
   message: z.string().min(1, { message: "Message is required" }).optional(),
   userId: z.string().optional(),
-  Files: z.array(z.instanceof(File)).optional(),
+  Files: z.array(z.any()).optional(), // Accept any for ChatFile objects
 });
 type ChatInputProps = {
-  onSend: (
-    message: string,
-    user: string,
-    flies?: File[] | null
-  ) => Promise<void>;
+  onSend: (message: string, user: string, files: string[]) => Promise<void>;
   loading?: boolean;
   user: userType;
-  fileLoading?: boolean;
 } & ReactProps;
 
 export default function ChatInput({
@@ -36,7 +39,6 @@ export default function ChatInput({
   className,
   user,
   loading = false,
-  fileLoading = false,
 }: ChatInputProps) {
   const { pending } = useFormStatus();
   const { handleMobileKeybard } = useMobileKeybard();
@@ -56,11 +58,25 @@ export default function ChatInput({
     if (!user) {
       return;
     }
+    // Prevent submit if any file is not done
+    if (
+      Array.isArray(data.Files) &&
+      data.Files.some((f: ChatFile) => f.status !== "done")
+    ) {
+      return;
+    }
+    // Always send message and file IDs
+    const fileIds =
+      Array.isArray(data.Files) && data.Files.length > 0
+        ? (data.Files as ChatFile[])
+            .filter((f) => f.status === "done" && f.id)
+            .map((f) => f.id as string)
+        : [];
     if (!data.message || data.message.trim().length === 0) {
       return;
     }
     if (!loading && !pending) {
-      onSend(data.message, user._id, data.Files);
+      onSend(data.message, user._id, fileIds);
       form.reset({ message: "", Files: [] });
     }
   };
@@ -72,15 +88,19 @@ export default function ChatInput({
     handleRemoveFile,
     filesValue,
     fileError,
-  } = useChatFileManager(form, fileLoading);
+  } = useChatFileManager(form);
 
   // Watch message and files for button state
   const messageValue = form.watch("message") || "";
+  // Disable send if any file is loading
+  const allFilesDone = filesValue.every(
+    (f: ChatFile) => f.status === "done" || f.status === undefined
+  );
   const isSendDisabled =
     pending ||
     loading ||
-    (!messageValue.trim() &&
-      (!Array.isArray(filesValue) || filesValue.length === 0));
+    !allFilesDone ||
+    (!messageValue.trim() && !filesValue.length);
 
   if (!user) {
     console.error(
@@ -120,15 +140,15 @@ export default function ChatInput({
                 />
               )}
             />
-            {(form.watch("Files") ?? []).length > 0 && (
+            {(filesValue ?? []).length > 0 && (
               <div className="flex flex-row flex-wrap gap-2 mt-2 w-full items-end justify-end">
-                {(form.watch("Files") ?? [])
+                {(filesValue ?? [])
                   .filter(
-                    (file: File) =>
-                      file.type.startsWith("image/") ||
-                      file.type === "application/pdf"
+                    (fileObj: ChatFile) =>
+                      fileObj.file.type.startsWith("image/") ||
+                      fileObj.file.type === "application/pdf"
                   )
-                  .map((file: File, idx: number) => {
+                  .map((fileObj: ChatFile, idx: number) => {
                     let icon = (
                       <FileIcon
                         size={20}
@@ -136,7 +156,7 @@ export default function ChatInput({
                         aria-hidden="true"
                       />
                     );
-                    if (file.type.startsWith("image/"))
+                    if (fileObj.file.type.startsWith("image/"))
                       icon = (
                         <ImageIcon
                           size={20}
@@ -146,7 +166,7 @@ export default function ChatInput({
                       );
                     return (
                       <div
-                        key={file.name + String(idx)}
+                        key={fileObj.file.name + String(idx)}
                         className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 shadow-sm max-w-[10rem] min-w-[6rem] relative group transition-all cursor-pointer hover:bg-red-50 hover:border-red-400 hover:shadow-sm hover:shadow-red-300"
                         dir="rtl"
                         onClick={() => handleRemoveFile(idx)}
@@ -157,17 +177,21 @@ export default function ChatInput({
                         </div>
                         <span
                           className="truncate block max-w-[5rem] text-xs text-gray-700 dark:text-gray-200 group-hover:text-red-700"
-                          title={file.name}
+                          title={fileObj.file.name}
                         >
-                          {file.name.length > 16
-                            ? `${file.name.slice(0, 16)}...`
-                            : file.name}
+                          {fileObj.file.name.length > 16
+                            ? `${fileObj.file.name.slice(0, 16)}...`
+                            : fileObj.file.name}
                         </span>
-                        {fileLoading ? (
+                        {fileObj.status === "loading" ? (
                           <Clock
                             size={14}
                             className="text-blue-400 animate-spin"
                           />
+                        ) : fileObj.status === "error" ? (
+                          <span className="text-red-500 text-xs font-bold ml-1">
+                            خطأ
+                          </span>
                         ) : (
                           <span className="opacity-0 group-hover:opacity-100 text-xl text-red-500 font-bold transition-all ml-1 group-hover:text-red-700">
                             x
@@ -235,103 +259,114 @@ export default function ChatInput({
 // Custom hook for file management and error handling
 import { useState } from "react";
 
-export function useChatFileManager(
-  form: ReturnType<typeof useForm>,
-  fileLoading: boolean = false
-) {
+export function useChatFileManager(form: ReturnType<typeof useForm>) {
   const [fileError, setFileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle file attach and reset input
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileError(null);
-    if (e.currentTarget.files && e.currentTarget.files.length > 0) {
-      if (form.getValues("Files").length > 2) {
-        setFileError("لا يمكن إرفاق أكثر من ملفين.");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
-      }
-      const filesArray = Array.from(e.currentTarget.files);
-      // Only allow images and PDFs
-      const validFiles = filesArray.filter(
-        (file) =>
-          file.type.startsWith("image/") || file.type === "application/pdf"
-      );
-      if (validFiles.length !== filesArray.length) {
-        setFileError("فقط الصور وملفات PDF مدعومة.");
-      }
+    const MAX_FILES = 2;
+    const MAX_SIZE = 5 * 1024 * 1024;
 
-      if (validFiles.length === 0) {
-        setFileError("يرجى إرفاق ملف صحيح.");
-        return;
-      }
-      if (form.getValues("Files").length + validFiles.length > 2) {
-        setFileError("لا يمكن إرفاق أكثر من ملفين.");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
-      }
+    if (!e.currentTarget.files || e.currentTarget.files.length === 0) return;
 
-      if (validFiles.length > 2) {
-        setFileError("لا يمكن إرفاق أكثر من ملفين.");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
-      }
-      if (fileLoading) {
-        setFileError("جاري تحميل الملفات، يرجى الانتظار.");
-        return;
-      }
-      // Add valid files to the form state
-      if (!form.getValues("Files")) {
-        form.setValue("Files", []);
-      }
-
-      // Ensure we don't duplicate files
-      const existingFiles = form.getValues("Files") || [];
-      const existingFileNames = new Set(
-        existingFiles.map((file: File) => file.name)
-      );
-      const newFiles = validFiles.filter(
-        (file) => !existingFileNames.has(file.name)
-      );
-
-      if (newFiles.length === 0) {
-        setFileError("الملفات المحددة مكررة بالفعل.");
-        return;
-      }
-      // Update the form with new files
-      const updatingFiles = [...existingFiles, ...newFiles];
-
-      form.setValue("Files", updatingFiles);
+    // Get current files
+    const currentFiles = form.getValues("Files") || [];
+    if (currentFiles.length >= MAX_FILES) {
+      setFileError("لا يمكن إرفاق أكثر من ملفين.");
       if (fileInputRef.current) fileInputRef.current.value = "";
-
-      // now use the api to upload files and handle errors
-      // const response = await axios.post("/api/chat/upload", {
-      //   files: newFiles,
-      // });
-
-      // if (response.status !== 200) {
-      //   setFileError("حدث خطأ أثناء تحميل الملفات.");
-      //   return;
-      // }
-      // // Successfully uploaded files, update form state
-      // const updatedFiles = response.data.files || [];
-
-      // form.setValue("Files", [...existingFiles, ...updatedFiles]);
-      // form.setValue("Files", updatedFiles);
-      // console.log("Files uploaded successfully:", response.data);
+      return;
     }
+
+    // Filter valid files
+    const filesArray = Array.from(e.currentTarget.files);
+    const validFiles = filesArray.filter(
+      (file) =>
+        (file.type.startsWith("image/") || file.type === "application/pdf") &&
+        file.size <= MAX_SIZE
+    );
+
+    if (validFiles.length !== filesArray.length) {
+      setFileError("فقط الصور وملفات PDF مدعومة وحجم الملف أقل من 5 ميجابايت.");
+      return;
+    }
+
+    // Prevent duplicates
+    const existingNames = new Set(
+      (currentFiles as ChatFile[]).map((f) => f.file.name)
+    );
+    const newFiles = validFiles.filter((file) => !existingNames.has(file.name));
+    if (newFiles.length === 0) {
+      setFileError("الملفات المحددة مكررة بالفعل.");
+      return;
+    }
+
+    // Limit total files
+    if (currentFiles.length + newFiles.length > MAX_FILES) {
+      setFileError("لا يمكن إرفاق أكثر من ملفين.");
+      return;
+    }
+
+    // Add files with loading status
+    const filesWithStatus = [
+      ...currentFiles,
+      ...newFiles.map((file) => ({
+        file,
+        status: "loading",
+        text: "",
+      })),
+    ];
+    form.setValue("Files", filesWithStatus);
+
+    // Upload each new file
+    for (const newFileObj of filesWithStatus.slice(currentFiles.length)) {
+      try {
+        const formData = new FormData();
+        formData.append("file", newFileObj.file);
+
+        const res = await fetch("/api/chat/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("رفع الملف فشل");
+
+        const data = await res.json();
+
+        // Update file status, text, and id
+        const updatedFiles = (form.getValues("Files") as ChatFile[]).map((f) =>
+          f.file.name === newFileObj.file.name
+            ? { ...f, status: "done", text: data.text || "", id: data.id }
+            : f
+        );
+        form.setValue("Files", updatedFiles);
+      } catch {
+        // Update file status to error
+        const updatedFiles = (form.getValues("Files") as ChatFile[]).map((f) =>
+          f.file.name === newFileObj.file.name
+            ? { ...f, status: "error", text: "" }
+            : f
+        );
+        form.setValue("Files", updatedFiles);
+        setFileError(`حدث خطأ أثناء رفع "${newFileObj.file.name}"`);
+      }
+    }
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Remove a file from the attached files list
+  // Remove a file
   const handleRemoveFile = (index: number) => {
     setFileError(null);
-    const currentFiles = form.getValues("Files") || [];
-    const newFiles = currentFiles.filter((_: File, i: number) => i !== index);
+    const currentFiles = (form.getValues("Files") as ChatFile[]) || [];
+    const newFiles = currentFiles.filter(
+      (_: ChatFile, i: number) => i !== index
+    );
     form.setValue("Files", newFiles);
   };
 
   // Watch files
-  const filesValue = form.watch("Files") || [];
+  const filesValue = (form.watch("Files") as ChatFile[]) || [];
 
   return {
     fileInputRef,

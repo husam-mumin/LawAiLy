@@ -29,7 +29,18 @@ export async function getDashboardStats() {
 export async function getLibyaLawCategories() {
   await dbConnect();
   // Get all categories and populate with books (documents)
-  const categories = await Category.find().lean();
+  interface CategoryType {
+    _id: string;
+    name: string;
+    // add other fields if needed
+  }
+
+  const rawCategories = await Category.find().lean();
+  const categories: CategoryType[] = rawCategories.map((cat) => ({
+    _id: cat._id?.toString() ?? "",
+    name: cat.name ?? "",
+    // add other fields if needed
+  }));
   const books = await DocumentModel.find().lean();
   // Attach books to each category
   const categoriesWithBooks = categories.map((cat) => ({

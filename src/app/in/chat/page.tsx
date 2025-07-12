@@ -89,7 +89,7 @@ export default function Page() {
   const handleSent = async (
     chatMessage: string,
     userId: string,
-    Flies: File[] | null | undefined
+    Flies: string[] | null | undefined
   ) => {
     setErrorStatus(null);
     if (!chatMessage || chatMessage.trim().length === 0) {
@@ -108,18 +108,18 @@ export default function Page() {
       setErrorStatus("يمكنك إرفاق حتى 5 ملفات فقط");
       return;
     }
-    if (Flies && Flies.some((file) => file.size > 5 * 1024 * 1024)) {
-      setErrorStatus("يجب أن يكون كل ملف أقل من 5 ميجابايت");
-      return;
-    }
+    console.log("Sending message:", { chatMessage, userId, Flies });
+    // Validate file size
     // Call the addMessage function to send the message
     if (!Flies) {
       Flies = [];
     }
+    const files: { id: string }[] = Flies.map((file) => ({ id: file }));
+
     const result = await addMessage({
       message: chatMessage,
-      userId: userId, // Replace with actual username
-      files: Flies.length > 0 ? Flies : undefined,
+      userId: userId, // Replace with actual user ID
+      files: files as { id: string }[] | undefined,
     });
     const { chatId } = result || {};
     if (error) {
@@ -179,7 +179,12 @@ export default function Page() {
                 {errorStatus}
               </div>
             )}
-            <ChatInput user={user} onSend={handleSent} loading={sending} />
+            <ChatInput
+              className="mx-2 md:mx-0"
+              user={user}
+              onSend={handleSent}
+              loading={sending}
+            />
           </div>
         </div>
       </div>

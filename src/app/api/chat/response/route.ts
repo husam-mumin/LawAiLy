@@ -3,6 +3,7 @@ import Response, { responseType } from "@/models/Responses";
 import dbConnect from "@/lib/db";
 import Message, { IMessage } from "@/models/Messages";
 import OpenAI from "openai";
+import { filesType } from "../[chatid]/messages/route";
 
 const openai = new OpenAI({
   apiKey: process.env.CHAT_API_KEY,
@@ -84,7 +85,7 @@ const checkIsinheritance = (message: string) => {
 };
 
 const responseGenreter = async (
-  messages: { message: string; response: responseType }[]
+  messages: { message: string; response: responseType; files: filesType[] }[]
 ) => {
   // Simulated AI response for Libyan Law
   type ChatCompletionMessage = {
@@ -115,9 +116,18 @@ const responseGenreter = async (
   }
   messages.forEach((msg) => {
     if (!msg.message) return;
+    let content = msg.message;
+    let filesContent = "";
+    if (msg.files && msg.files.length > 0) {
+      filesContent = msg.files.map((file) => file.filetext).join("\n");
+    }
+    if (filesContent) {
+      content += `\n\nFiles:\n${filesContent}`;
+    }
+
     messagesToAi.push({
       role: "user",
-      content: msg.message,
+      content: content,
     });
     if (msg.response) {
       messagesToAi.push({

@@ -12,26 +12,59 @@ import { userType } from "@/models/Users";
 export function useSentAction(
   chatid: string,
   setMessages: React.Dispatch<React.SetStateAction<messageResponse[]>>,
-  postNewResponse: (message: string,messages: messageResponse[], messageId: string) => void,
+  postNewResponse: (
+    message: string,
+    messages: messageResponse[],
+    messageId: string
+  ) => void,
   messages: messageResponse[],
-  user: userType,
+  user: userType
 ) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Send a new message
-  const sendMessage = async (content: string, files?: unknown ) => {
+  // Send a new message with optional files
+  const sendMessage = async (
+    content: string,
+    files?: Array<{
+      id: string;
+      fileURL?: string;
+      filename?: string;
+      fileformat?: string;
+    }>
+  ) => {
     setSending(true);
     setError(null);
     try {
-      const res = await axios.post<messageResponse>(`/api/chat/${chatid}/messages`, {
-        mes: content,
-        userid : user._id,
-        files,
-      });
-      // Add the new message to the state
-      setMessages((prev) => [...prev, res.data]);
-      await postNewResponse(res.data.message,messages ,res.data._id)
+      // Prepare file IDs for API
+      const fileIds = Array.isArray(files) ? files.map((f) => f.id) : [];
+      const res = await axios.post<messageResponse>(
+        `/api/chat/${chatid}/messages`,
+        {
+          mes: content,
+          userid: user._id,
+          files: fileIds,
+        }
+      );
+      // Map files to filesType structure for local state
+      const filesTypeList = Array.isArray(files)
+        ? files.map((f) => ({
+            fileURL: f.fileURL || "",
+            filename: f.filename || "",
+            filesize: "",
+            fileformat: f.fileformat || "",
+            filetext: "",
+            message: res.data._id,
+          }))
+        : [];
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...res.data,
+          files: filesTypeList as unknown as typeof res.data.files,
+        },
+      ]);
+      await postNewResponse(res.data.message, messages, res.data._id);
       return res.data;
     } catch (err) {
       if (err && typeof err === "object" && "message" in err) {

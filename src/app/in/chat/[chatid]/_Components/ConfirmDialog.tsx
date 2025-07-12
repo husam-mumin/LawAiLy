@@ -23,7 +23,7 @@ export default function ConfirmDialog({
 }: CamfirmDalilogProps) {
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-      <DialogContent className="max-w-md text-center">
+      <DialogContent className="max-w-[21rem] sm:max-w-max mx-auto text-center">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-red-600 flex items-center justify-center gap-2">
             <Trash2 className="h-6 w-6 text-red-600" /> تأكيد حذف المحادثة

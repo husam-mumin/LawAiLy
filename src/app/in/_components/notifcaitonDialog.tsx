@@ -92,7 +92,7 @@ const NotificationDialog = () => {
               </div>
             ) : (
               <>
-                <ul className="space-y-3 max-h-80">
+                <ul className="space-y-3 max-h-80 mb-5">
                   {paginatedNotifications.map((notif) => (
                     <li
                       key={notif._id}
@@ -123,9 +123,17 @@ const NotificationDialog = () => {
                         <button
                           className="p-1 rounded hover:bg-red-50 transition-colors ms-auto"
                           title="حذف الإشعار"
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            handleDelete(notif._id);
+                            const isDeleted = await handleDelete(notif._id);
+                            if (isDeleted) {
+                              // Optionally show a success message
+                              const theLeftInThePage =
+                                notifications.length % pageSize;
+                              if (theLeftInThePage === 1 && page > 1) {
+                                setPage((p) => p - 1);
+                              }
+                            }
                           }}
                         >
                           <svg

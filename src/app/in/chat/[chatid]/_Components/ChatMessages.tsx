@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/tooltip";
 import { useResponseAction } from "../_hooks/useResponseAction";
 import { chatType } from "@/models/Chat";
+import { File as FileIcon } from "lucide-react";
+import Image from "next/image";
 
 type ChatMessagesProps = {
   Messages: messageResponse[];
@@ -198,30 +200,127 @@ export default function ChatMessages({
                       {formattedDate}
                     </span>
                   </div>
+
+                  <div dir="rtl">
+                    {/* Files */}
+                    {Array.isArray(msg.files) && msg.files.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2 justify-start items-center">
+                        {msg.files.map((file, idx) => {
+                          const type =
+                            typeof file === "object"
+                              ? file.fileformat || "other"
+                              : "other";
+                          const name =
+                            typeof file === "object"
+                              ? file.filename || file.name || file.id || "ملف"
+                              : String(file);
+                          const url =
+                            typeof file === "object"
+                              ? file.fileURL || file.url || undefined
+                              : undefined;
+                          if (type.startsWith("image/") && url) {
+                            // Show only the image preview, no name or type
+                            return (
+                              <div
+                                key={name + idx}
+                                className="flex flex-col items-center justify-center rounded-xl px-2 py-2  max-w-[10rem] min-w-[7rem]"
+                              >
+                                <a
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="group block"
+                                >
+                                  <Image
+                                    width={128}
+                                    height={128}
+                                    src={url}
+                                    alt={name}
+                                    className="rounded-xl object-cover max-h-32 max-w-[8rem] transition-transform duration-200 group-hover:scale-105 group-hover:shadow-lg"
+                                    style={{ background: "#f3f4f6" }}
+                                  />
+                                </a>
+                              </div>
+                            );
+                          } else if (type === "application/pdf") {
+                            // Show PDF box with icon centered
+                            return (
+                              <div
+                                key={name + idx}
+                                className="flex flex-col items-center justify-center bg-gray-50 border border-gray-200 rounded-lg px-2 py-4 shadow-sm max-w-[10rem] min-w-[7rem]"
+                              >
+                                <FileIcon
+                                  size={36}
+                                  className="text-red-500 mb-2"
+                                  aria-hidden="true"
+                                />
+                                {url ? (
+                                  <a
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 underline font-semibold truncate max-w-[8rem]"
+                                    title={name}
+                                  >
+                                    {name}
+                                  </a>
+                                ) : (
+                                  <span
+                                    className="truncate block max-w-[8rem] text-xs text-gray-700 font-semibold"
+                                    title={name}
+                                  >
+                                    {name}
+                                  </span>
+                                )}
+                                <span className="text-xs text-gray-400 mt-1">
+                                  PDF
+                                </span>
+                              </div>
+                            );
+                          } else {
+                            // Other file types
+                            return (
+                              <div
+                                key={name + idx}
+                                className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 shadow-sm max-w-[14rem] min-w-[7rem]"
+                              >
+                                <FileIcon
+                                  size={20}
+                                  className="text-gray-400"
+                                  aria-hidden="true"
+                                />
+                                {url ? (
+                                  <a
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 underline font-semibold truncate max-w-[8rem]"
+                                    title={name}
+                                  >
+                                    {name}
+                                  </a>
+                                ) : (
+                                  <span
+                                    className="truncate block max-w-[8rem] text-xs text-gray-700 font-semibold"
+                                    title={name}
+                                  >
+                                    {name}
+                                  </span>
+                                )}
+                                <span className="text-xs text-gray-400 ml-2">
+                                  ملف
+                                </span>
+                              </div>
+                            );
+                          }
+                        })}
+                      </div>
+                    )}
+                  </div>
                   {/* Message Content */}
                   <div className="mb-2 text-gray-800 whitespace-pre-line break-words text-base">
                     {msg.message}
                   </div>
-
-                  {/* Files */}
-                  {msg.files && msg.files.fileURL && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <a
-                        href={msg.files.fileURL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 underline font-medium"
-                      >
-                        <span className="inline-block align-middle mr-1">
-                          📎
-                        </span>
-                        {msg.files.filename || "تحميل الملف"}
-                      </a>
-                      <div className="text-xs text-gray-400">
-                        {msg.files.filesize} | {msg.files.fileformat}
-                      </div>
-                    </div>
-                  )}
 
                   {/* AI Response or Sending Error */}
                   {sendingError && (
