@@ -5,9 +5,11 @@ export const config = {
     bodyParser: false,
   },
 };
+const serviceAccount = process.env.GOOGLE_SERVICE_ACCOUNT_JSON
+  ? JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON)
+  : undefined;
 
 export const storage = new Storage({
-  keyFilename:
-    process.env.GOOGLE_APPLICATION_CREDENTIALS || "./service-account.json",
+  credentials: serviceAccount,
 });
 export const bucket = storage.bucket(process.env.GCS_BUCKET_NAME || ""); // Default to "lawai" if not set
