@@ -89,6 +89,8 @@ export async function GET(
   } catch (error) {
     let message = "Internal server error.";
     if (error instanceof Error) message = error.message;
+    console.log("Error in GET /api/chat/[chatid]:", message);
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

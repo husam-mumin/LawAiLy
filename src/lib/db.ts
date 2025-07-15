@@ -2,6 +2,18 @@ import mongoose, { Mongoose } from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
+import "@/models/Category";
+import "@/models/Chat";
+import "@/models/Documents";
+import "@/models/Files";
+import "@/models/Messages";
+import "@/models/New";
+import "@/models/NewsUser";
+import "@/models/Reporting";
+import "@/models/Responses";
+import "@/models/ShareResponse";
+import "@/models/Users";
+
 if (!MONGODB_URI) {
   throw new Error(
     "Please define the MONGODB_URI environment variable in .env.local"
