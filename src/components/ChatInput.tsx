@@ -73,15 +73,9 @@ export default function ChatInput({
             .filter((f) => f.status === "done" && f.id)
             .map((f) => f.id as string)
         : [];
-    if (!data.message || data.message.trim().length === 0) {
-      return;
-    }
-    // check files logs
-    if (fileIds.length === 0) {
-      return;
-    }
+    const message = data.message?.trim() || "";
     if (!loading && !pending) {
-      onSend(data.message, user._id, fileIds);
+      onSend(message, user._id, fileIds);
       form.reset({ message: "", Files: [] });
     }
   };
