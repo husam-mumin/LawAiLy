@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import axios from "axios";
+import { useUploadFile } from "@/hooks/useUploadFile";
 
 interface UploadImageProps {
   onUploaded?: (url: string) => void;
@@ -14,16 +14,15 @@ interface UploadImageProps {
 
 export default function UploadImage({
   onUploaded,
-  uploadUrl = "/api/dashboard/documents/image",
   initialImageUrl = null,
 }: UploadImageProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [previousImageUrl, setPreviousImageUrl] = useState<string | null>(
     initialImageUrl
   );
   const inputRef = useRef<HTMLInputElement>(null);
+  const { uploadFile, uploading, setError } = useUploadFile();
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -38,37 +37,20 @@ export default function UploadImage({
       toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
       return;
     }
-    setUploading(true);
+    setError("");
     const toastId = toast.loading("جاري رفع الصورة...");
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await axios.post(uploadUrl, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        validateStatus: () => true, // Accept all status codes
-      });
-      if (res.status === 409 && res.data?.url) {
+      const result = await uploadFile(file);
+      if (result && result.fileUrl) {
         setPreviousImageUrl("");
-        toast.success("الصورة موجودة بالفعل. تم استخدام الصورة الحالية.", {
-          id: toastId,
-        });
-
-        setImageUrl(res.data.url);
-
-        if (onUploaded) onUploaded(res.data.url);
-      } else if (res.status === 200 && res.data?.url) {
-        setPreviousImageUrl("");
-
         toast.success("تم رفع الصورة بنجاح!", { id: toastId });
-        setImageUrl(res.data.url);
-        if (onUploaded) onUploaded(res.data.url);
+        setImageUrl(result.fileUrl);
+        if (onUploaded) onUploaded(result.fileUrl);
       } else {
         toast.error("فشل رفع الصورة", { id: toastId });
       }
     } catch {
       toast.error("حدث خطأ أثناء رفع الصورة");
-    } finally {
-      setUploading(false);
     }
   };
 

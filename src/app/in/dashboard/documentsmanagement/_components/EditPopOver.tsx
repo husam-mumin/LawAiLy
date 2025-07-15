@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DocumentRow } from "./document-columns";
 import { documentType } from "@/models/Documents";
-import { useUploadFile } from "../_hooks/useUploadfile";
+import { useUploadFileDocuments } from "../_hooks/useUploadfile";
 import {
   Dialog,
   DialogContent,
@@ -46,7 +46,7 @@ export function EditPopOver({
   const [documentURL, setDocumentURL] = useState("");
   const [image, setImage] = useState("");
   const [showup, setShowup] = useState(false);
-  const { uploading, error, uploadFile } = useUploadFile();
+  const { uploading, error, uploadFile } = useUploadFileDocuments();
   const [saveLoading, setSaveLoading] = useState(false);
   const { categories, loading } = useCategoriesAction();
   const [categoryId, setCategoryId] = useState("");
@@ -144,26 +144,21 @@ export function EditPopOver({
     }
   };
 
-  const handleFileChange = async (e: File) => {
+  const handleFileChange = async (e: File): Promise<string | null> => {
     const file = e;
     if (file) {
       const url = await uploadFile(file);
       if (!url) {
         toast.error("فشل في رفع الملف. يرجى المحاولة مرة أخرى.");
-        return;
+        return null;
       }
       // If the upload was successful, set the document URL
 
-      if (url) {
-        handleDeleteFile(documentURL); // Call delete handler if provided
-        setDocumentURL(url);
-        return url;
-      } else {
-        toast.error("فشل في رفع الملف. يرجى المحاولة مرة أخرى.");
-        return;
-      }
+      handleDeleteFile(documentURL); // Call delete handler if provided
+      setDocumentURL(url);
+      return url;
     }
-    return;
+    return null;
   };
 
   return (

@@ -66,6 +66,7 @@ export default function ChatInput({
       return;
     }
     // Always send message and file IDs
+
     const fileIds =
       Array.isArray(data.Files) && data.Files.length > 0
         ? (data.Files as ChatFile[])
@@ -73,6 +74,10 @@ export default function ChatInput({
             .map((f) => f.id as string)
         : [];
     if (!data.message || data.message.trim().length === 0) {
+      return;
+    }
+    // check files logs
+    if (fileIds.length === 0) {
       return;
     }
     if (!loading && !pending) {
@@ -258,10 +263,12 @@ export default function ChatInput({
 
 // Custom hook for file management and error handling
 import { useState } from "react";
+import { useUploadFile } from "@/hooks/useUploadFile";
 
 export function useChatFileManager(form: ReturnType<typeof useForm>) {
   const [fileError, setFileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadFile } = useUploadFile();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileError(null);
@@ -320,36 +327,77 @@ export function useChatFileManager(form: ReturnType<typeof useForm>) {
 
     // Upload each new file
     for (const newFileObj of filesWithStatus.slice(currentFiles.length)) {
-      try {
-        const formData = new FormData();
-        formData.append("file", newFileObj.file);
+      // Set file status to loading (already set above)
+      uploadFile(newFileObj.file)
+        .then(async (result) => {
+          if (!result) throw new Error("Upload failed");
+          // Send file URL to OCR API and get text
+          let ocrText = "";
+          try {
+            const ocrRes = await fetch("/api/ocr", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: result.fileUrl }),
+            });
+            const ocrData = await ocrRes.json();
+            ocrText = ocrData.text || "";
+          } catch {
+            ocrText = "";
+          }
 
-        const res = await fetch("/api/chat/upload", {
-          method: "POST",
-          body: formData,
+          // Send all info to /api/chat/upload to save in DB
+          try {
+            const dbRes = await fetch("/api/chat/upload", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                fileURL: result.fileUrl,
+                filename: result.filename,
+                filesize: newFileObj.file.size.toString(),
+                fileformat: newFileObj.file.type,
+                filetext: ocrText,
+                message: "", // Pass message id if available
+              }),
+            });
+            const dbData = await dbRes.json();
+            // Update file status to done and set id (DB id) and text (OCR text)
+            const updatedFiles = (form.getValues("Files") as ChatFile[]).map(
+              (f) =>
+                f.file.name === newFileObj.file.name && dbData.id
+                  ? {
+                      ...f,
+                      status: "done",
+                      text: ocrText,
+                      id: dbData.id,
+                    }
+                  : f
+            );
+            form.setValue("Files", updatedFiles);
+          } catch {
+            // Update file status to error
+            const updatedFiles = (form.getValues("Files") as ChatFile[]).map(
+              (f) =>
+                f.file.name === newFileObj.file.name
+                  ? { ...f, status: "error", text: "" }
+                  : f
+            );
+            form.setValue("Files", updatedFiles);
+            setFileError(
+              `حدث خطأ أثناء حفظ الملف في قاعدة البيانات بعد رفعه وقراءة النص: "${newFileObj.file.name}"`
+            );
+          }
+        })
+        .catch(() => {
+          // Update file status to error
+          const updatedFiles = (form.getValues("Files") as ChatFile[]).map(
+            (f) =>
+              f.file.name === newFileObj.file.name
+                ? { ...f, status: "error", text: "" }
+                : f
+          );
+          form.setValue("Files", updatedFiles);
+          setFileError(`حدث خطأ أثناء رفع "${newFileObj.file.name}"`);
         });
-
-        if (!res.ok) throw new Error("رفع الملف فشل");
-
-        const data = await res.json();
-
-        // Update file status, text, and id
-        const updatedFiles = (form.getValues("Files") as ChatFile[]).map((f) =>
-          f.file.name === newFileObj.file.name
-            ? { ...f, status: "done", text: data.text || "", id: data.id }
-            : f
-        );
-        form.setValue("Files", updatedFiles);
-      } catch {
-        // Update file status to error
-        const updatedFiles = (form.getValues("Files") as ChatFile[]).map((f) =>
-          f.file.name === newFileObj.file.name
-            ? { ...f, status: "error", text: "" }
-            : f
-        );
-        form.setValue("Files", updatedFiles);
-        setFileError(`حدث خطأ أثناء رفع "${newFileObj.file.name}"`);
-      }
     }
 
     if (fileInputRef.current) fileInputRef.current.value = "";

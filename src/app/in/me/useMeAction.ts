@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useUploadFile } from "@/hooks/useUploadFile";
 import { userType } from "@/models/Users";
 
-
 export function useMeAction(user: userType) {
-  
-  const [firstName, setFirstName] = useState( "");
-  const [lastName, setLastName] = useState( "");
-  const [photoUrl, setPhotoUrl] = useState( "");
+  const { uploadFile } = useUploadFile();
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [photoUrl, setPhotoUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,10 @@ export function useMeAction(user: userType) {
   }, [user]);
 
   // Update firstName and lastName only
-  const updateName = async (fields: { firstName?: string; lastName?: string }) => {
+  const updateName = async (fields: {
+    firstName?: string;
+    lastName?: string;
+  }) => {
     setLoading(true);
     setError(null);
     try {
@@ -48,20 +52,15 @@ export function useMeAction(user: userType) {
     setPhotoLoading(true);
     setError(null);
     try {
-      const formData = new FormData();
-      formData.append("file", image);
-      formData.append("userId", user._id);
-      const uploadRes = await axios.post("/api/in/user/uploadImage", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      const photoUrl = uploadRes.data.url;
+      const result = await uploadFile(image);
+      const photoUrl = result?.fileUrl;
       if (!photoUrl) {
         setError("لم يتم تحميل الصورة بنجاح");
+        return null;
       }
-
-      const res = await axios.patch(`/api/in/user?id=${user._id}`, { photoUrl });
+      const res = await axios.patch(`/api/in/user?id=${user._id}`, {
+        photoUrl,
+      });
       setPhotoUrl(photoUrl);
       return res.data;
     } catch (err) {

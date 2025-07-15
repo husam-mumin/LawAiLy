@@ -16,7 +16,6 @@ export interface IFile extends Document {
   filesize: string;
   fileformat: string;
   filetext: string;
-  message: Schema.Types.ObjectId;
 }
 
 export type fileType = {
@@ -25,7 +24,6 @@ export type fileType = {
   filesize: string;
   fileformat: string;
   filetext: string;
-  message: string;
 };
 
 const fileSchema: Schema = new mongoose.Schema<IFile>(
@@ -35,7 +33,6 @@ const fileSchema: Schema = new mongoose.Schema<IFile>(
     filesize: { type: "string", required: true },
     fileformat: { type: "string", requried: true },
     filetext: { type: "string", required: true },
-    message: { type: Schema.Types.ObjectId, requried: true, ref: "Message" },
   },
   { timestamps: true }
 );

@@ -1,5 +1,4 @@
 import vision from "@google-cloud/vision";
-import { Storage } from "@google-cloud/storage";
 
 /**
  * Extract text from an image or PDF file using Google Cloud Vision OCR

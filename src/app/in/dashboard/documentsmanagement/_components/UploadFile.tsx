@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { useUploadFile } from "../_hooks/useUploadfile";
+import { useUploadFileDocuments } from "../_hooks/useUploadfile";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -12,7 +12,7 @@ export default function UploadFile({
   onUploaded,
   handleUpload,
 }: UploadFileProps) {
-  const { uploading, error, url, uploadFile } = useUploadFile();
+  const { uploading, error, url, uploadFile } = useUploadFileDocuments();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

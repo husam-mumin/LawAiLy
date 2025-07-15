@@ -1,54 +1,54 @@
+import { useUploadFile } from "@/hooks/useUploadFile";
 import axios from "axios";
 import { useState } from "react";
 
-export function useUploadFile() {
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
+export function useUploadFileDocuments() {
+  const { cancelUpload, error, uploadFile, uploading, setError } =
+    useUploadFile();
   const [url, setUrl] = useState("");
 
   // file: File object
-  async function uploadFile(file: File) {
+  async function UploadFileDocuments(file: File) {
     // Check if file is a PDF
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+    if (
+      file.type !== "application/pdf" &&
+      !file.name.toLowerCase().endsWith(".pdf")
+    ) {
       setError("الملف يجب أن يكون بصيغة PDF فقط");
       return "";
     }
-    setUploading(true);
     setError("");
     setUrl("");
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await axios.post("/api/dashboard/documents/file", formData)
-
-        
-      if (!res.data || !res.data.url) {
+      const res = await uploadFile(file);
+      if (!res) {
         throw new Error("فشل في رفع الملف");
       }
-      setUrl(res.data.url); // The backend should return { url: "https://drive.google.com/..." }
-      return res.data.url;
+      const { fileUrl } = res;
+      setUrl(fileUrl);
+      return fileUrl;
     } catch (err) {
       console.error("Upload error:", err);
-      if(axios.isAxiosError(err) && err.response) {
-      if (err.status == 409) {
-        setUrl(err.response.data.url);
-      }}
-      if(!axios.isAxiosError(err)) {
+      if (axios.isAxiosError(err) && err.response) {
+        if (err.status == 409) {
+          setUrl(err.response.data.url);
+        }
+      }
+      if (!axios.isAxiosError(err)) {
         setError("حدث خطأ غير معروف أثناء رفع الملف");
       }
-      if(err instanceof Error) {
+      if (err instanceof Error) {
         setError(err?.message || "فشل في رفع الملف");
       }
       return "";
-    } finally {
-      setUploading(false);
     }
-  } catch (err) {
-    console.error("Error uploading file:", err);
-    
   }
-  }
-  return { uploading, error, url, uploadFile };
+
+  return {
+    uploading: uploading,
+    error: error,
+    url,
+    uploadFile: UploadFileDocuments,
+    cancelUpload,
+  };
 }
