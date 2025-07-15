@@ -14,7 +14,9 @@ export async function extractTextFromGCS(
 ): Promise<string> {
   // Initialize Vision client (make sure service-account.json is correct)
   const client = new vision.ImageAnnotatorClient({
-    keyFilename: "service-account.json", // path to your service account file
+    credentials: process.env.GOOGLE_APPLICATION_CREDENTIALS
+      ? JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS)
+      : undefined,
   });
 
   try {

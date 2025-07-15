@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useUploadFile } from "@/hooks/useUploadFile";
 import { userType } from "@/models/Users";
+import { useUser } from "@/app/context/UserContext";
 
 export function useMeAction(user: userType) {
   const { uploadFile } = useUploadFile();
+  const { setUser } = useUser();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -32,6 +34,19 @@ export function useMeAction(user: userType) {
       const res = await axios.patch(`/api/in/user?id=${user._id}`, fields);
       if (fields.firstName !== undefined) setFirstName(fields.firstName);
       if (fields.lastName !== undefined) setLastName(fields.lastName);
+      setUser({
+        ...user,
+        firstName: fields.firstName,
+        lastName: fields.lastName,
+      }); // Update user context
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...user,
+          firstName: fields.firstName,
+          lastName: fields.lastName,
+        })
+      );
       return res.data;
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -61,6 +76,11 @@ export function useMeAction(user: userType) {
       const res = await axios.patch(`/api/in/user?id=${user._id}`, {
         photoUrl,
       });
+      setUser({ ...user, AvatarURL: photoUrl }); // Update user context
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...user, AvatarURL: photoUrl })
+      ); // Update local storage if needed
       setPhotoUrl(photoUrl);
       return res.data;
     } catch (err) {

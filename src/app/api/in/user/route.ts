@@ -34,7 +34,10 @@ export async function PATCH(req: Request) {
   try {
     await dbConnect();
     const { searchParams } = new URL(req.url);
+
     const id = searchParams.get("id");
+    console.log("User ID:", id);
+
     if (!id) {
       return NextResponse.json(
         { error: "User id is required" },
@@ -42,6 +45,8 @@ export async function PATCH(req: Request) {
       );
     }
     const body = await req.json();
+
+    console.log("Request body:", body);
 
     const { firstName, lastName, photoUrl } = body;
     if (!firstName && !lastName && !photoUrl) {
@@ -69,6 +74,7 @@ export async function PATCH(req: Request) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
     return NextResponse.json(user, { status: 200 });
   } catch (error) {
     let message = "Internal server error.";
