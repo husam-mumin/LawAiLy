@@ -243,7 +243,7 @@ export default function Home() {
                 <div className="flex-1 border-t border-blue-200" />
               </div>
               {/* --- Enhanced Document Cards Grid --- */}
-              <div className="flex justify-between gap-10 flex-wrap">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 justify-center items-center content-center self-center place-self-center gap-10 flex-wrap">
                 {docs.map((doc) => (
                   <Link
                     key={doc._id}
@@ -275,7 +275,7 @@ export default function Home() {
         )}
         {/* Loading Spinner */}
         {loading && (
-          <div className="fixed inset-0 flex items-center justify-center bg-white/60 z-50">
+          <div className="fixed inset-0 flex items-center justify-center z-[60] bg-white/60">
             <svg
               className="animate-spin h-12 w-12 text-blue-500"
               xmlns="http://www.w3.org/2000/svg"

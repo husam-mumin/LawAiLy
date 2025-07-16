@@ -127,8 +127,9 @@ export default function ChatInput({
               render={({ field }) => (
                 <Textarea
                   {...field}
+                  dir="rtl"
                   maxLength={500}
-                  onFocus={handleMobileKeybard}
+                  onTouchEnd={handleMobileKeybard}
                   className="resize-none dark:text-base w-[20rem] md:w-[33rem] max-h-[15rem] ring-0 dark:ring-0 border-none bg-transparent dark:bg-transparent text-right"
                   onChange={(e) => {
                     field.onChange(e);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Document from "@/models/Documents";
 import Category from "@/models/Category";
+import newNewsAction from "../../news/addNews";
 export type fetchedDocumentType = {
   _id: string;
   createdAt: Date;
@@ -101,6 +102,7 @@ export async function POST(req: Request) {
     if (category) {
       await Category.findByIdAndUpdate(category, { $inc: { count: 1 } });
     }
+    newNewsAction(title, `تم إضافة مستند جديد: ${title}`);
     return NextResponse.json(
       {
         message: "Document created successfully.",

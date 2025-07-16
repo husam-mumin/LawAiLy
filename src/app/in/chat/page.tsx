@@ -1,12 +1,14 @@
 "use client";
 import ChatInput from "@/components/ChatInput";
 import { Info } from "lucide-react";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import gsap from "gsap";
 import SuggestionsPop from "./_components/SuggestionsPop";
 import useAddMessage from "./_hook/useAddMessage";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/context/UserContext";
+import { layoutContext } from "@/components/layout/MainLayout/MainLayout";
+import { chatType } from "@/models/Chat";
 export default function Page() {
   const { user } = useUser();
   const [currentSuggestion, setCurrentSuggesion] = useState("");
@@ -36,6 +38,8 @@ export default function Page() {
   const suggestionRef = useRef(null);
   const suggestionPopRef = useRef(null);
   const router = useRouter();
+  const x = useContext(layoutContext);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setCurrentSuggesion(suggestion[0]);
@@ -52,6 +56,9 @@ export default function Page() {
 
   // GSAP entrance animations
   useEffect(() => {
+    // check the body loaded and then run the animations
+    setLoading(false);
+
     gsap.fromTo(
       bannerRef.current,
       { y: -50, opacity: 0 },
@@ -86,13 +93,15 @@ export default function Page() {
     }
   }, [currentSuggestion]);
 
+  const { loading: sending, error, addMessage } = useAddMessage();
+
   const handleSent = async (
-    chatMessage: string,
+    message: string,
     userId: string,
-    Flies: string[] | null | undefined
-  ) => {
+    files: string[]
+  ): Promise<void> => {
     setErrorStatus(null);
-    if (!chatMessage || chatMessage.trim().length === 0) {
+    if (!message || message.trim().length === 0) {
       setErrorStatus("لا يمكن أن تكون الرسالة فارغة");
       return;
     }
@@ -100,26 +109,26 @@ export default function Page() {
       setErrorStatus("معرّف المستخدم مطلوب لإرسال الرسالة");
       return;
     }
-    if (chatMessage.length > 500) {
+    if (message.length > 500) {
       setErrorStatus("لا يمكن أن تتجاوز الرسالة 500 حرف");
       return;
     }
-    if (Flies && Flies.length > 5) {
+    if (files && files.length > 5) {
       setErrorStatus("يمكنك إرفاق حتى 5 ملفات فقط");
       return;
     }
     // Validate file size
     // Call the addMessage function to send the message
-    if (!Flies) {
-      Flies = [];
-    }
-    const files: { id: string }[] = Flies.map((file) => ({ id: file }));
+    const filesObj: { id: string }[] = files
+      ? files.map((file) => ({ id: file }))
+      : [];
 
     const result = await addMessage({
-      message: chatMessage,
-      userId: userId, // Replace with actual user ID
-      files: files as { id: string }[] | undefined,
+      message: message,
+      userId: userId,
+      files: filesObj.length > 0 ? filesObj : undefined,
     });
+
     const { chatId } = result || {};
     if (error) {
       setErrorStatus("حدث خطأ أثناء إرسال الرسالة");
@@ -130,10 +139,56 @@ export default function Page() {
       setErrorStatus("لم يتم إرجاع معرف المحادثة من الخادم");
       return;
     }
-    router.push(`/in/chat/${chatId}`);
+    if (x) {
+      x.setChats((prevChats) => {
+        const newchat: chatType = {
+          _id: result?.chatId || "",
+          isFavorite: false,
+          messages: result?.newMessage ? [result.newMessage] : [],
+          title: result?.message || "",
+          user: user?._id || "",
+          createdAt: new Date(),
+        };
+        const newChatLIst = [newchat, ...prevChats];
+        return newChatLIst;
+      });
+      router.push(`/in/chat/${chatId}`);
+    }
   };
 
-  const { loading: sending, error, addMessage } = useAddMessage();
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-white z-50">
+        <svg
+          className="animate-spin h-16 w-16 text-blue-500 mb-6 drop-shadow-lg"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8z"
+          ></path>
+        </svg>
+        <div className="text-2xl font-bold text-blue-700 animate-pulse mb-2">
+          جاري التحميل...
+        </div>
+        <div className="text-md text-blue-400 animate-fade-in">
+          يرجى الانتظار قليلاً
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="container mx-auto text-center py-10">
@@ -150,7 +205,7 @@ export default function Page() {
           className="absolute top-5 right-1/2 translate-x-1/2 w-80 md:w-max min-w-fit z-20"
         >
           <div
-            className={`max-w-max w-full px-7 py-2 border-2 border-destructive rounded-full text-destructive flex gap-4 items-center bg-white/80 shadow-lg backdrop-blur-md`}
+            className={`max-w-max w-full text-right px-7 py-2 border-2 border-destructive rounded-full text-destructive flex gap-4 items-center bg-white/80 shadow-lg backdrop-blur-md`}
           >
             هذا المنتج قد التجربة لا تثق في النتائج
             <Info className="stroke-destructive size-10 md:size-5 " />

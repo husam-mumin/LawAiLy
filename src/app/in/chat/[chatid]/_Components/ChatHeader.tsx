@@ -51,6 +51,7 @@ function ChatTitle({
   handleFavirate,
   isFavorite,
 }: ChatTitleProps) {
+  const [oldTitle, setOldTitle] = useState(title);
   const [newTitle, setNewTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -64,7 +65,7 @@ function ChatTitle({
       setTimeout(() => {
         if (inputRef.current) inputRef.current.focus();
         if (inputRef.current) inputRef.current.select();
-      }, 100);
+      }, 254);
     }
   }, [editTitle, inputRef]);
 
@@ -73,10 +74,13 @@ function ChatTitle({
       if (!editTitle) return; // If not in edit mode, do nothing
       if (!inputRef.current) return; // If inputRef is not set, do nothing
 
-      if (newTitle && newTitle.trim() !== title) {
+      if (newTitle && newTitle.trim() !== oldTitle?.trim()) {
         renameChat(newTitle);
+
         setEditTitle(false);
+        setOldTitle(newTitle);
       }
+      setEditTitle(false);
     }, 150);
   };
 
@@ -91,8 +95,8 @@ function ChatTitle({
         onChange={(e) => setNewTitle(e.target.value)}
         onBlur={() => {
           setTimeout(() => {
-            if (!inputRef.current?.onfocus) handleTitleChange();
-          }, 120);
+            handleTitleChange();
+          }, 220);
         }}
         dir="rtl"
         className={`text-2xl font-bold text-gray-800 border-none 
@@ -102,7 +106,9 @@ function ChatTitle({
       {/* Favorite Star Icon */}
       <Button
         type="button"
-        onClick={() => handleFavirate(isFavorite)}
+        onClick={() => {
+          handleFavirate(isFavorite);
+        }}
         variant={"ghost"}
         title={isFavorite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
         className=" focus:outline-none"

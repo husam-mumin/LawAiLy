@@ -64,7 +64,6 @@ export default function NewChatPop() {
       // Reset styles before animating
       gsap.set(bubbleRef.current, {
         clearProps: "all",
-        scale: 0.2,
         borderRadius: "50%",
         opacity: 0,
         width: 40,
@@ -73,7 +72,6 @@ export default function NewChatPop() {
         transformOrigin: "left bottom",
       });
       gsap.to(bubbleRef.current, {
-        scale: 1,
         borderRadius: "24px 24px 24px 4px",
         opacity: 1,
         width: "max-content",
@@ -153,7 +151,7 @@ export default function NewChatPop() {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <div className="flex items-end">
+      <div className="flex items-end z-50">
         <div className="ml-2">
           <Avatar
             className="shadow-lg border-2 border-blue-400 bg-white"
@@ -166,13 +164,12 @@ export default function NewChatPop() {
           <div
             ref={bubbleRef}
             dir="rtl"
-            className="bg-blue-100 text-blue-900 max-w-[300px] md:max-w-max px-4 py-2 rounded-2xl rounded-bl-none shadow-md mb-2 ml-2 absolute left-6 bottom-13 w-max "
+            className="bg-blue-100 text-blue-900 max-w-[300px] md:max-w-max px-4 py-2 rounded-2xl rounded-bl-none shadow-md mb-2 ml-2 absolute left-6 bottom-13 w-max h-auto"
             style={{
               borderTopLeftRadius: 24,
               borderTopRightRadius: 24,
               borderBottomRightRadius: 24,
               borderBottomLeftRadius: 4,
-              whiteSpace: "pre-line",
               wordBreak: "break-word",
             }}
           >

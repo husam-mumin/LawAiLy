@@ -15,6 +15,7 @@ export default async function middleware(req: NextRequest) {
   const token = await req.cookies.get("refreshToken")?.value;
   const url = req.nextUrl.clone();
   const pathname = req.nextUrl.pathname;
+  const isShare = req.nextUrl.searchParams.get("shared") === "true";
 
   // console.log("Middleware token:", token?.slice(0, 5));
 
@@ -22,6 +23,11 @@ export default async function middleware(req: NextRequest) {
   if (pathname.startsWith("/api/auth")) {
     // console.log("Middleware: Skipping for auth login/register");
 
+    return NextResponse.next();
+  }
+
+  if (token && isShare) {
+    // Allow access to shared chat without authentication
     return NextResponse.next();
   }
 

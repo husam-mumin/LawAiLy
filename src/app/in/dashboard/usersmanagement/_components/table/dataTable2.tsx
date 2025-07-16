@@ -175,7 +175,7 @@ export const userColumns = (
               >
                 {row.original.role == "admin"
                   ? "إزالة صلاحية المدير"
-                  : "تعيين كمدير"}
+                  : "تعيين كمشرف"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

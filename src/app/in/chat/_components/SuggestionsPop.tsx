@@ -38,7 +38,6 @@ export default function SuggestionsPop({ messages }: { messages: string[] }) {
       // Reset styles before animating
       gsap.set(bubbleRef.current, {
         clearProps: "all",
-        scale: 0.2,
         borderRadius: "50%",
         opacity: 0,
         width: 40,
@@ -47,7 +46,6 @@ export default function SuggestionsPop({ messages }: { messages: string[] }) {
         transformOrigin: "left bottom",
       });
       gsap.to(bubbleRef.current, {
-        scale: 1,
         borderRadius: "24px 24px 24px 4px",
         opacity: 1,
         width: "max-content",

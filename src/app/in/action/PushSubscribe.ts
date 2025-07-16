@@ -44,15 +44,15 @@ async function submitSubscription(
 }
 
 export function checkPermissionStateAndAct(): void {
-  const state: NotificationPermission = Notification.permission;
-  switch (state) {
-    case "denied":
-      break;
-    case "granted":
+  Notification.requestPermission().then((permission) => {
+    if (permission === "granted") {
       registerAndSubscribe();
-      break;
-    case "default":
-      registerAndSubscribe();
-      break;
-  }
+    }
+    if (permission === "denied") {
+      console.warn("Push notifications are denied by the user.");
+    }
+    if (permission === "default") {
+      console.warn("Push notifications permission is default, requesting...");
+    }
+  });
 }

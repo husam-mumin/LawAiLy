@@ -45,6 +45,7 @@ export default function Page() {
     photoLoading,
     error,
   } = useMeAction(user);
+  const ref = useRef<HTMLInputElement>(null);
 
   useGsapProfileAnimation(cardRef as React.RefObject<HTMLDivElement>);
 
@@ -69,6 +70,10 @@ export default function Page() {
     if (editMode) {
       setTempFirstName(firstName || "");
       setTempLastName(lastName || "");
+
+      setTimeout(() => {
+        ref.current?.focus();
+      }, 50);
     }
   }, [editMode, firstName, lastName]);
 
@@ -156,6 +161,7 @@ export default function Page() {
                 <div className="flex justify-center items-center gap-2 w-full">
                   <Input
                     className="border rounded px-2 py-1 text-base w-24"
+                    ref={ref}
                     value={tempFirstName}
                     onChange={(e) => setTempFirstName(e.target.value)}
                     placeholder="الاسم الأول"
@@ -184,7 +190,9 @@ export default function Page() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => setEditMode(false)}
+                    onClick={() => {
+                      setEditMode(false);
+                    }}
                     disabled={NameUpdatedLoading}
                   >
                     إلغاء

@@ -36,7 +36,6 @@ export async function PATCH(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const id = searchParams.get("id");
-    console.log("User ID:", id);
 
     if (!id) {
       return NextResponse.json(
@@ -45,8 +44,6 @@ export async function PATCH(req: Request) {
       );
     }
     const body = await req.json();
-
-    console.log("Request body:", body);
 
     const { firstName, lastName, photoUrl } = body;
     if (!firstName && !lastName && !photoUrl) {

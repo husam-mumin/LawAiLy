@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import axios from "axios";
 import { chatType } from "@/models/Chat";
 import { chatPutResponse } from "@/app/api/chat/[chatid]/route";
+import { toast } from "sonner";
 
 /**
  * Hook for chat header actions: rename, delete, share, copy link, favorite.
@@ -39,7 +40,63 @@ export function useHeaderAction(chat: chatType | null, onSuccess?: () => void) {
   // Share chat (returns shareable URL)
   const shareChat = useCallback(() => {
     if (!chat || !chat._id) return "";
-    return `${window.location.origin}/in/chat/${chat._id}`;
+    const baseUrl = window.location.origin;
+    const url = `${baseUrl}/in/chat/${chat._id}?isShare=true`;
+    // Try Web Share API for mobile
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "محادثة مشتركة",
+          text: chat.title || "محادثة من Lawaily",
+          url,
+        })
+        .then(() => {
+          toast("تمت مشاركة رابط المحادثة!", {
+            icon: "🔗",
+            duration: 2000,
+            style: {
+              background: "#e0f2fe",
+              color: "#1e3a8a",
+              left: "10%",
+              width: "90dvw",
+              maxWidth: 400,
+              fontWeight: "bold",
+              fontSize: "1.1rem",
+            },
+          });
+        })
+        .catch(() => {
+          navigator.clipboard.writeText(url);
+          toast("تم نسخ رابط المحادثة!", {
+            description: "يمكنك الآن مشاركة هذه المحادثة مع أي شخص.",
+            icon: "🔗",
+            duration: 2500,
+            style: {
+              background: "#e0f2fe",
+              color: "#1e3a8a",
+              left: "10%",
+              width: "90dvw",
+              maxWidth: 400,
+              fontWeight: "bold",
+              fontSize: "1.1rem",
+            },
+          });
+        });
+    } else {
+      navigator.clipboard.writeText(url);
+      toast("تم نسخ رابط المحادثة!", {
+        description: "يمكنك الآن مشاركة هذه المحادثة مع أي شخص.",
+        icon: "🔗",
+        duration: 2500,
+        style: {
+          background: "#e0f2fe",
+          color: "#1e3a8a",
+          fontWeight: "bold",
+          fontSize: "1.1rem",
+        },
+      });
+    }
+    return url;
   }, [chat]);
 
   // Copy chat link to clipboard
