@@ -26,58 +26,21 @@ export default function DocumentCard({
     if (cardRef.current) {
       gsap.fromTo(
         cardRef.current,
-        { opacity: 0, y: 60, scale: 0.92, filter: "blur(6px)" },
+        { opacity: 0, y: 40 },
         {
           opacity: 1,
           y: 0,
-          scale: 1,
-          filter: "blur(0px)",
-          duration: 1.1,
-          ease: "power4.out",
-          scrollTrigger: {
-            trigger: cardRef.current,
-            start: "top 85%",
-            toggleActions: "play none none none",
-            once: true,
-          },
+          duration: 0.7,
+          ease: "power2.out",
         }
       );
     }
   }, []);
 
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    const onEnter = () => {
-      gsap.to(el, {
-        scale: 1.08,
-        boxShadow: "0 12px 32px 0 rgba(0,0,0,0.18)",
-        borderColor: "#2563eb",
-        duration: 0.45,
-        ease: "power3.out",
-      });
-    };
-    const onLeave = () => {
-      gsap.to(el, {
-        scale: 1,
-        boxShadow: "0 4px 16px 0 rgba(0,0,0,0.10)",
-        borderColor: "rgba(255,255,255,0.3)",
-        duration: 0.45,
-        ease: "power3.inOut",
-      });
-    };
-    el.addEventListener("mouseenter", onEnter);
-    el.addEventListener("mouseleave", onLeave);
-    return () => {
-      el.removeEventListener("mouseenter", onEnter);
-      el.removeEventListener("mouseleave", onLeave);
-    };
-  }, []);
-
   return (
     <Card
       ref={cardRef}
-      className="cursor-pointer w-full h-full  backdrop-blur-lg   flex flex-col p-0 relative group transition-all duration-300 hover:border-blue-600"
+      className="cursor-pointer w-full h-full backdrop-blur-lg flex flex-col p-0 relative group transition-all duration-300 hover:border-blue-600 shadow-md hover:shadow-xl"
       tabIndex={0}
       aria-label={title}
       style={{

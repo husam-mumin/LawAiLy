@@ -9,8 +9,6 @@ import FirstLogin from "./_components/FirstLogin";
 import { UserProfileFormValues } from "./userProfileSchema";
 import axios from "axios";
 import { userPatch } from "../api/in/user/route";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { XOctagonIcon } from "lucide-react";
 import { notificationUnsupported } from "@/lib/Push";
 import { checkPermissionStateAndAct } from "./action/PushSubscribe";
@@ -37,7 +35,7 @@ interface FetchedDocument {
   };
 }
 
-gsap.registerPlugin(ScrollTrigger);
+// Register ScrollTrigger only once
 
 export default function Home() {
   const [documents, setDocuments] = useState<FetchedDocument[]>([]);
@@ -125,33 +123,6 @@ export default function Home() {
   }, [user, con]);
 
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    if (sectionRefs.current.length > 0) {
-      sectionRefs.current.forEach((section) => {
-        if (section) {
-          gsap.fromTo(
-            section,
-            { opacity: 0, y: 50 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 1,
-
-              scrollTrigger: {
-                trigger: section,
-                start: "top 80%",
-                toggleActions: "play none none none",
-              },
-            }
-          );
-        }
-      });
-    }
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
-  }, [filteredDocuments]);
 
   useEffect(() => {
     if (!user) return;

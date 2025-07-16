@@ -43,7 +43,7 @@ export function LogoSection({ isAdmin = false }: LogoSectionProps) {
           <SidebarMenuButton asChild>
             <div className="w-full h-full flex items-center justify-center ">
               <Image
-                src={"/mainLogo.png"}
+                src={"/MainLogo.png"}
                 width={120}
                 height={51}
                 alt="logo"

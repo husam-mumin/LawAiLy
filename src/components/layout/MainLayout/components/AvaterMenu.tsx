@@ -32,7 +32,7 @@ export default function AvaterMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer">
-        <Avatar className="w-9 h-9">
+        <Avatar className="w-9 h-9 object-cover">
           <AvatarFallback className="bg-blue-600 text-white">
             <span className="text-xs">A</span>
           </AvatarFallback>
