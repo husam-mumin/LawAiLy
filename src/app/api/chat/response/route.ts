@@ -216,9 +216,6 @@ const responseGenreter = async (
       });
     }
   }
-  messages.forEach((msg) => {
-    console.log("message text: ", msg.message);
-  });
 
   messages.forEach((msg) => {
     if (!msg.message) return;

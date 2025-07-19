@@ -90,7 +90,7 @@ export default function Page() {
             <motion.button
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.96 }}
-              className="px-8 py-3 rounded-full bg-blue-700 text-white font-semibold text-lg shadow-lg hover:bg-blue-800 transition-all duration-200"
+              className="px-8 cursor-pointer py-3 rounded-full bg-blue-700 text-white font-semibold text-lg shadow-lg hover:bg-blue-800 transition-all duration-200"
             >
               ابدأ الآن
             </motion.button>
@@ -99,7 +99,7 @@ export default function Page() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
-              className="px-8 py-3 rounded-full border-2 border-blue-700 text-blue-700 font-semibold text-lg bg-white shadow-lg hover:bg-blue-50 transition-all duration-200"
+              className="px-8 py-3 cursor-pointer rounded-full border-2 border-blue-700 text-blue-700 font-semibold text-lg bg-white shadow-lg hover:bg-blue-50 transition-all duration-200"
             >
               اعرف المزيد
             </motion.button>
