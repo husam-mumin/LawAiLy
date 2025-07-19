@@ -12,8 +12,10 @@ import User from "@/models/Users";
 import Message from "@/models/Messages";
 import Response from "@/models/Responses";
 import PrintButton from "./PrintButton";
+import dbConnect from "@/lib/db";
 
 export default async function ReportsDashboard() {
+  await dbConnect();
   // Fetch all data asynchronously
   // Use .lean() to get plain objects for users
   const usersRaw = await User.find({}).sort("-createdAt").limit(5).lean();
