@@ -186,7 +186,8 @@ const checkIsinheritance = (message: string) => {
 };
 
 const responseGenreter = async (
-  messages: { message: string; response: responseType; files: filesType[] }[]
+  messages: { message: string; response: responseType; files: filesType[] }[],
+  message?: string
 ) => {
   // Simulated AI response for Libyan Law
   type ChatCompletionMessage = {
@@ -216,6 +217,10 @@ const responseGenreter = async (
     }
   }
   messages.forEach((msg) => {
+    console.log("message text: ", msg.message);
+  });
+
+  messages.forEach((msg) => {
     if (!msg.message) return;
     let content = msg.message;
     let filesContent = "";
@@ -237,7 +242,12 @@ const responseGenreter = async (
       });
     }
   });
-
+  if (message && message != messages[messages.length - 1].message) {
+    messagesToAi.push({
+      role: "user",
+      content: message,
+    });
+  }
   const completion = await openai.chat.completions.create({
     model: "deepseek-chat",
     messages: messagesToAi,
@@ -261,7 +271,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Simulate AI response delay (2 seconds)
-    const aiResponse = await responseGenreter(messages);
+    const aiResponse = await responseGenreter(messages, message);
     // Save response to DB
     const responseDoc = new Response({
       response: aiResponse,

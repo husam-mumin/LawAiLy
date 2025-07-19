@@ -270,7 +270,9 @@ export default function Home() {
                 ? "لا يوجد مستندات بهذا الاسم"
                 : "لا توجد مستندات متاحة حالياً"}
             </div>
-            <div className="text-md"> جرب البحث باسم آخر.</div>
+            {searchQuery != "" ? (
+              <div className="text-md"> جرب البحث باسم آخر.</div>
+            ) : null}
           </div>
         )}
         {/* Loading Spinner */}

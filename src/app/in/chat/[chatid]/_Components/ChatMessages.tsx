@@ -3,6 +3,7 @@ import {
   AIResponseType,
   messageResponse,
 } from "@/app/api/chat/[chatid]/messages/route";
+import remarkGfm from "remark-gfm";
 import React, { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { RobotAvatar } from "@/app/in/_components/newChatPop";
@@ -348,7 +349,9 @@ export default function ChatMessages({
                           رد مستشاري:{" "}
                         </div>
                         <div className="prose font-cairo text-[18px] text-gray-800  max-w-full whitespace-pre-line break-words text-base">
-                          <ReactMarkdown>{msg.response.response}</ReactMarkdown>
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {msg.response.response}
+                          </ReactMarkdown>
                         </div>
                         <div className="text-xs mt-2">
                           التقييم:
