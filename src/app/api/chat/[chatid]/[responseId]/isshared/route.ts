@@ -42,7 +42,6 @@ export async function POST(
       );
     }
 
-    console.log("Received request to share response:", { responseId, userId });
     // Create a new share record
     const share = new ShareResponse({
       user: userId,
