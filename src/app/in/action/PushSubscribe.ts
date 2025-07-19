@@ -44,15 +44,35 @@ async function submitSubscription(
 }
 
 export function checkPermissionStateAndAct(): void {
-  Notification.requestPermission().then((permission) => {
-    if (permission === "granted") {
-      registerAndSubscribe();
-    }
-    if (permission === "denied") {
-      console.warn("Push notifications are denied by the user.");
-    }
-    if (permission === "default") {
-      console.warn("Push notifications permission is default, requesting...");
-    }
+  if (
+    typeof window === "undefined" ||
+    !("Notification" in window) ||
+    !("serviceWorker" in navigator)
+  ) {
+    console.warn(
+      "Notifications or Service Workers are not supported in this browser."
+    );
+    return;
+  }
+  const permission = Notification.permission;
+
+  if (permission === "granted") {
+    registerAndSubscribe();
+  } else if (permission === "denied") {
+    console.warn("Push notifications are denied by the user.");
+  } else if (permission === "default") {
+    console.warn("Push notifications permission is default, requesting...");
+  }
+}
+
+// Helper: Attach this to a button for Chrome compatibility
+export function attachPushSubscribeToButton(buttonId: string) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) {
+    console.warn(`Button with id '${buttonId}' not found.`);
+    return;
+  }
+  btn.addEventListener("click", () => {
+    checkPermissionStateAndAct();
   });
 }

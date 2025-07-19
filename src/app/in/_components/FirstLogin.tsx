@@ -137,6 +137,7 @@ export default function FirstLogin({ onSubmit }: FirstLoginProps) {
               transition={{ duration: 0.7, delay: 0.8 }}
             >
               <Button
+                id="subscribe-btn"
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white py-2 rounded-lg hover:from-blue-700 hover:to-blue-500 transition-colors font-bold text-lg shadow-md disabled:opacity-60"
                 disabled={

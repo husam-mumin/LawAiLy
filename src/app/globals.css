@@ -11,6 +11,9 @@ html[dir="rtl"] {
 html[dir="ltr"] {
   direction: ltr;
 }
+.font-cairo {
+  font-family: var(--font-cairo), sans-serif;
+}
 
 @theme inline {
   --color-background: var(--background);

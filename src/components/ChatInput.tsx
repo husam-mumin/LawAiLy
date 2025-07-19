@@ -177,11 +177,13 @@ export default function ChatInput({
                         </div>
                         <span
                           className="truncate block max-w-[5rem] text-xs text-gray-700 dark:text-gray-200 group-hover:text-red-700"
-                          title={fileObj.file.name}
+                          title={fileObj.file?.name || "ملف"}
                         >
-                          {fileObj.file.name.length > 16
-                            ? `${fileObj.file.name.slice(0, 16)}...`
-                            : fileObj.file.name}
+                          {fileObj.file?.name
+                            ? fileObj.file.name.length > 16
+                              ? `${fileObj.file.name.slice(0, 16)}...`
+                              : fileObj.file.name
+                            : "ملف"}
                         </span>
                         {fileObj.status === "loading" ? (
                           <Clock

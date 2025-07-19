@@ -40,8 +40,8 @@ export function useNotification() {
 
   const markAllAsRead = async () => {
     try {
-      await axios.patch(`/api/in/user/notification/readAll?userid=${userId}`);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      await axios.patch(`/api/in/user/notification/readAll?userid=${userId}`);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         // Handle specific axios error
@@ -55,12 +55,12 @@ export function useNotification() {
     try {
       const notif = notifications.find((n) => n._id === _id);
       if (!notif) return;
-      await axios.patch(`/api/in/user/notification?id=${_id}`, {
-        read: !notif.isRead,
-      });
       setNotifications((prev) =>
         prev.map((n) => (n._id === _id ? { ...n, isRead: !n.isRead } : n))
       );
+      await axios.patch(`/api/in/user/notification?id=${_id}`, {
+        read: !notif.isRead,
+      });
     } catch (err) {
       if (axios.isAxiosError(err)) {
         // Handle specific axios error
@@ -73,8 +73,8 @@ export function useNotification() {
 
   const handleDelete = async (_id: string) => {
     try {
-      await axios.delete(`/api/in/user/notification?id=${_id}`);
       setNotifications((prev) => prev.filter((n) => n._id !== _id));
+      await axios.delete(`/api/in/user/notification?id=${_id}`);
       return true;
     } catch (err) {
       if (axios.isAxiosError(err)) {

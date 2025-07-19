@@ -9,6 +9,7 @@ import {
 import { Circle, RefreshCcw } from "lucide-react";
 import { useNotificationContext } from "@/app/context/NotficationContext";
 import { useOpenNot } from "@/app/context/UserContext";
+import { Button } from "@/components/ui/button";
 
 const NotificationDialog = () => {
   const { setOpenNot, openNot } = useOpenNot();
@@ -54,15 +55,17 @@ const NotificationDialog = () => {
             الإشعارات
           </DialogTitle>
           <div className="flex items-center gap-2">
-            <button
-              className="text-xs text-blue-600 hover:underline px-2 py-1 rounded transition-colors disabled:text-gray-300"
+            <Button
+              variant="ghost"
+              className="text-xs cursor-pointer hover:bg-transparent hover:text-blue-600 text-blue-600 hover:underline px-2 py-1 rounded transition-colors disabled:text-gray-300"
               onClick={markAllAsRead}
               disabled={notifications.every((n) => n.isRead)}
             >
               تعليم الكل كمقروء
-            </button>
-            <button
-              className="text-xs text-blue-600 hover:underline px-2 py-1 rounded transition-colors disabled:text-gray-300 flex items-center gap-1"
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-xs cursor-pointer hover:bg-transparent hover:text-blue-600 text-blue-600 hover:underline px-2 py-1 rounded transition-colors disabled:text-gray-300 flex items-center gap-1"
               onClick={handleRefresh}
               disabled={refreshing}
               title="تحديث الإشعارات"
@@ -75,7 +78,7 @@ const NotificationDialog = () => {
                 <RefreshCcw className="w-4 h-4" />
               )}
               تحديث
-            </button>
+            </Button>
           </div>
         </div>
         <DialogDescription asChild>
@@ -120,8 +123,9 @@ const NotificationDialog = () => {
                         </span>
                         <span className="flex-1" />
                         {/* Delete button on the left (RTL) */}
-                        <button
-                          className="p-1 rounded hover:bg-red-50 transition-colors ms-auto"
+                        <Button
+                          variant={"ghost"}
+                          className="p-1 cursor-pointer rounded-full hover:bg-red-100 transition-colors ms-auto"
                           title="حذف الإشعار"
                           onClick={async (e) => {
                             e.stopPropagation();
@@ -150,7 +154,7 @@ const NotificationDialog = () => {
                               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"
                             />
                           </svg>
-                        </button>
+                        </Button>
                       </div>
                       <span className="text-sm text-gray-600">
                         {notif.new.content}

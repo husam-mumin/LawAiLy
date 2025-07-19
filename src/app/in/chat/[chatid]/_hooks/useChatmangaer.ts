@@ -28,6 +28,8 @@ export function useChatManager(chatid: string) {
       const res = await axios.get<{ chat: messageResponse[] }>(
         `/api/chat/${chatid}/messages`
       );
+      console.log("Fetched messages:", res.data.chat);
+
       setMessages(res.data.chat || []);
 
       // Post new Response because the message has not Response

@@ -104,6 +104,7 @@ export default function ChatMessages({
         if (msg.response && msg.response._id === response._id) {
           msg.response.isGood = null;
         }
+
         return msg;
       });
       setMessages([...messages]);
@@ -169,12 +170,15 @@ export default function ChatMessages({
                   <div className="flex items-center gap-2 mb-1">
                     <div className="flex items-center gap-1">
                       <Avatar className="text-blue-500 bg-blue-100 flex justify-center items-center text-xs w-6 h-6">
-                        <AvatarImage src={user?.AvatarURL} alt="user Image" />
+                        <AvatarImage
+                          src={msg.user.AvatarURL}
+                          alt="user Image"
+                        />
                         <AvatarFallback>
-                          {user?.firstName
-                            ? user.firstName[0] +
-                              (user.lastName ? user.lastName[0] : "")
-                            : user?.email.slice(0, 2)}
+                          {msg.user.firstName
+                            ? msg.user.firstName[0] +
+                              (msg.user.lastName ? msg.user.lastName[0] : "")
+                            : msg.user.email.slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       <span className="font-semibold text-blue-700">
@@ -315,13 +319,13 @@ export default function ChatMessages({
                     )}
                   </div>
                   {/* Message Content */}
-                  <div className="mb-2 text-gray-800 whitespace-pre-line break-words text-base">
+                  <div className="mb-2 text-gray-800 font-cairo whitespace-pre-line break-words text-base">
                     {msg.message}
                   </div>
 
                   {/* AI Response or Sending Error */}
                   {sendingError && (
-                    <div className="flex flex-col mt-3 p-3 bg-red-50 rounded-lg border border-red-200 gap-3 items-center">
+                    <div className="flex flex-col mt-3 p-3 font-cairo bg-red-50 rounded-lg border border-red-200 gap-3 items-center">
                       <span className="text-red-600 font-bold">
                         حدث خطأ أثناء إرسال الرسالة: {sendingError}
                       </span>
@@ -340,10 +344,10 @@ export default function ChatMessages({
                         <RobotAvatar size={34} />
                       </Avatar>
                       <div className="flex-1">
-                        <div className="font-medium text-blue-700 mb-1">
+                        <div className="font-medium font-cairo text-blue-700 mb-1">
                           رد مستشاري:{" "}
                         </div>
-                        <div className="prose text-gray-800  max-w-full whitespace-pre-line break-words text-base">
+                        <div className="prose font-cairo text-[18px] text-gray-800  max-w-full whitespace-pre-line break-words text-base">
                           <ReactMarkdown>{msg.response.response}</ReactMarkdown>
                         </div>
                         <div className="text-xs mt-2">
@@ -526,7 +530,7 @@ export default function ChatMessages({
                         <Avatar className="shadow-lg border-2 size-[34px] border-blue-400 bg-white">
                           <RobotAvatar size={34} />
                         </Avatar>
-                        <span>جاري توليد الرد...</span>
+                        <span>جاري تقديم الاستشارة...</span>
                       </div>
                     )}
                 </motion.div>

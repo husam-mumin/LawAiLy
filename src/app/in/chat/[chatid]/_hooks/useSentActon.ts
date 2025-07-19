@@ -61,6 +61,15 @@ export function useSentAction(
         ...prev,
         {
           ...res.data,
+          user: {
+            _id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            AvatarURL: user.AvatarURL,
+            email: user.email,
+            role: user.role,
+            gender: user.gender,
+          },
           files: filesTypeList as unknown as typeof res.data.files,
         },
       ]);

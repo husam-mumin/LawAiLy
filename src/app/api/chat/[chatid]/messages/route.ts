@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Message, { messageType } from "@/models/Messages";
 import dbConnect from "@/lib/db";
 import Response from "@/models/Responses";
+import { userType } from "@/models/Users";
 
 // GET /api/chat/[chatid]
 // Returns: {
@@ -48,7 +49,7 @@ export type filesType = {
 export type messageResponse = {
   _id: string;
   message: string;
-  users: string;
+  user: userType;
   chat: string;
   response: AIResponseType;
   files: filesType[];
@@ -78,6 +79,10 @@ export async function GET(
       .populate({
         path: "files",
         model: "File",
+      })
+      .populate({
+        path: "user",
+        model: "User",
       });
     if (!chat) {
       return NextResponse.json({ error: "Chat not found." }, { status: 404 });

@@ -11,7 +11,7 @@ import axios from "axios";
 import { userPatch } from "../api/in/user/route";
 import { XOctagonIcon } from "lucide-react";
 import { notificationUnsupported } from "@/lib/Push";
-import { checkPermissionStateAndAct } from "./action/PushSubscribe";
+import { attachPushSubscribeToButton } from "./action/PushSubscribe";
 
 // Define the fetched document type
 interface FetchedDocument {
@@ -133,7 +133,7 @@ export default function Home() {
     if (isUnsupported) {
       return;
     }
-    checkPermissionStateAndAct();
+    attachPushSubscribeToButton("subscribe-btn");
   }, [user]);
 
   if (loading) {

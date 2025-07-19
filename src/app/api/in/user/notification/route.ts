@@ -10,9 +10,14 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userid");
     if (!userId) {
-      return NextResponse.json({ error: "معرف المستخدم مطلوب" }, { status: 400 });
+      return NextResponse.json(
+        { error: "معرف المستخدم مطلوب" },
+        { status: 400 }
+      );
     }
-    const notifications = await NewsUser.find({ user: userId }).sort({ createdAt: -1 }).populate("new");
+    const notifications = await NewsUser.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .populate("new");
     return NextResponse.json(notifications, { status: 200 });
   } catch (error) {
     let message = "خطأ في الخادم الداخلي.";
@@ -27,13 +32,24 @@ export async function PATCH(req: NextRequest) {
     await dbConnect();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
+
     if (!id) {
-      return NextResponse.json({ error: "معرف الإشعار مطلوب" }, { status: 400 });
+      return NextResponse.json(
+        { error: "معرف الإشعار مطلوب" },
+        { status: 400 }
+      );
     }
-    const notif = await NewsUser.findByIdAndUpdate(id, { read: true }, { new: true });
+
+    const notif = await NewsUser.findById(id);
+
     if (!notif) {
       return NextResponse.json({ error: "الإشعار غير موجود" }, { status: 404 });
     }
+
+    notif.isRead = !notif.isRead; // Toggle read status
+
+    await notif.save();
+
     return NextResponse.json(notif, { status: 200 });
   } catch (error) {
     let message = "خطأ في الخادم الداخلي.";
@@ -49,7 +65,10 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     if (!id) {
-      return NextResponse.json({ error: "معرف الإشعار مطلوب" }, { status: 400 });
+      return NextResponse.json(
+        { error: "معرف الإشعار مطلوب" },
+        { status: 400 }
+      );
     }
     const notif = await News.findByIdAndDelete(id);
     if (!notif) {
