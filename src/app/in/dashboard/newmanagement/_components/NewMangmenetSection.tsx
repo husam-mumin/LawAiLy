@@ -89,7 +89,6 @@ const NewMangmenetSection: React.FC = () => {
 
   useEffect(() => {
     requestNotificationPermission();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddNews = () => {

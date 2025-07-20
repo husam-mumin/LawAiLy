@@ -348,15 +348,19 @@ export default function ChatMessages({
                         <div className="font-medium font-cairo text-blue-700 mb-1">
                           رد مستشاري:{" "}
                         </div>
-                        <div className="prose font-cairo text-[18px] text-gray-800  max-w-full whitespace-pre-line break-words text-base">
+                        <div className="prose font-cairo text-[16px] text-gray-800  max-w-full whitespace-pre-line break-words text-base">
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{
                               table: (props) => (
                                 <div
-                                  style={{ overflowX: "auto", width: "100%" }}
+                                  style={{
+                                    overflowX: "auto",
+                                    width: "w-[100%]",
+                                  }}
+                                  className="markdown-table"
                                 >
-                                  <table {...props} />
+                                  <table {...props} className="min-w-full " />
                                 </div>
                               ),
                             }}

@@ -1,3 +1,5 @@
+import { notificationUnsupported } from "@/lib/Push";
+
 const SERVICE_WORKER_FILE_PATH = "./sw.js";
 
 export async function registerAndSubscribe(): Promise<void> {
@@ -55,24 +57,41 @@ export function checkPermissionStateAndAct(): void {
     return;
   }
   const permission = Notification.permission;
+  if (permission === "granted") {
+    console.info("Push notifications are already granted.");
+    registerAndSubscribe();
+  } else if (permission === "denied") {
+    console.warn("Push notifications are denied by the user.");
+  } else if (permission === "default") {
+    Notification.requestPermission().then((newPermission) => {
+      if (newPermission === "granted") {
+        registerAndSubscribe();
+      } else {
+        console.warn("Push notifications permission was not granted.");
+      }
+    });
+  }
+}
 
+// Helper: Attach this to a button for Chrome compatibility
+export function attachPushSubscribeToButton() {
+  const isUnsupported = notificationUnsupported();
+
+  if (isUnsupported) {
+    return;
+  }
+  const permission = Notification.permission;
   if (permission === "granted") {
     registerAndSubscribe();
   } else if (permission === "denied") {
     console.warn("Push notifications are denied by the user.");
   } else if (permission === "default") {
-    console.warn("Push notifications permission is default, requesting...");
+    Notification.requestPermission().then((newPermission) => {
+      if (newPermission === "granted") {
+        registerAndSubscribe();
+      } else {
+        console.warn("Push notifications permission was not granted.");
+      }
+    });
   }
-}
-
-// Helper: Attach this to a button for Chrome compatibility
-export function attachPushSubscribeToButton(buttonId: string) {
-  const btn = document.getElementById(buttonId);
-  if (!btn) {
-    console.warn(`Button with id '${buttonId}' not found.`);
-    return;
-  }
-  btn.addEventListener("click", () => {
-    checkPermissionStateAndAct();
-  });
 }

@@ -10,7 +10,6 @@ import { UserProfileFormValues } from "./userProfileSchema";
 import axios from "axios";
 import { userPatch } from "../api/in/user/route";
 import { XOctagonIcon } from "lucide-react";
-import { notificationUnsupported } from "@/lib/Push";
 import { attachPushSubscribeToButton } from "./action/PushSubscribe";
 
 // Define the fetched document type
@@ -124,18 +123,6 @@ export default function Home() {
 
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  useEffect(() => {
-    if (!user) return;
-    const isUnsupported = notificationUnsupported();
-
-    localStorage.setItem("userid", user ? user._id : "");
-
-    if (isUnsupported) {
-      return;
-    }
-    attachPushSubscribeToButton("subscribe-btn");
-  }, [user]);
-
   if (loading) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-white z-50">
@@ -190,6 +177,9 @@ export default function Home() {
     <div
       dir="rtl"
       className="h-[calc(100dvh-4rm)] relative bg-gradient-to-br from-blue-50 to-white"
+      onClick={() => {
+        attachPushSubscribeToButton();
+      }}
     >
       {/* Header */}
       <div className="w-full h-8" />
@@ -236,19 +226,19 @@ export default function Home() {
               }}
             >
               {/* --- Enhanced Category Header --- */}
-              <div className="flex items-center gap-4 mb-8  rounded-lg px-4 py-3  ">
+              <div className="flex subscribe-btn items-center gap-4 mb-8  rounded-lg px-4 py-3  ">
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-blue-900 drop-shadow-sm tracking-tight whitespace-nowrap">
                   {catName}
                 </h2>
                 <div className="flex-1 border-t border-blue-200" />
               </div>
               {/* --- Enhanced Document Cards Grid --- */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 justify-center items-center content-center self-center place-self-center gap-10 flex-wrap">
+              <div className="grid  grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 justify-center items-center content-center self-center place-self-center gap-10 flex-wrap">
                 {docs.map((doc) => (
                   <Link
                     key={doc._id}
                     href={`/in/doc/${doc._id}`}
-                    className="w-[16rem] block group transition-transform hover:-translate-y-2 hover:scale-[1.03] hover:shadow-2xl rounded-2xl bg-white/90 border border-blue-100 overflow-hidden shadow-md duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-[16rem] subscribe-btn block group transition-transform hover:-translate-y-2 hover:scale-[1.03] hover:shadow-2xl rounded-2xl bg-white/90 border border-blue-100 overflow-hidden shadow-md duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
                     <DocumentCard
                       title={doc.title}

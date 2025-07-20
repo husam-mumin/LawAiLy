@@ -239,10 +239,15 @@ html[dir="ltr"] {
 }
 
 .markdown table {
-  @apply w-full border-collapse my-4 text-sm;
+  @apply border-collapse my-4 text-sm;
   background: var(--color-card);
   color: var(--color-foreground);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .markdown th, .markdown td {
@@ -256,9 +261,24 @@ html[dir="ltr"] {
 }
 
 .prose {
-  @apply w-[14rem] overflow-x-auto;
+  @apply w-full max-w-full;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
-.prose table {
-  @apply   w-max;
+
+.markdown-table {
+  @apply min-w-full overflow-x-auto w-[6rem];
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.markdown-table table {
+  @apply min-w-full;
+  width: max-content
 }
