@@ -20,8 +20,8 @@ export default function GuestLogin() {
       setUser({
         _id: data.guestId,
         role: "guest",
-        firstName: "Guest",
-        lastName: "User",
+        firstName: "مستخدم",
+        lastName: "تجريبي",
         email: data.guestId + "@email.com", // Assuming guest ID is used as email
         gender: "other",
         AvatarURL: "",
