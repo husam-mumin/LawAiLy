@@ -6,6 +6,7 @@ import { useOpenNot } from "@/app/context/UserContext";
 
 export default function Notification() {
   const { setOpenNot } = useOpenNot();
+
   const { notifications } = useNotificationContext();
   return (
     <Button

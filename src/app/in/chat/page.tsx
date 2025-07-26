@@ -7,8 +7,8 @@ import SuggestionsPop from "./_components/SuggestionsPop";
 import useAddMessage from "./_hook/useAddMessage";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/context/UserContext";
-import { layoutContext } from "@/components/layout/MainLayout/MainLayout";
 import { chatType } from "@/models/Chat";
+import { layoutContext } from "@/components/layout/MainLayout/components/UserLayout";
 export default function Page() {
   const { user } = useUser();
   const [currentSuggestion, setCurrentSuggesion] = useState("");
@@ -145,7 +145,7 @@ export default function Page() {
           _id: result?.chatId || "",
           isFavorite: false,
           messages: result?.newMessage ? [result.newMessage] : [],
-          title: result?.message || "",
+          title: result?.chat.title || "",
           user: user?._id || "",
           createdAt: new Date(),
         };

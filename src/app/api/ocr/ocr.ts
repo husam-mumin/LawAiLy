@@ -9,7 +9,7 @@ import vision from "@google-cloud/vision";
  */
 export async function extractTextFromGCS(
   gcsUrl: string,
-  filesType: "image" | "pdf",
+  filesType: "image" | "application/pdf",
   outputUri?: string
 ): Promise<string> {
   // Initialize Vision client (make sure service-account.json is correct)
@@ -21,16 +21,23 @@ export async function extractTextFromGCS(
 
   try {
     let result;
-    if (filesType === "pdf") {
+    if (filesType === "application/pdf") {
+      if (!gcsUrl) {
+        throw new Error("gcsUrl is required for PDF OCR");
+      }
       if (!outputUri) {
         throw new Error("outputUri is required for PDF OCR");
       }
+      const fileName = gcsUrl.split("/").pop(); // "1753077051595-337baf84-5297-43a2-bf71-f7a1a250327e.pdf"
+
       const request = {
         requests: [
           {
             inputConfig: {
               mimeType: "application/pdf",
-              gcsSource: { uri: gcsUrl },
+              gcsSource: {
+                uri: "gs://" + process.env.GCS_BUCKET_NAME + "/" + fileName,
+              },
             },
             features: [{ type: "DOCUMENT_TEXT_DETECTION" }],
             outputConfig: {
@@ -59,6 +66,7 @@ export async function extractTextFromGCS(
       for (const file of files) {
         const [contents] = await file.download();
         const response = JSON.parse(contents.toString());
+
         const annotationResponses = response.responses || [];
         for (const res of annotationResponses) {
           if (res.fullTextAnnotation && res.fullTextAnnotation.text) {

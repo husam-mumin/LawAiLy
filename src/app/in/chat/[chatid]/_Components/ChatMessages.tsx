@@ -11,7 +11,7 @@ import ReactMarkdown from "react-markdown";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUser } from "@/app/context/UserContext";
 import { AvatarFallback } from "@radix-ui/react-avatar";
-import { CopyCheck, CopyIcon, RefreshCcw } from "lucide-react";
+import { CopyCheck, CopyIcon, RefreshCcw, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
@@ -170,17 +170,31 @@ export default function ChatMessages({
                   {/* User Info */}
                   <div className="flex items-center gap-2 mb-1">
                     <div className="flex items-center gap-1">
-                      <Avatar className="text-blue-500 bg-blue-100 flex justify-center items-center text-xs w-6 h-6">
-                        <AvatarImage
-                          src={msg.user.AvatarURL}
-                          alt="user Image"
-                        />
-                        <AvatarFallback>
-                          {msg.user.firstName
-                            ? msg.user.firstName[0] +
-                              (msg.user.lastName ? msg.user.lastName[0] : "")
-                            : msg.user.email.slice(0, 2)}
-                        </AvatarFallback>
+                      <Avatar className="text-blue-500  bg-gray-300 border-2 border-gray-400 flex justify-center items-center text-xs w-6 h-6">
+                        {msg.user ? (
+                          <>
+                            <AvatarImage
+                              src={msg.user.AvatarURL}
+                              alt="user Image"
+                            />
+                            <AvatarFallback>
+                              {msg.user
+                                ? msg.user.firstName
+                                  ? msg.user.firstName[0] +
+                                    (msg.user.lastName
+                                      ? msg.user.lastName[0]
+                                      : "")
+                                  : msg.user.email.slice(0, 2)
+                                : "ضيف"}
+                            </AvatarFallback>
+                          </>
+                        ) : (
+                          <>
+                            <AvatarFallback className="bg-gray-300  text-black">
+                              <User size={20} />
+                            </AvatarFallback>
+                          </>
+                        )}
                       </Avatar>
                       <span className="font-semibold text-blue-700">
                         {user?.firstName

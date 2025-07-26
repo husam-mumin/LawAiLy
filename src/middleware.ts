@@ -31,11 +31,19 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  const guestId = req.cookies.get("guest_id")?.value;
+  if (guestId) {
+    // Allow guest users to access /in and subroutes
+    if (pathname.startsWith("/in")) {
+      return NextResponse.next();
+    }
+  }
+
   if (publicRoutes.some((route) => pathname == route)) {
     // Allow access to public routes
     return NextResponse.next();
   }
-  if (!token) {
+  if (!token && !guestId) {
     if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
       // If already on the login page, allow access
       return NextResponse.next();
@@ -48,6 +56,11 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
   try {
+    if (!token) {
+      // If no token, redirect to login
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
     const { payload } = await jwtVerify<UserPayload>(token, secret);
     if (payload.isBaned) {
       url.pathname = "/banUser";

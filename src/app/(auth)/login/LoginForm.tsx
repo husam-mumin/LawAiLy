@@ -149,7 +149,7 @@ export default function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>البريد الإلكتروني</FormLabel>
-              <FormControl>
+              <FormControl dir="rtl">
                 <Input {...field} placeholder="البريد الإلكتروني" />
               </FormControl>
               <FormMessage />

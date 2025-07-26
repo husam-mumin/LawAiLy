@@ -171,7 +171,7 @@ const NotificationDialog = () => {
                   ))}
                 </ul>
                 {totalPages > 1 && (
-                  <div className="flex  justify-center items-center gap-2 mt-11">
+                  <div className="flex  justify-center items-center gap-2 mt-20">
                     <button
                       className="px-2 py-1 rounded bg-gray-100 text-gray-600 disabled:opacity-50"
                       onClick={() => setPage((p) => Math.max(1, p - 1))}

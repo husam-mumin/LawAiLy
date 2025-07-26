@@ -1,7 +1,6 @@
 "use client";
 import DocumentCard from "./_components/DocumentCard";
 import { useContext, useEffect, useRef, useState } from "react";
-import { layoutContext } from "@/components/layout/MainLayout/MainLayout";
 import Link from "next/link";
 import { useUser } from "../context/UserContext";
 import { OpenSidebarContext } from "@/components/layout/MainLayout/OpenSidebarContext";
@@ -11,6 +10,8 @@ import axios from "axios";
 import { userPatch } from "../api/in/user/route";
 import { XOctagonIcon } from "lucide-react";
 import { attachPushSubscribeToButton } from "./action/PushSubscribe";
+import { layoutContext } from "@/components/layout/MainLayout/components/UserLayout";
+import { Button } from "@/components/ui/button";
 
 // Define the fetched document type
 interface FetchedDocument {
@@ -41,8 +42,9 @@ export default function Home() {
   const [filteredDocuments, setFilteredDocuments] = useState<FetchedDocument[]>(
     []
   );
-  const { user, setUser } = useUser();
+  const { user, setUser, fetchUser } = useUser();
   const [loading, setLoading] = useState(true);
+  const [firstLoginMode, setFirstLoginMode] = useState(false);
   // Fetch documents from the API
   const searchContext = useContext(layoutContext);
   const { searchQuery, setSearchQuery } = searchContext || {};
@@ -50,9 +52,7 @@ export default function Home() {
   // New: fetchDocuments function using axios
   const fetchDocuments = async () => {
     try {
-      const res = await axios.get("/api/in/documents", {
-        withCredentials: true,
-      });
+      const res = await axios.get("/api/in/documents");
       setDocuments(res.data);
     } catch (error) {
       console.error("Error fetching documents:", error);
@@ -67,6 +67,18 @@ export default function Home() {
     setSearchQuery("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const guestId = localStorage.getItem("guest_id");
+    if (!user && !guestId) {
+      fetchUser();
+    }
+    if (!user?.firstName) {
+      setFirstLoginMode(true);
+    } else {
+      setFirstLoginMode(false);
+    }
+  }, [user, fetchUser]);
 
   useEffect(() => {
     if (!searchQuery) {
@@ -85,6 +97,7 @@ export default function Home() {
     setFilteredDocuments(filtered);
   }, [searchQuery, documents]);
   // Group documents by category
+
   const grouped = filteredDocuments.reduce(
     (acc: Record<string, FetchedDocument[]>, doc) => {
       const cat = doc.category?.name || "بدون تصنيف";
@@ -110,16 +123,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (user) {
-      if (!user?.firstName) {
-        if (con?.isSidebarOpen) {
-          con?.setIsSidebarOpen(false);
-        }
-      } else {
-        con?.setIsSidebarOpen(true);
+    if (firstLoginMode) {
+      if (con?.isSidebarOpen) {
+        con?.setIsSidebarOpen(false);
       }
+    } else {
+      con?.setIsSidebarOpen(true);
     }
-  }, [user, con]);
+  }, [firstLoginMode, con]);
 
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -176,19 +187,26 @@ export default function Home() {
   return (
     <div
       dir="rtl"
-      className="h-[calc(100dvh-4rm)] relative bg-gradient-to-br from-blue-50 to-white"
+      className={`${
+        firstLoginMode ? "h-[calc(100dvh-4rem)] overflow-hidden" : ""
+      } relative bg-gradient-to-br from-blue-50 to-white`}
       onClick={() => {
+        const guest_id = localStorage.getItem("guest_id");
+        if (guest_id) return;
         attachPushSubscribeToButton();
       }}
     >
       {/* Header */}
-      <div className="w-full h-8" />
+      <div className={`w-full h-8 `} />
       <div className="max-w-5xl mx-auto px-4">
-        <div className="flex items-center justify-between py-6">
+        <div className="flex flex-col  items-start gap-8 justify-between py-6">
           <h1 className="text-4xl font-bold text-blue-900 drop-shadow-sm tracking-tight">
             مرحباً بك {user.firstName + " " + user.lastName}
           </h1>
           <div className="flex items-center gap-4">
+            <Link href={"/in/chat"}>
+              <Button className="bg-blue-900">بداء محدثة جديدة</Button>
+            </Link>
             {/* You can add user avatar or actions here if needed */}
           </div>
         </div>
@@ -208,13 +226,17 @@ export default function Home() {
         )}
       </div>
       {/* First Login Prompt */}
-      {!user?.firstName && (
+      {firstLoginMode && (
         <div className="max-w-lg mx-auto mt-8">
           <FirstLogin onSubmit={onSubmit} />
         </div>
       )}
       {/* Main Content */}
-      <div className="py-8 px-2 sm:px-4 min-h-screen max-w-5xl mx-auto">
+      <div
+        className={`py-8 px-2 sm:px-4 min-h-screen max-w-5xl mx-auto ${
+          firstLoginMode ? "h-[calc(100dvh-28rem)] overflow-hidden" : ""
+        }`}
+      >
         {Object.keys(grouped).length > 0 ? (
           Object.entries(grouped).map(([catName, docs], idx) => (
             <div

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useHeaderAction } from "../../_hook/useHeaderAction";
+import Link from "next/link";
 
 type ChatHeaderProps = {
   chat: chatType | null;
@@ -35,6 +36,7 @@ type ChatTitleProps = {
   editTitle: boolean;
   setEditTitle: (e: boolean) => void;
   chat: chatType;
+  isGuest?: boolean;
   renameChat: (e: string) => void;
   handleFavirate: (e: boolean) => void;
   isFavorite: boolean;
@@ -44,6 +46,7 @@ type ChatTitleProps = {
 function ChatTitle({
   title,
   loading = false,
+  isGuest,
   editTitle,
   setEditTitle,
   chat,
@@ -110,6 +113,7 @@ function ChatTitle({
           handleFavirate(isFavorite);
         }}
         variant={"ghost"}
+        disabled={!loading || !isGuest}
         title={isFavorite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
         className=" focus:outline-none"
         style={{ background: "none", border: "none", padding: 0 }}
@@ -132,6 +136,7 @@ function ChatTitle({
 type ChatDropDownMenuProps = {
   setEditTitle: (value: boolean) => void;
   handleFavrite: (e: boolean) => void;
+  isGuest?: boolean;
   isFavrite: boolean;
   setOpenDailog: (e: boolean) => void;
   copyLink: () => void;
@@ -142,6 +147,7 @@ type ChatDropDownMenuProps = {
 function ChatDropDowmMenu({
   setEditTitle,
   handleFavrite,
+  isGuest,
   isFavrite,
   setOpenDailog,
   copyLink,
@@ -156,7 +162,7 @@ function ChatDropDowmMenu({
   setDropdownOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <>
+    <div className="flex items-center ">
       <DropdownMenu
         dir="rtl"
         open={dropdownOpen}
@@ -178,6 +184,7 @@ function ChatDropDowmMenu({
             <RefreshCcw className="h-4 w-4 ml-2" /> تحديث المحادثة
           </DropdownMenuItem>
           <DropdownMenuItem
+            disabled={isGuest}
             onClick={() => {
               setTimeout(() => {
                 setEditTitle(true);
@@ -186,10 +193,11 @@ function ChatDropDowmMenu({
           >
             <Pencil className="h-4 w-4 ml-2" /> تعديل العنوان
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => shareChat()}>
+          <DropdownMenuItem disabled={isGuest} onClick={() => shareChat()}>
             <Share2 className="h-4 w-4 ml-2" /> مشاركة المحادثة
           </DropdownMenuItem>
           <DropdownMenuItem
+            disabled={isGuest}
             className="text-red-600 focus:bg-red-50"
             style={{ color: "#dc2626" }}
             onClick={() => {
@@ -199,10 +207,11 @@ function ChatDropDowmMenu({
           >
             <Trash2 className="h-4 w-4 ml-2 text-red-600" /> حذف المحادثة
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => copyLink()}>
+          <DropdownMenuItem disabled={isGuest} onClick={() => copyLink()}>
             <Link2 className="h-4 w-4 ml-2" /> نسخ رابط المحادثة
           </DropdownMenuItem>
           <DropdownMenuItem
+            disabled={isGuest}
             onClick={() => {
               handleFavrite(isFavrite);
             }}
@@ -216,7 +225,10 @@ function ChatDropDowmMenu({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </>
+      <Link href={"/in/chat"}>
+        <Button className="h-8">بداء محدثة جديدة</Button>
+      </Link>
+    </div>
   );
 }
 
@@ -233,6 +245,7 @@ export default function ChatHeader({
   const [isFavorite, setIsFavorite] = useState(chat?.isFavorite ?? false);
   const { renameChat, toggleFavorite, copyLink, shareChat } =
     useHeaderAction(chat);
+  const [isGuest, setIsGuest] = useState(false);
 
   const handleFavirate = async () => {
     const isFavrite = await toggleFavorite(isFavorite);
@@ -246,6 +259,15 @@ export default function ChatHeader({
     }
   }
 
+  useEffect(() => {
+    const Guest_id = localStorage.getItem("guest_id");
+    if (Guest_id) {
+      setIsGuest(true);
+    } else {
+      setIsGuest(false);
+    }
+  }, []);
+
   return (
     <>
       <div className="flex items-center justify-between p-4 bg-white rounded-lg mb-4">
@@ -254,6 +276,7 @@ export default function ChatHeader({
           setEditTitle={setEditHeader}
           handleFavrite={handleFavirate}
           setOpenDailog={(e) => setDeleteDialog(e)}
+          isGuest={isGuest}
           copyLink={copyLink}
           shareChat={shareChat}
           refresh={handleRefresh}
@@ -261,11 +284,13 @@ export default function ChatHeader({
           dropdownOpen={dropdownOpen}
           setDropdownOpen={setDropdownOpen}
         />
+
         <ChatTitle
           editTitle={editHeader}
           handleFavirate={handleFavirate}
           isFavorite={isFavorite}
           renameChat={renameChat}
+          isGuest={isGuest}
           title={chat?.title}
           loading={loading}
           setEditTitle={setEditHeader}

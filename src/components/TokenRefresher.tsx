@@ -8,6 +8,10 @@ export default function TokenRefresher() {
   const router = useRouter();
 
   useEffect(() => {
+    const guest_id = localStorage.getItem("guest_id");
+    if (guest_id) {
+      return;
+    }
     const interval = setInterval(async () => {
       const ok = await silentRefresh();
       if (!ok) {

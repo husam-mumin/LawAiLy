@@ -1,59 +1,59 @@
 /**
- * # User 
+ * # User
  * 1. email
  * 2. password
  * 3. gender
  * 4. firstName
- * 5. lastName 
+ * 5. lastName
  * 6. role
- * 7. AvatarURL 
- * 8. ID 
+ * 7. AvatarURL
+ * 8. ID
  * 9.createdAt
- * 10. isBaned 
- * 
+ * 10. isBaned
+ *
  */
-import mongoose, { Schema, Document } from 'mongoose'
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
-  email: string,
-  password?: string, 
-  gender: string,
-  firstName?: string,
-  lastName?: string,
+  email: string;
+  password?: string;
+  gender: string;
+  firstName?: string;
+  lastName?: string;
   pushSubscription?: Record<string, unknown>; // Optional field for push notifications
-  role?: 'user' | 'admin' | 'owner',
-  AvatarURL?: string,
-  DocumentID?: string,
-  isBaned?: boolean
+  role?: "user" | "admin" | "owner";
+  AvatarURL?: string;
+  DocumentID?: string;
+  isBaned?: boolean;
 }
 
 export type userType = {
-  _id: string,
-  email: string,
-  password?: string, 
-  gender: string,
-  firstName?: string,
-  lastName?: string,
-  role: 'user'  | 'owner' | 'admin',
+  _id: string;
+  email: string;
+  password?: string;
+  gender: string;
+  firstName?: string;
+  lastName?: string;
+  role: "user" | "owner" | "admin" | "guest";
   pushSubscription?: Record<string, unknown>; // Optional field for push notifications
-  AvatarURL?: string,
-  DocumentID?: string,
-  isBaned?: boolean
-}
+  AvatarURL?: string;
+  DocumentID?: string;
+  isBaned?: boolean;
+};
 
 const UserSchema: Schema = new mongoose.Schema<IUser>({
-  email: {type: 'string', required: true, unique: true},
-  password: {type: 'string'},
-  gender: {type: 'string', required: true},
-  firstName: {type: 'string'},
-  lastName: {type: 'string'},
+  email: { type: "string", required: true, unique: true },
+  password: { type: "string" },
+  gender: { type: "string", required: true },
+  firstName: { type: "string" },
+  lastName: { type: "string" },
   pushSubscription: { type: Object, required: false }, // Optional field for push notifications
-  role: {type: "string", required: true, default: 'user'},
-  AvatarURL: {type: "string" },
+  role: { type: "string", required: true, default: "user" },
+  AvatarURL: { type: "string" },
   DocumentID: { type: Schema.Types.ObjectId, ref: "Document" },
-  isBaned: { type: 'boolean', default: false }
-})
+  isBaned: { type: "boolean", default: false },
+});
 
-const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema)
+const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
 export default User;

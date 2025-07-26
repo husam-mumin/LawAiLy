@@ -61,6 +61,7 @@ export default function useAddMessage(): AddMessageResult {
         config = { headers: { "Content-Type": "application/json" } };
       }
       const res = await axios.post("/api/chat", data, config);
+
       if (res.status != 201) throw new Error("فشل إرسال الرسالة");
       setChat(res.data as PostNewChat);
       return res.data as PostNewChat;

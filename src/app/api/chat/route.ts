@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     // Create new chat
     const chat = new Chat({
       title: message.slice(0, 50), // Use the first 50 characters of the message as the title
-      user: [userId],
+      user: userId,
       isFavorite: false,
     });
 
@@ -121,6 +121,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     let message = "Internal server error.";
+    console.log("Error creating chat:", error);
     if (error instanceof Error) message = error.message;
     return NextResponse.json({ error: message }, { status: 500 });
   }

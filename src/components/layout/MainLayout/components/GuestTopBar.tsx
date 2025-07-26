@@ -1,34 +1,26 @@
-"use client";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import ReactProps from "@/Types/ReactProps";
 import React, { useContext } from "react";
-import AvaterMenu from "../MainLayout/components/AvaterMenu";
 import { Input } from "@/components/ui/input";
-import Notification from "./components/Notification";
-import { Search } from "lucide-react";
-import { useUser } from "@/app/context/UserContext";
+import { layoutContext } from "./UserLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { layoutContext } from "./components/UserLayout";
-import { LogoSection } from "./components/LogoSection";
+import { Search } from "lucide-react";
+import ReactProps from "@/Types/ReactProps";
+import { LogoSectionGuest } from "./LogoSection";
+import GuestAvatar from "./GuestAvater";
+
 type TopBarProps = {
   isSidebarOpen?: boolean;
 } & ReactProps;
 
-export default function TopBar({ isSidebarOpen = false }: TopBarProps) {
-  const { user } = useUser();
+export default function GuestTopBar({ isSidebarOpen }: TopBarProps) {
   const searchContext = useContext(layoutContext);
   const { isActive, searchQuery, setSearchQuery } = searchContext || {};
   const isMobile = useIsMobile();
 
-  if (!user) {
-    return null; // or handle the case when user is not available
-  }
   return (
     <div className="w-full h-16 bg-white print:hidden border border-b-2 border-r-0   sticky top-0  z-50  dark:bg-gray-800 dark:border-gray-700">
       <div className="w-full h-full flex items-center justify-between container mx-auto px-10 ">
         <div className="flex gap-2 sm:ps-12">
-          <AvaterMenu />
-          <Notification />
+          <GuestAvatar />
         </div>
         {isActive && !isMobile && (
           <div
@@ -46,13 +38,8 @@ export default function TopBar({ isSidebarOpen = false }: TopBarProps) {
             />
           </div>
         )}
-        <div
-          className={`flex gap-4  items-center ${
-            isSidebarOpen ? "md:hidden" : "md:flex"
-          }`}
-        >
-          <LogoSection isAdmin={["admin", "owner"].includes(user.role)} />
-          {<SidebarTrigger className="" />}
+        <div>
+          <LogoSectionGuest />
         </div>
       </div>
     </div>

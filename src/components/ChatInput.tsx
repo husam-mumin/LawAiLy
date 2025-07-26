@@ -334,7 +334,10 @@ export function useChatFileManager(form: ReturnType<typeof useForm>) {
             const ocrRes = await fetch("/api/ocr", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ url: result.fileUrl }),
+              body: JSON.stringify({
+                url: result.fileUrl,
+                fileType: newFileObj.file.type,
+              }),
             });
             const ocrData = await ocrRes.json();
             ocrText = ocrData.text || "";
