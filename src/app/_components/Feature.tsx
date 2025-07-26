@@ -117,7 +117,7 @@ const data = [
   {
     category: "القانون الليبي",
     title: "أسئلة وأجوبة حول القانون الليبي",
-    src: "/askq.jpg",
+    src: "/askQ.jpg",
     content: <LawContent />,
   },
   {
